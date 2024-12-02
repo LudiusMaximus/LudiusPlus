@@ -1,0 +1,14 @@
+## Interface: 110005
+## Version: @project-version@
+## Title: Persistent Companion
+## Author: LudiusMaximus
+## Notes: Automatically resummons your companion battle pet after it has disappeared unintentionally.
+## SavedVariables: PC_desiredPet
+## X-Curse-Project-ID: 
+## X-WoWI-ID: 
+## X-Donate: PayPal:ludiusmaximus@gmail.com
+## X-License: The MIT License (MIT)
+
+
+main.lua
+
