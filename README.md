@@ -1,2 +1,2 @@
-# Persistent Companion
-A WoW addon to automatically resummon your companion battle pet after it has disappeared unintentionally.
+# Ludius Plus
+A collection of little WoW tweaks by Ludius.
