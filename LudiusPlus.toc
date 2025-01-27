@@ -1,8 +1,8 @@
 ## Interface: 110007
 ## Version: @project-version@
-## Title: Persistent Companion
+## Title: Ludius Plus
 ## Author: LudiusMaximus
-## Notes: Automatically resummons your companion battle pet after it has disappeared unintentionally.
+## Notes: A collection of little WoW tweaks by Ludius.
 ## SavedVariables: PC_desiredPet
 ## X-Curse-Project-ID: 
 ## X-WoWI-ID: 
@@ -10,5 +10,10 @@
 ## X-License: The MIT License (MIT)
 
 
-main.lua
+DialogSkipper.lua
+DismountMacroIcon.lua
+Flashlight.lua
+MuteSounds.lua
+PersistentCompanion.lua
 
+MinimalWorkingExample.lua
