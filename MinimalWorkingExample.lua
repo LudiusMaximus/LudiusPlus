@@ -9,6 +9,12 @@
 
 
 
+-- /tableinspect
+
+-- /dump table
+-- /run DevTools_DumpCommand("table")
+-- /run DevTools_Dump(table)
+
 
 
 -- -- For debugging.
