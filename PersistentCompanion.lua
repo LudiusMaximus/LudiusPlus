@@ -21,7 +21,7 @@ end
 
 local function ResummonPet()
   local currentPet = C_PetJournal_GetSummonedPetGUID()
-  if desired.pet and desired.pet ~= currentPet then
+  if desired.pet and desired.pet ~= currentPet and not UnitOnTaxi("player") then
     
     if not UnitAffectingCombat("player") then
       C_PetJournal_SummonPetByGUID(desired.pet, folderName)
