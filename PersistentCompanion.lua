@@ -1,34 +1,40 @@
 local folderName = ...
 
 local math_floor = _G.math.floor
-local C_PetJournal_GetSummonedPetGUID = C_PetJournal.GetSummonedPetGUID
-local C_PetJournal_SummonPetByGUID = C_PetJournal.SummonPetByGUID
 local C_Timer_After = C_Timer.After
+
+local UnitAffectingCombat = UnitAffectingCombat
+local UnitOnTaxi = UnitOnTaxi
 local GetActionInfo = GetActionInfo
 
-local GetRealmName = GetRealmName
-local UnitName = UnitName
+local C_PetJournal_GetSummonedPetGUID = C_PetJournal.GetSummonedPetGUID
+local C_PetJournal_SummonPetByGUID = C_PetJournal.SummonPetByGUID
 
--- To be mapped to saved variable.
-local desired = nil
 
-local function CheckPet()
-  C_Timer_After(0.3, function()
-    desired.pet = C_PetJournal_GetSummonedPetGUID()
-  end)
+local realmName = GetRealmName()
+local playerName = UnitName("player")
+
+
+-- To be mapped to saved variable. Must be a table to work!!
+local desiredCompanion = nil
+
+
+local noResummon = false
+local function ResummonPet()
+  if noResummon then return end
+  if not UnitAffectingCombat("player") and desiredCompanion[playerName] and desiredCompanion[playerName] ~= C_PetJournal_GetSummonedPetGUID() and not UnitOnTaxi("player") then
+    C_PetJournal_SummonPetByGUID(desiredCompanion[playerName], folderName)
+  end
 end
 
-
-local function ResummonPet()
-  local currentPet = C_PetJournal_GetSummonedPetGUID()
-  if desired.pet and desired.pet ~= currentPet and not UnitOnTaxi("player") then
-    
-    if not UnitAffectingCombat("player") then
-      C_PetJournal_SummonPetByGUID(desired.pet, folderName)
-    end
-    
-  end
-  C_Timer_After(1, ResummonPet)
+local function CheckPet()
+  -- Value is only reliable after some time.
+  -- While checking we want no restoring.
+  noResummon = true
+  C_Timer_After(0.3, function()
+    desiredCompanion[playerName] = C_PetJournal_GetSummonedPetGUID()
+    noResummon = false
+  end)
 end
 
 
@@ -90,8 +96,8 @@ local function TrackPetActionButton(actionSlot)
   end
 end
 
-local actionBarTrackingFrame = CreateFrame("Frame")
-actionBarTrackingFrame:SetScript("OnEvent", function(_, event)
+local eventFrame = CreateFrame("Frame")
+eventFrame:SetScript("OnEvent", function(_, event)
   -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
   C_Timer_After(0.1, function()
     for actionSlot = 1, 72 do
@@ -109,19 +115,15 @@ actionBarTrackingFrame:SetScript("OnEvent", function(_, event)
   
   if event == "PLAYER_ENTERING_WORLD" then
     
-    local realmName = GetRealmName()
-    local playerName = UnitName("player")
+    LP_desiredCompanion = LP_desiredCompanion or {}
+    LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
+    desiredCompanion = LP_desiredCompanion[realmName]
     
-    PC_desiredPet = PC_desiredPet or {}
-    PC_desiredPet[realmName] = PC_desiredPet[realmName] or {}
-    PC_desiredPet[realmName][playerName] = PC_desiredPet[realmName][playerName] or {}
-    desired = PC_desiredPet[realmName][playerName]
-    
-    ResummonPet()
+    C_Timer.NewTicker(1, ResummonPet)
   end
 end)
-actionBarTrackingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-actionBarTrackingFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
 
 
 -- If anybody else (e.g. the Pet Journal "Summon/Dismiss" button) calls SummonPetByGUID(), we check the result.
