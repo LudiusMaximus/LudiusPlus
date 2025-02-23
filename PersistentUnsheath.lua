@@ -6,6 +6,7 @@ local UnitAffectingCombat = UnitAffectingCombat
 local UnitOnTaxi = UnitOnTaxi
 local IsMounted = IsMounted
 local GetTime = GetTime
+local UnitPosition = UnitPosition
 local MuteSoundFile = MuteSoundFile
 
 local GetSheathState = GetSheathState
@@ -41,14 +42,18 @@ end
 
 local unmuteTimer = nil
 local noRestoreBefore = GetTime()
+local currentPosition = UnitPosition("player")
 local function RestoreUnsheath()
   local currentTime = GetTime()
+  local lastPosition = currentPosition
+  currentPosition = UnitPosition("player")
+
   if noRestoreBefore > currentTime then return end
   -- print("RestoreUnsheath", (GetSheathState() ~= 1), "should be", desiredUnsheath[playerName])
-  
-  if desiredUnsheath[playerName] and not UnitAffectingCombat("player") and not IsMounted() and not UnitOnTaxi("player") and not UnitCastingInfo("player") and GetSheathState() == 1 then
+
+  if desiredUnsheath[playerName] and not UnitAffectingCombat("player") and not IsMounted() and not UnitOnTaxi("player") and not UnitCastingInfo("player") and GetSheathState() == 1 and not (IsSwimming("player") and (currentPosition ~= lastPosition)) then
     -- print("Got to auto-unsheath!")
-    
+
     -- Sound for automatic unsheathing gets annoying.
     if unmuteTimer and not unmuteTimer:IsCancelled() then
       -- print("Canceling unmute")
@@ -56,13 +61,13 @@ local function RestoreUnsheath()
     end
     -- print("Muting")
     MuteUnsheathSounds(true)
-    
+
     ToggleSheath(folderName)
-    
-    
+
+
     -- Give this toggle some time to come into effect, before trying again.
     noRestoreBefore = currentTime + 1.5
-    
+
     -- Re-enable sound after the toggle is complete.
     unmuteTimer = C_Timer.NewTimer(1, function()
       MuteUnsheathSounds(false)
@@ -83,17 +88,17 @@ end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
-  
+
   if event == "PLAYER_ENTERING_WORLD" then
-    
+
     LP_desiredUnsheath = LP_desiredUnsheath or {}
     LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
     desiredUnsheath = LP_desiredUnsheath[realmName]
-    
+
     C_Timer.NewTicker(0.25, RestoreUnsheath)
-    
+
   end
-  
+
 end)
 eventFrame:RegisterEvent("CHAT_MSG_TEXT_EMOTE")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -103,7 +108,7 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 hooksecurefunc("ToggleSheath", function(caller)
   if caller ~= folderName then
     CheckUnsheath()
-  end  
+  end
 end)
 
 
