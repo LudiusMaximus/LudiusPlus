@@ -1,16 +1,20 @@
 local folderName = ...
 
-local C_Timer_After = C_Timer.After
-
-local UnitAffectingCombat = UnitAffectingCombat
-local UnitOnTaxi = UnitOnTaxi
-local IsMounted = IsMounted
-local GetTime = GetTime
-local UnitPosition = UnitPosition
-local MuteSoundFile = MuteSoundFile
-
-local GetSheathState = GetSheathState
-local ToggleSheath = ToggleSheath
+-- Make functions local for performance!
+local C_Timer_After = _G.C_Timer.After
+local C_UnitAuras_GetPlayerAuraBySpellID = _G.C_UnitAuras.GetPlayerAuraBySpellID
+local GetSheathState = _G.GetSheathState
+local GetTime = _G.GetTime
+local IsMounted = _G.IsMounted
+local IsSwimming = _G.IsSwimming
+local MapUtil_GetDisplayableMapForPlayer = _G.MapUtil.GetDisplayableMapForPlayer
+local MuteSoundFile = _G.MuteSoundFile
+local ToggleSheath = _G.ToggleSheath
+local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitCastingInfo = _G.UnitCastingInfo
+local UnitOnTaxi = _G.UnitOnTaxi
+local UnitPosition = _G.UnitPosition
+local UnmuteSoundFile = _G.UnmuteSoundFile
 
 
 local realmName = GetRealmName()
@@ -57,8 +61,9 @@ local function RestoreUnsheath()
     and not UnitOnTaxi("player")
     and not UnitCastingInfo("player")
     and GetSheathState() == 1
-    and not (IsSwimming("player") and (currentPosition ~= lastPosition))   -- Not while swimming and moving.
-    and not C_UnitAuras.GetPlayerAuraBySpellID(221883)                     -- Not while on Divine Steed.
+    and not (IsSwimming("player") and (currentPosition ~= lastPosition))                         -- Not while swimming and moving.
+    and not (MapUtil_GetDisplayableMapForPlayer() == 2301 and (currentPosition ~= lastPosition)) -- Not while underwater running in "The Sinkhole".
+    and not C_UnitAuras_GetPlayerAuraBySpellID(221883)                                           -- Not while on Divine Steed.
     then
     -- print("Got to auto-unsheath!")
 

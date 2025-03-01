@@ -1,7 +1,5 @@
 
 
-
-
 -- Cave Spelunker's Torch
 -- https://www.wowhead.com/spell=453163/cave-spelunkers-torch
 -- https://www.wowhead.com/item=224552/cave-spelunkers-torch
@@ -20,10 +18,7 @@ local torchBuffInstanceId = nil
 
 local torchTrackingFrame = CreateFrame("Frame")
 torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
-  if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_DISABLED" then
-  
-  
-    if UnitAffectingCombat("player") then return end
+  if event == "PLAYER_ENTERING_WORLD" then
     
     -- Make sure Macro is set up.
     -- Got to wait for item name to be cached.
@@ -47,22 +42,33 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
         EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
       end
       
-      local aura = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
-      if aura then
-        -- print("Torch already on", aura.auraInstanceID)
-        SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
-        torchBuffInstanceId = aura.auraInstanceID
-      else
-        -- print("Torch already off")
-        SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOnName)
-      end
+      -- print("Macro setup complete")
     end)
-    
+  end
+  
+  
+  if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_DISABLED" then
+
+    -- print(event, "Checking torch, combat:", UnitAffectingCombat("player"))
+
+    local aura = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+    -- Always set the the ON macro while in combat.
+    if UnitAffectingCombat("player") or not aura then
+      -- print("In combat or torch is OFF. Setting button to ON macro.")
+      SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOnName)
+      torchBuffInstanceId = nil
+    else
+      -- print("Torch is ON", aura.auraInstanceID, "Setting button to OFF macro.")
+      SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
+      torchBuffInstanceId = aura.auraInstanceID
+    end
+
 
   elseif event == "UNIT_AURA" then
     
     local unitTarget, updateInfo = ...
     if unitTarget ~= "player" then return end
+    -- Cannot override macros during combat.
     if UnitAffectingCombat("player") then return end
         
     if updateInfo.addedAuras or updateInfo.removedAuraInstanceIDs then
@@ -70,6 +76,7 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
         for _, k in pairs(updateInfo.addedAuras) do
           -- print(event, "added", k.name, k.spellId, k.auraInstanceID)
           if k.spellId == spellID then
+            -- print(event, "Torch is now ON", k.auraInstanceID, "Setting button to OFF macro.")
             SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
             torchBuffInstanceId = k.auraInstanceID
           end
@@ -79,7 +86,9 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
         for _, k in pairs(updateInfo.removedAuraInstanceIDs) do
           -- print(event, "removed", k)
           if k == torchBuffInstanceId then
+            -- print(event, "Torch is now OFF", k, "Setting button to ON macro.")
             SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOnName)
+            torchBuffInstanceId = nil
           end
         end
       end
