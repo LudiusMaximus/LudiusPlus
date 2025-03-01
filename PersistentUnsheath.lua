@@ -51,7 +51,15 @@ local function RestoreUnsheath()
   if noRestoreBefore > currentTime then return end
   -- print("RestoreUnsheath", (GetSheathState() ~= 1), "should be", desiredUnsheath[playerName])
 
-  if desiredUnsheath[playerName] and not UnitAffectingCombat("player") and not IsMounted() and not UnitOnTaxi("player") and not UnitCastingInfo("player") and GetSheathState() == 1 and not (IsSwimming("player") and (currentPosition ~= lastPosition)) then
+  if desiredUnsheath[playerName]
+    and not UnitAffectingCombat("player")
+    and not IsMounted()
+    and not UnitOnTaxi("player")
+    and not UnitCastingInfo("player")
+    and GetSheathState() == 1
+    and not (IsSwimming("player") and (currentPosition ~= lastPosition))   -- Not while swimming and moving.
+    and not C_UnitAuras.GetPlayerAuraBySpellID(221883)                     -- Not while on Divine Steed.
+    then
     -- print("Got to auto-unsheath!")
 
     -- Sound for automatic unsheathing gets annoying.
@@ -100,7 +108,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
   end
 
 end)
-eventFrame:RegisterEvent("CHAT_MSG_TEXT_EMOTE")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 

@@ -20,9 +20,7 @@
 -- -- For debugging.
 -- function PrintTable(t, indent)
   -- assert(type(t) == "table", "PrintTable() called for non-table!")
-  
-  -- print("PrintTable")
-  
+
   -- if not indent then indent = 0 end
 
   -- local indentString = ""
@@ -32,11 +30,7 @@
 
   -- for k, v in pairs(t) do
     -- if type(v) ~= "table" then
-
-      -- -- if type(v) == "string" and string_find(v, "Steak") then
-      -- if type(v) == "string" then
-        -- print(indentString, k, "=", v)
-      -- end
+      -- print(indentString, k, "=", v)
     -- else
       -- print(indentString, k, "=")
       -- print(indentString, "  {")
@@ -45,6 +39,28 @@
     -- end
   -- end
 -- end
+
+
+
+
+-- -- ####### Get info about buffs. #######
+
+-- local eventFrame = CreateFrame("Frame")
+-- eventFrame:RegisterEvent("UNIT_AURA")
+-- eventFrame:SetScript("OnEvent", function(_, event, ...)
+
+  -- if event == "UNIT_AURA" then
+
+    -- local unitTarget, updateInfo = ...
+    -- if unitTarget == "player" and updateInfo.addedAuras then
+      -- print(unitTarget)
+      -- PrintTable(updateInfo.addedAuras)
+    -- end
+  -- end
+
+-- end)
+
+
 
 
 
@@ -62,35 +78,34 @@
 
 
 
-
 -- ####### Check for already done world quest. #######
 
 -- hooksecurefunc("GameTooltip_AddQuest",
   -- function(self)
     -- print("GameTooltip_AddQuest", self.questID)
-    
+
     -- if not self.worldQuest then return end
-    
-    
+
+
     -- -- Cannot list completed world quest. :-(
     -- -- https://www.wowinterface.com/forums/showthread.php?p=340098
-    
+
     -- -- for _, id in pairs(C_QuestLog.GetAllCompletedQuestIDs()) do
       -- -- print(self.questID, "==", id)
-      
+
       -- -- if (C_QuestLog.IsWorldQuest(id)) then
         -- -- print("AAAAAAAAAAAA")
         -- -- return
       -- -- end
-      
+
       -- -- if self.questID == id then
         -- -- print("Did this before!")
         -- -- return
       -- -- end
-    -- -- end 
-    
+    -- -- end
+
     -- -- print("Never done before!")
-    
+
   -- end
 -- )
 
@@ -117,11 +132,11 @@
   -- if shakeFrame:GetScript("OnUpdate") == nil then
     -- shakeFrame:SetScript("OnUpdate", OnUpdateShake)
   -- end
-  
+
   -- if endShakeTimer and not endShakeTimer:IsCancelled() then
     -- endShakeTimer:Cancel()
   -- end
-  
+
   -- endShakeTimer = C_Timer.NewTimer(duration, function()
     -- shakeFrame:SetScript("OnUpdate", nil)
   -- end)
@@ -133,11 +148,11 @@
 -- playerGuid = UnitGUID("player")
 -- local eventFrame = CreateFrame("Frame")
 -- eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
--- eventFrame:SetScript("OnEvent", function(_, ...)
+-- eventFrame:SetScript("OnEvent", function()
 
   -- timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
   -- if sourceGUID == playerGuid then
-  
+
     -- local amount, critical
     -- if subevent == "SWING_DAMAGE" then
       -- amount, _, _, _, _, _, critical = select(12, CombatLogGetCurrentEventInfo())
@@ -149,7 +164,7 @@
 
     -- -- This comes noticeably earlier than the in-game action takes place.
     -- print(amount, critical)
-    
+
   -- end
 -- end)
 
