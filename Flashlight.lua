@@ -19,34 +19,36 @@ local torchBuffInstanceId = nil
 local torchTrackingFrame = CreateFrame("Frame")
 torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
   if event == "PLAYER_ENTERING_WORLD" then
-    
-    -- Make sure Macro is set up.
-    -- Got to wait for item name to be cached.
-    local item = Item:CreateFromItemID(itemID)
-    item:ContinueOnItemLoad(function()
-      local itemName = C_Item.GetItemInfo(itemID)
-      local spellName = C_Spell.GetSpellInfo(spellID).name
-      
-      local macroTorchOnBody = "/usetoy " .. itemName
-      local macroTorchOffBody = "/cancelaura " .. spellName
-      
-      if not GetMacroInfo(macroTorchOnName) then
-        CreateMacro(macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
-      else
-        EditMacro(macroTorchOnName, macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
-      end
-      
-      if not GetMacroInfo(macroTorchOffName) then
-        CreateMacro(macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
-      else
-        EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
-      end
-      
-      -- print("Macro setup complete")
-    end)
+    local isLogin, isReload = ...
+    if isLogin or isReload then
+      -- Make sure Macro is set up.
+      -- Got to wait for item name to be cached.
+      local item = Item:CreateFromItemID(itemID)
+      item:ContinueOnItemLoad(function()
+        local itemName = C_Item.GetItemInfo(itemID)
+        local spellName = C_Spell.GetSpellInfo(spellID).name
+
+        local macroTorchOnBody = "/usetoy " .. itemName
+        local macroTorchOffBody = "/cancelaura " .. spellName
+
+        if not GetMacroInfo(macroTorchOnName) then
+          CreateMacro(macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
+        else
+          EditMacro(macroTorchOnName, macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
+        end
+
+        if not GetMacroInfo(macroTorchOffName) then
+          CreateMacro(macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
+        else
+          EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
+        end
+
+        -- print("Macro setup complete")
+      end)
+    end
   end
-  
-  
+
+
   if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_DISABLED" then
 
     -- print(event, "Checking torch, combat:", UnitAffectingCombat("player"))
@@ -65,12 +67,12 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
 
 
   elseif event == "UNIT_AURA" then
-    
+
     local unitTarget, updateInfo = ...
     if unitTarget ~= "player" then return end
     -- Cannot override macros during combat.
     if UnitAffectingCombat("player") then return end
-        
+
     if updateInfo.addedAuras or updateInfo.removedAuraInstanceIDs then
       if updateInfo.addedAuras then
         for _, k in pairs(updateInfo.addedAuras) do
