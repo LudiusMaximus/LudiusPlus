@@ -1,14 +1,13 @@
 local folderName = ...
 
 local math_floor = _G.math.floor
-local C_Timer_After = C_Timer.After
-
-local UnitAffectingCombat = UnitAffectingCombat
-local UnitOnTaxi = UnitOnTaxi
-local GetActionInfo = GetActionInfo
-
-local C_PetJournal_GetSummonedPetGUID = C_PetJournal.GetSummonedPetGUID
-local C_PetJournal_SummonPetByGUID = C_PetJournal.SummonPetByGUID
+local C_PetJournal_GetSummonedPetGUID = _G.C_PetJournal.GetSummonedPetGUID
+local C_PetJournal_SummonPetByGUID = _G.C_PetJournal.SummonPetByGUID
+local C_Timer_After = _G.C_Timer.After
+local GetActionInfo = _G.GetActionInfo
+local UnitAffectingCombat = _G.UnitAffectingCombat
+local UnitInVehicle = _G.UnitInVehicle
+local UnitOnTaxi = _G.UnitOnTaxi
 
 
 local realmName = GetRealmName()
@@ -22,7 +21,12 @@ local desiredCompanion = nil
 local noResummon = false
 local function ResummonPet()
   if noResummon then return end
-  if not UnitAffectingCombat("player") and desiredCompanion[playerName] and desiredCompanion[playerName] ~= C_PetJournal_GetSummonedPetGUID() and not UnitOnTaxi("player") then
+  if not UnitAffectingCombat("player")
+    and desiredCompanion[playerName]
+    and desiredCompanion[playerName] ~= C_PetJournal_GetSummonedPetGUID()
+    and not UnitOnTaxi("player")
+    and not UnitInVehicle("player")
+    then
     C_PetJournal_SummonPetByGUID(desiredCompanion[playerName], folderName)
   end
 end
@@ -69,35 +73,37 @@ end
 local hookedButton = {}
 local activeButton = {}
 local function TrackPetActionButton(actionSlot)
-  
+
   local actionButtonName = SlotToActionButton(actionSlot)
   local actionButton = _G[actionButtonName]
   if not actionButton then
     print(folderName, "error:", actionSlot, "has no action button. Should never happen!")
     return
   end
-  
+
   local actionType, id  = GetActionInfo(actionSlot)
   if actionType and actionType == "summonpet" then
     -- print(actionSlot, id, C_PetJournal.GetPetInfoByPetID(id))
-    
+
     if not hookedButton[actionButton] then
       actionButton:HookScript("OnClick", function(self, _, down)
         if down then return end
-        if not activeButton[self] then return end       
+        if not activeButton[self] then return end
         CheckPet()
       end)
       hookedButton[actionButton] = true
     end
     activeButton[actionButton] = true
-    
+
   elseif activeButton[actionButton] then
     activeButton[actionButton] = nil
   end
 end
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", function(_, event)
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+eventFrame:SetScript("OnEvent", function(_, event, ...)
   -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
   C_Timer_After(0.1, function()
     for actionSlot = 1, 72 do
@@ -112,23 +118,25 @@ eventFrame:SetScript("OnEvent", function(_, event)
       TrackPetActionButton(actionSlot)
     end
   end)
-  
+
   if event == "PLAYER_ENTERING_WORLD" then
-    
-    LP_desiredCompanion = LP_desiredCompanion or {}
-    LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
-    desiredCompanion = LP_desiredCompanion[realmName]
-    
-    C_Timer.NewTicker(1, ResummonPet)
+
+    local isLogin, isReload = ...
+    if isLogin or isReload then
+      LP_desiredCompanion = LP_desiredCompanion or {}
+      LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
+      desiredCompanion = LP_desiredCompanion[realmName]
+
+      C_Timer.NewTicker(1, ResummonPet)
+    end
   end
 end)
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+
 
 
 -- If anybody else (e.g. the Pet Journal "Summon/Dismiss" button) calls SummonPetByGUID(), we check the result.
 hooksecurefunc(C_PetJournal, "SummonPetByGUID", function(_, caller)
   if caller ~= folderName then
     CheckPet()
-  end  
+  end
 end)

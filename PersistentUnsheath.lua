@@ -12,6 +12,7 @@ local MuteSoundFile = _G.MuteSoundFile
 local ToggleSheath = _G.ToggleSheath
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local UnitCastingInfo = _G.UnitCastingInfo
+local UnitInVehicle = _G.UnitInVehicle
 local UnitOnTaxi = _G.UnitOnTaxi
 local UnitPosition = _G.UnitPosition
 local UnmuteSoundFile = _G.UnmuteSoundFile
@@ -59,6 +60,7 @@ local function RestoreUnsheath()
     and not UnitAffectingCombat("player")
     and not IsMounted()
     and not UnitOnTaxi("player")
+    and not UnitInVehicle("player")
     and not UnitCastingInfo("player")
     and GetSheathState() == 1
     and not (IsSwimming("player") and (currentPosition ~= lastPosition))                         -- Not while swimming and moving.
@@ -100,20 +102,22 @@ end
 
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:SetScript("OnEvent", function(_, event, ...)
 
   if event == "PLAYER_ENTERING_WORLD" then
+    local isLogin, isReload = ...
+    if isLogin or isReload then
+      LP_desiredUnsheath = LP_desiredUnsheath or {}
+      LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
+      desiredUnsheath = LP_desiredUnsheath[realmName]
 
-    LP_desiredUnsheath = LP_desiredUnsheath or {}
-    LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-    desiredUnsheath = LP_desiredUnsheath[realmName]
-
-    C_Timer.NewTicker(0.25, RestoreUnsheath)
-
+      C_Timer.NewTicker(0.25, RestoreUnsheath)
+    end
   end
 
 end)
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+
 
 
 -- If player manually calls ToggleSheath(), we check the result.
