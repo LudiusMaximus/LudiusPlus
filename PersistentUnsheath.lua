@@ -65,6 +65,7 @@ local function RestoreUnsheath()
     and GetSheathState() == 1
     and not (IsSwimming("player") and (currentPosition ~= lastPosition))                         -- Not while swimming and moving.
     and not (MapUtil_GetDisplayableMapForPlayer() == 2301 and (currentPosition ~= lastPosition)) -- Not while underwater running in "The Sinkhole".
+    and not (MapUtil_GetDisplayableMapForPlayer() == 2259 and (currentPosition ~= lastPosition)) -- Not while underwater running in "Tak-Rethan Abyss".
     and not C_UnitAuras_GetPlayerAuraBySpellID(221883)                                           -- Not while on Divine Steed.
     then
     -- print("Got to auto-unsheath!")
