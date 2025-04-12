@@ -1,13 +1,14 @@
 local folderName = ...
 
-local math_floor = _G.math.floor
-local C_PetJournal_GetSummonedPetGUID = _G.C_PetJournal.GetSummonedPetGUID
-local C_PetJournal_SummonPetByGUID = _G.C_PetJournal.SummonPetByGUID
-local C_Timer_After = _G.C_Timer.After
-local GetActionInfo = _G.GetActionInfo
-local UnitAffectingCombat = _G.UnitAffectingCombat
-local UnitInVehicle = _G.UnitInVehicle
-local UnitOnTaxi = _G.UnitOnTaxi
+local math_floor                          = _G.math.floor
+local C_PetJournal_GetSummonedPetGUID     = _G.C_PetJournal.GetSummonedPetGUID
+local C_PetJournal_SummonPetByGUID        = _G.C_PetJournal.SummonPetByGUID
+local C_Timer_After                       = _G.C_Timer.After
+local C_UnitAuras_GetPlayerAuraBySpellID  = _G.C_UnitAuras.GetPlayerAuraBySpellID
+local GetActionInfo                       = _G.GetActionInfo
+local UnitAffectingCombat                 = _G.UnitAffectingCombat
+local UnitInVehicle                       = _G.UnitInVehicle
+local UnitOnTaxi                          = _G.UnitOnTaxi
 
 
 local realmName = GetRealmName()
@@ -26,6 +27,7 @@ local function ResummonPet()
     and desiredCompanion[playerName] ~= C_PetJournal_GetSummonedPetGUID()
     and not UnitOnTaxi("player")
     and not UnitInVehicle("player")
+    and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
     then
     C_PetJournal_SummonPetByGUID(desiredCompanion[playerName], folderName)
   end
