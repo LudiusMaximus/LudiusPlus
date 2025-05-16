@@ -2,6 +2,7 @@ local folderName = ...
 
 -- Make functions local for performance!
 local C_Timer_After = _G.C_Timer.After
+local C_Timer_NewTimer = _G.C_Timer.NewTimer
 local C_UnitAuras_GetPlayerAuraBySpellID = _G.C_UnitAuras.GetPlayerAuraBySpellID
 local GetSheathState = _G.GetSheathState
 local GetTime = _G.GetTime
@@ -85,7 +86,7 @@ local function RestoreUnsheath()
     noRestoreBefore = currentTime + 1.5
 
     -- Re-enable sound after the toggle is complete.
-    unmuteTimer = C_Timer.NewTimer(1, function()
+    unmuteTimer = C_Timer_NewTimer(1, function()
       MuteUnsheathSounds(false)
     end)
   end
