@@ -41,10 +41,15 @@ hooksecurefunc("StaticPopup_Show", function(which, args)
 end)
 
 
+
+-- Prevent equip bind confirmation.
 local f = CreateFrame("Frame")
 f:RegisterEvent("EQUIP_BIND_CONFIRM")
 f:SetScript("OnEvent", function(self, event, slot)
-  EquipPendingItem(slot)
+  -- Cannot do this while in combat.
+  if not InCombatLockdown() then
+    EquipPendingItem(slot)
+  end
 end)
 
 
