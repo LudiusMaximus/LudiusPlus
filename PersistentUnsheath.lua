@@ -30,7 +30,7 @@ local desiredUnsheath = nil
 local function MuteUnsheathSounds(mute)
   -- https://wago.tools/files?search=sheath
   -- https://wago.tools/files?search=unsheath
-  -- Muting sheath sounds as well. Becuase sometimes after closing the world map, ToggleSheath() leads to an unsheath.
+  -- Muting sheath sounds as well. Because sometimes after closing the world map, ToggleSheath() leads to an unsheath.
   local unsheathSounds = {567430, 567473, 567506, 567395, 567456, 567498}
   if mute then
     -- print("Muting")
@@ -57,38 +57,43 @@ local function RestoreUnsheath()
   if noRestoreBefore > currentTime then return end
   -- print("RestoreUnsheath", (GetSheathState() ~= 1), "should be", desiredUnsheath[playerName])
 
-  if desiredUnsheath[playerName]
-    and not UnitAffectingCombat("player")
-    and not IsMounted()
-    and not UnitOnTaxi("player")
-    and not UnitInVehicle("player")
-    and not UnitCastingInfo("player")
-    and GetSheathState() == 1
-    and not (IsSwimming("player") and (currentPosition ~= lastPosition))                         -- Not while swimming and moving.
-    and not (MapUtil_GetDisplayableMapForPlayer() == 2301 and (currentPosition ~= lastPosition)) -- Not while underwater running in "The Sinkhole".
-    and not (MapUtil_GetDisplayableMapForPlayer() == 2259 and (currentPosition ~= lastPosition)) -- Not while underwater running in "Tak-Rethan Abyss".
-    and not C_UnitAuras_GetPlayerAuraBySpellID(221883)                                           -- Not while on Divine Steed.
+  if (
+      desiredUnsheath[playerName]
+      and GetSheathState() == 1
+      and not UnitAffectingCombat("player")
+      and not IsMounted()
+      and not UnitOnTaxi("player")
+      and not UnitInVehicle("player")
+      and not UnitCastingInfo("player")
+      and not (IsSwimming("player") and (currentPosition ~= lastPosition))                         -- Not while swimming and moving.
+      and not (MapUtil_GetDisplayableMapForPlayer() == 2301 and (currentPosition ~= lastPosition)) -- Not while underwater running in "The Sinkhole".
+      and not (MapUtil_GetDisplayableMapForPlayer() == 2259 and (currentPosition ~= lastPosition)) -- Not while underwater running in "Tak-Rethan Abyss".
+      and not C_UnitAuras_GetPlayerAuraBySpellID(221883)                                           -- Not while on Divine Steed.
+    ) or (
+      not desiredUnsheath[playerName]
+      and GetSheathState() ~= 1
+    )
     then
-    -- print("Got to auto-unsheath!")
+    -- print("Got to auto-toggle!")
 
     -- Sound for automatic unsheathing gets annoying.
     if unmuteTimer and not unmuteTimer:IsCancelled() then
       -- print("Canceling unmute")
       unmuteTimer:Cancel()
     end
-    -- print("Muting")
+
     MuteUnsheathSounds(true)
 
     ToggleSheath(folderName)
 
-
-    -- Give this toggle some time to come into effect, before trying again.
+    -- Give this toggle some time to come into effect, before checking again.
     noRestoreBefore = currentTime + 1.5
 
     -- Re-enable sound after the toggle is complete.
     unmuteTimer = C_Timer_NewTimer(1, function()
       MuteUnsheathSounds(false)
     end)
+
   end
 end
 
@@ -98,25 +103,24 @@ local function CheckUnsheath()
   -- While checking we want no restoring.
   noRestoreBefore = GetTime() + 0.5
   C_Timer_After(0.5, function()
-    desiredUnsheath[playerName] = (GetSheathState() ~= 1)
+    local newDesiredUnsheath = (GetSheathState() ~= 1)
+    if desiredUnsheath[playerName] ~= newDesiredUnsheath then
+      -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
+      desiredUnsheath[playerName] = newDesiredUnsheath
+    end
   end)
 end
 
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:SetScript("OnEvent", function(_, event, ...)
+eventFrame:RegisterEvent("PLAYER_LOGIN")
+eventFrame:SetScript("OnEvent", function()
 
-  if event == "PLAYER_ENTERING_WORLD" then
-    local isLogin, isReload = ...
-    if isLogin or isReload then
-      LP_desiredUnsheath = LP_desiredUnsheath or {}
-      LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-      desiredUnsheath = LP_desiredUnsheath[realmName]
+  LP_desiredUnsheath = LP_desiredUnsheath or {}
+  LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
+  desiredUnsheath = LP_desiredUnsheath[realmName]
 
-      C_Timer.NewTicker(0.25, RestoreUnsheath)
-    end
-  end
+  C_Timer.NewTicker(0.25, RestoreUnsheath)
 
 end)
 
