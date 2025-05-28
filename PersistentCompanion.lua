@@ -105,7 +105,7 @@ local function TrackPetActionButton(actionSlot)
 end
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
 eventFrame:SetScript("OnEvent", function(_, event, ...)
   -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
@@ -125,14 +125,12 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
 
   if event == "PLAYER_ENTERING_WORLD" then
 
-    local isLogin, isReload = ...
-    if isLogin or isReload then
-      LP_desiredCompanion = LP_desiredCompanion or {}
-      LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
-      desiredCompanion = LP_desiredCompanion[realmName]
+    LP_desiredCompanion = LP_desiredCompanion or {}
+    LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
+    desiredCompanion = LP_desiredCompanion[realmName]
 
-      C_Timer.NewTicker(1, ResummonPet)
-    end
+    C_Timer.NewTicker(1, ResummonPet)
+
   end
 end)
 
