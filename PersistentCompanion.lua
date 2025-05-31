@@ -123,7 +123,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     end
   end)
 
-  if event == "PLAYER_ENTERING_WORLD" then
+  if event == "PLAYER_LOGIN" then
 
     LP_desiredCompanion = LP_desiredCompanion or {}
     LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
