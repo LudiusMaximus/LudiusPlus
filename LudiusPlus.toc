@@ -3,7 +3,7 @@
 ## Title: Ludius Plus
 ## Author: LudiusMaximus
 ## Notes: A collection of little WoW tweaks by Ludius.
-## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath
+## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount
 ## X-Curse-Project-ID: 
 ## X-WoWI-ID: 
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
@@ -11,7 +11,7 @@
 
 
 DialogSkipper.lua
-DismountMacroIcon.lua
+DismountToggle.lua
 Flashlight.lua
 MuteSounds.lua
 PersistentCompanion.lua
