@@ -1,4 +1,6 @@
 
+local realmName = GetRealmName()
+local playerName = UnitName("player")
 
 -- Cave Spelunker's Torch
 -- https://www.wowhead.com/spell=453163/cave-spelunkers-torch
@@ -17,35 +19,36 @@ local torchToggleButton = CreateFrame("button", "TorchToggleButton", nil, "Secur
 local torchBuffInstanceId = nil
 
 local torchTrackingFrame = CreateFrame("Frame")
+torchTrackingFrame:RegisterEvent("PLAYER_LOGIN")
+torchTrackingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+torchTrackingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+torchTrackingFrame:RegisterEvent("UNIT_AURA")
 torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
-  if event == "PLAYER_ENTERING_WORLD" then
-    local isLogin, isReload = ...
-    if isLogin or isReload then
-      -- Make sure Macro is set up.
-      -- Got to wait for item name to be cached.
-      local item = Item:CreateFromItemID(itemID)
-      item:ContinueOnItemLoad(function()
-        local itemName = C_Item.GetItemInfo(itemID)
-        local spellName = C_Spell.GetSpellInfo(spellID).name
+  if event == "PLAYER_LOGIN" then
+    -- Make sure Macro is set up.
+    -- Got to wait for item name to be cached.
+    local item = Item:CreateFromItemID(itemID)
+    item:ContinueOnItemLoad(function()
+      local itemName = C_Item.GetItemInfo(itemID)
+      local spellName = C_Spell.GetSpellInfo(spellID).name
 
-        local macroTorchOnBody = "/usetoy " .. itemName
-        local macroTorchOffBody = "/cancelaura " .. spellName
+      local macroTorchOnBody = "/usetoy " .. itemName
+      local macroTorchOffBody = "/cancelaura " .. spellName
 
-        if not GetMacroInfo(macroTorchOnName) then
-          CreateMacro(macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
-        else
-          EditMacro(macroTorchOnName, macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
-        end
+      if not GetMacroInfo(macroTorchOnName) then
+        CreateMacro(macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
+      else
+        EditMacro(macroTorchOnName, macroTorchOnName, macroTorchOnIcon, macroTorchOnBody)
+      end
 
-        if not GetMacroInfo(macroTorchOffName) then
-          CreateMacro(macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
-        else
-          EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
-        end
+      if not GetMacroInfo(macroTorchOffName) then
+        CreateMacro(macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
+      else
+        EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
+      end
 
-        -- print("Macro setup complete")
-      end)
-    end
+      -- print("Macro setup complete")
+    end)
   end
 
 
@@ -61,6 +64,11 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
       torchBuffInstanceId = nil
     else
       -- print("Torch is ON", aura.auraInstanceID, "Setting button to OFF macro.")
+      
+      -- This will trigger a pause in restoring unsheath in PersistentUnsheath.
+      DoEmote()
+      LP_desiredUnsheath[realmName][playerName] = true
+      
       SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
       torchBuffInstanceId = aura.auraInstanceID
     end
@@ -79,6 +87,11 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
           -- print(event, "added", k.name, k.spellId, k.auraInstanceID)
           if k.spellId == spellID then
             -- print(event, "Torch is now ON", k.auraInstanceID, "Setting button to OFF macro.")
+            
+            -- This will trigger a pause in restoring unsheath in PersistentUnsheath.
+            DoEmote()
+            LP_desiredUnsheath[realmName][playerName] = true
+            
             SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
             torchBuffInstanceId = k.auraInstanceID
           end
@@ -98,7 +111,3 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
 
   end
 end)
-torchTrackingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-torchTrackingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-torchTrackingFrame:RegisterEvent("UNIT_AURA")
-
