@@ -1,6 +1,8 @@
 
-local realmName = GetRealmName()
-local playerName = UnitName("player")
+
+local C_UnitAuras_GetPlayerAuraBySpellID = _G.C_UnitAuras.GetPlayerAuraBySpellID
+local SetOverrideBindingMacro = _G.SetOverrideBindingMacro
+local UnitAffectingCombat = _G.UnitAffectingCombat
 
 -- Cave Spelunker's Torch
 -- https://www.wowhead.com/spell=453163/cave-spelunkers-torch
@@ -56,7 +58,7 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
 
     -- print(event, "Checking torch, combat:", UnitAffectingCombat("player"))
 
-    local aura = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+    local aura = C_UnitAuras_GetPlayerAuraBySpellID(spellID)
     -- Always set the the ON macro while in combat.
     if UnitAffectingCombat("player") or not aura then
       -- print("In combat or torch is OFF. Setting button to ON macro.")
@@ -64,11 +66,6 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
       torchBuffInstanceId = nil
     else
       -- print("Torch is ON", aura.auraInstanceID, "Setting button to OFF macro.")
-      
-      -- This will trigger a pause in restoring unsheath in PersistentUnsheath.
-      DoEmote()
-      LP_desiredUnsheath[realmName][playerName] = true
-      
       SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
       torchBuffInstanceId = aura.auraInstanceID
     end
@@ -87,11 +84,6 @@ torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
           -- print(event, "added", k.name, k.spellId, k.auraInstanceID)
           if k.spellId == spellID then
             -- print(event, "Torch is now ON", k.auraInstanceID, "Setting button to OFF macro.")
-            
-            -- This will trigger a pause in restoring unsheath in PersistentUnsheath.
-            DoEmote()
-            LP_desiredUnsheath[realmName][playerName] = true
-            
             SetOverrideBindingMacro(torchToggleButton, true, "F", macroTorchOffName)
             torchBuffInstanceId = k.auraInstanceID
           end

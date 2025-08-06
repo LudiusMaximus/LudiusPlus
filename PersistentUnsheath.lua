@@ -72,6 +72,7 @@ local function RestoreUnsheath()
     ) or (
       not desiredUnsheath[playerName]
       and GetSheathState() ~= 1
+      and not C_UnitAuras_GetPlayerAuraBySpellID(453163)                                           -- Not while Cave Spelunker's Torch is out, which automatically unsheaths.
     )
     then
     -- print("Got to auto-toggle!")
