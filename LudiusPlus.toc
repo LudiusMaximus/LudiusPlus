@@ -1,14 +1,16 @@
-## Interface: 110107
+## Interface: 110200
 ## Version: @project-version@
 ## Title: Ludius Plus
+## IconAtlas: nameplates-icon-flag-alliance
 ## Author: LudiusMaximus
 ## Notes: A collection of little WoW tweaks by Ludius.
-## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount
+## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_config
 ## X-Curse-Project-ID: 
 ## X-WoWI-ID: 
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
 ## X-License: The MIT License (MIT)
 
+embeds.xml
 
 DialogSkipper.lua
 DismountToggle.lua
@@ -16,5 +18,7 @@ Flashlight.lua
 MuteSounds.lua
 PersistentCompanion.lua
 PersistentUnsheath.lua
+
+options.lua
 
 MinimalWorkingExample.lua
