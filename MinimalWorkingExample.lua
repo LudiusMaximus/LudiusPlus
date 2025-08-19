@@ -169,3 +169,34 @@
 -- end)
 
 
+
+
+
+
+-- -- Example for:
+-- -- https://www.wowinterface.com/forums/showthread.php?p=345109
+
+-- GlobalFrame1 = CreateFrame("Frame")
+-- GlobalFrame1:SetSize(200, 200)
+-- local text = GlobalFrame1:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+-- text:SetPoint("CENTER")
+-- text:SetText("Test Frame")
+
+-- GlobalFrame2 = CreateFrame("Frame")
+-- GlobalFrame2:SetSize(200, 200)
+-- local text = GlobalFrame2:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+-- text:SetPoint("CENTER")
+-- text:SetText("Test Frame")
+
+-- StaticPopupDialogs["MyTest"] = {
+  -- text = "Test Popup",
+  -- button1 = "OK",
+-- }
+
+-- -- Calling it once includes my frame.
+-- -- /run StaticPopup_Show("MyTest", _, _, _, GlobalFrame1)
+
+
+
+
+
