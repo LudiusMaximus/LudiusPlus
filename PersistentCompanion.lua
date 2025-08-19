@@ -30,6 +30,7 @@ local function ResummonPet()
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
     then
+    -- print("Resummoning", desiredCompanion[playerName])
     C_PetJournal_SummonPetByGUID(desiredCompanion[playerName], folderName)
   end
 end
@@ -38,7 +39,7 @@ local function CheckPet()
   -- Value is only reliable after some time.
   -- While checking we want no restoring.
   noResummon = true
-  C_Timer_After(0.4, function()
+  C_Timer_After(0.6, function()
     desiredCompanion[playerName] = C_PetJournal_GetSummonedPetGUID()
     -- print("Current pet:", C_PetJournal_GetSummonedPetGUID())
     noResummon = false
