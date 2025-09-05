@@ -7,6 +7,7 @@ local C_Timer_After                       = _G.C_Timer.After
 local C_UnitAuras_GetPlayerAuraBySpellID  = _G.C_UnitAuras.GetPlayerAuraBySpellID
 local GetActionInfo                       = _G.GetActionInfo
 local UnitAffectingCombat                 = _G.UnitAffectingCombat
+local UnitIsDeadOrGhost                   = _G.UnitIsDeadOrGhost
 local UnitInVehicle                       = _G.UnitInVehicle
 local UnitOnTaxi                          = _G.UnitOnTaxi
 
@@ -27,6 +28,7 @@ local function ResummonPet()
     and desiredCompanion[playerName] ~= C_PetJournal_GetSummonedPetGUID()
     and not UnitOnTaxi("player")
     and not UnitInVehicle("player")
+    and not UnitIsDeadOrGhost("player")
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
     then
