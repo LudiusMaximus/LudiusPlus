@@ -52,7 +52,7 @@ local MountingFunction = function()
     LP_lastMount[realmName][playerName] = currentMount
   end
   
-  if LP_config.dismountToggle_changeActionBarTo ~= "disabled" then
+  if not UnitAffectingCombat("player") and LP_config.dismountToggle_changeActionBarTo ~= "disabled" then
     ChangeActionBarPage(LP_config.dismountToggle_changeActionBarTo)
   end
 end
@@ -64,12 +64,12 @@ local SpellCastSucceededFunction = function(...)
   local _, _, unit, _, spellId = ...
   if unit ~= "player" then return end
   
-  -- Cannot change action bar during combat.
-  if UnitAffectingCombat("player") then return end
-
+  -- Travel form or soar.
   if spellId == 783 or spellId == 369536 then
     -- If changeActionBarTo is disabled, this script is not set.
-    ChangeActionBarPage(LP_config.dismountToggle_changeActionBarTo)
+    if not UnitAffectingCombat("player") then
+      ChangeActionBarPage(LP_config.dismountToggle_changeActionBarTo)
+    end
   end
 end
 local spellCastSucceededFrame = CreateFrame("Frame")
