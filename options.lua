@@ -265,7 +265,7 @@ local optionsTable = {
         dismountToggleChangeActionBarTo = {
           order = 3,
           type = "select",
-          name = "When mounting automatically change Action Bar to:",
+          name = "When mounting, switch automatically to Action Bar:",
           desc = "Lets you automatically switch to your action bar holding the dynamic flight abilities when mounting up.",
           width = 2,
           disabled =
@@ -337,7 +337,7 @@ local optionsTable = {
 
 function L:OnInitialize()
 
-  LP_config = LP_config or CONFIG_DEFAULTS
+  LP_config = LP_config or {}
   -- For easier access.
   config = LP_config
 
