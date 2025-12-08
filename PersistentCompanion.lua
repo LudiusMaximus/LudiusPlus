@@ -1,4 +1,4 @@
-local folderName = ...
+local folderName, addon = ...
 
 local math_floor                          = _G.math.floor
 local C_PetJournal_GetSummonedPetGUID     = _G.C_PetJournal.GetSummonedPetGUID
@@ -18,10 +18,12 @@ local playerName = UnitName("player")
 
 -- To be mapped to saved variable. Must be a table to work!!
 local desiredCompanion = nil
+local tickerHandle = nil
 
 
 local noResummon = false
 local function ResummonPet()
+  if not LP_config or not LP_config.persistentCompanion_enabled then return end
   if noResummon then return end
   if not UnitAffectingCombat("player")
     and desiredCompanion[playerName]
@@ -48,7 +50,16 @@ local function CheckPet()
   end)
 end
 
-
+addon.SetupPersistentCompanion = function()
+  if tickerHandle then
+    tickerHandle:Cancel()
+    tickerHandle = nil
+  end
+  
+  if not LP_config or not LP_config.persistentCompanion_enabled then return end
+  
+  tickerHandle = C_Timer.NewTicker(1, ResummonPet)
+end
 -- slot / 12 is the button prefix.
 -- https://warcraft.wiki.gg/wiki/Action_slot
 local buttonPrefix = {
@@ -132,7 +143,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
     desiredCompanion = LP_desiredCompanion[realmName]
 
-    C_Timer.NewTicker(1, ResummonPet)
+    addon.SetupPersistentCompanion()
 
   end
 end)
