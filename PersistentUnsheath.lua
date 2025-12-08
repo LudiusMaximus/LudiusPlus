@@ -1,4 +1,4 @@
-local folderName = ...
+local folderName, addon = ...
 
 -- Make functions local for performance!
 local C_Timer_After = _G.C_Timer.After
@@ -50,17 +50,36 @@ local unmuteTimer = nil
 local noRestoreBefore = GetTime()
 local currentPosition = UnitPosition("player")
 local function RestoreUnsheath()
+  -- Return early if module is disabled
+  if not LP_config or (not LP_config.persistentUnsheath_autoSheath and not LP_config.persistentUnsheath_autoUnsheath) then return end
+  
   local currentTime = GetTime()
   local lastPosition = currentPosition
   currentPosition = UnitPosition("player")
 
   if noRestoreBefore > currentTime then return end
-  -- print("RestoreUnsheath", (GetSheathState() ~= 1), "should be", desiredUnsheath[playerName])
+  
+  
+  local currentlySheated = GetSheathState() == 1
+  
+  -- If only one of the two options is enabled, we might have to change desiredUnsheath.
+  if (LP_config.persistentUnsheath_autoSheath ~= LP_config.persistentUnsheath_autoUnsheath) then
+    -- If auto-sheath is disabled, and the game has unsheathed, the new desired state should become unsheathed.
+    if not LP_config.persistentUnsheath_autoSheath and not currentlySheated then
+      desiredUnsheath[playerName] = true
+    -- If auto-unsheath is disabled, and the game has sheathed, the new desired state should become sheathed.
+    elseif not LP_config.persistentUnsheath_autoUnsheath and currentlySheated then
+      desiredUnsheath[playerName] = false
+    end
+  end
 
-  if (
-      desiredUnsheath[playerName]
-      and GetSheathState() == 1
-      and not UnitAffectingCombat("player")
+  local shouldUnsheath = desiredUnsheath[playerName]
+
+  -- print("RestoreUnsheath", currentlySheated, "should be", shouldUnsheath)
+  
+  -- Check if we should auto-unsheath
+  if shouldUnsheath and currentlySheated and LP_config.persistentUnsheath_autoUnsheath then
+    if not UnitAffectingCombat("player")
       and not IsMounted()
       and not UnitOnTaxi("player")
       and not UnitInVehicle("player")
@@ -69,32 +88,41 @@ local function RestoreUnsheath()
       and not (MapUtil_GetDisplayableMapForPlayer() == 2301 and (currentPosition ~= lastPosition)) -- Not while underwater running in "The Sinkhole".
       and not (MapUtil_GetDisplayableMapForPlayer() == 2259 and (currentPosition ~= lastPosition)) -- Not while underwater running in "Tak-Rethan Abyss".
       and not C_UnitAuras_GetPlayerAuraBySpellID(221883)                                           -- Not while on Divine Steed.
-    ) or (
-      not desiredUnsheath[playerName]
-      and GetSheathState() ~= 1
-      and not C_UnitAuras_GetPlayerAuraBySpellID(453163)                                           -- Not while Cave Spelunker's Torch is out, which automatically unsheaths.
-    )
     then
-    -- print("Got to auto-toggle!")
-
-    -- Sound for automatic unsheathing gets annoying.
-    if unmuteTimer and not unmuteTimer:IsCancelled() then
-      -- print("Canceling unmute")
-      unmuteTimer:Cancel()
+      -- print("Got to auto-toggle unsheath!")
+      if unmuteTimer and not unmuteTimer:IsCancelled() then
+        unmuteTimer:Cancel()
+      end
+      if LP_config.persistentUnsheath_muteToggleSounds then
+        MuteUnsheathSounds(true)
+      end
+      ToggleSheath(folderName)
+      noRestoreBefore = currentTime + 1.5
+      if LP_config.persistentUnsheath_muteToggleSounds then
+        unmuteTimer = C_Timer_NewTimer(1, function()
+          MuteUnsheathSounds(false)
+        end)
+      end
     end
-
-    MuteUnsheathSounds(true)
-
-    ToggleSheath(folderName)
-
-    -- Give this toggle some time to come into effect, before checking again.
-    noRestoreBefore = currentTime + 1.5
-
-    -- Re-enable sound after the toggle is complete.
-    unmuteTimer = C_Timer_NewTimer(1, function()
-      MuteUnsheathSounds(false)
-    end)
-
+  
+  -- Check if we should auto-sheath
+  elseif not shouldUnsheath and not currentlySheated and LP_config.persistentUnsheath_autoSheath then
+    if not C_UnitAuras_GetPlayerAuraBySpellID(453163) then -- Not while Cave Spelunker's Torch is out
+      -- print("Got to auto-toggle sheath!")
+      if unmuteTimer and not unmuteTimer:IsCancelled() then
+        unmuteTimer:Cancel()
+      end
+      if LP_config.persistentUnsheath_muteToggleSounds then
+        MuteUnsheathSounds(true)
+      end
+      ToggleSheath(folderName)
+      noRestoreBefore = currentTime + 1.5
+      if LP_config.persistentUnsheath_muteToggleSounds then
+        unmuteTimer = C_Timer_NewTimer(1, function()
+          MuteUnsheathSounds(false)
+        end)
+      end
+    end
   end
 end
 

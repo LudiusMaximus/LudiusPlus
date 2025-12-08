@@ -1,3 +1,4 @@
 <Bindings>
   <Binding name="MACRO Dismount/Mount Toggle" category="Ludius Plus"></Binding>
+  <Binding name="MACRO Torch Toggle" category="Ludius Plus"></Binding>
 </Bindings>
