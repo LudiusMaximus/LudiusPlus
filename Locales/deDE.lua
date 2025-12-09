@@ -24,6 +24,14 @@ L["Druid Travel Form instead of mounting"] = "Druid Travel Form instead of mount
 L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid form as \"dismounting\", instead of standard mounts."] = "Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid form as \"dismounting\", instead of standard mounts."
 L["Dracthyr Soar instead of mounting"] = "Dracthyr Soar instead of mounting"
 L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."] = "Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."
+L["Mounts to ignore (comma-separated Mount IDs)"] = "Mounts to ignore (comma-separated Mount IDs)"
+L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"] = "Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"
+L["Fill in Utility Mounts"] = "Fill in Utility Mounts"
+L["Adds commonly used utility mounts to the ignore list:"] = "Adds commonly used utility mounts to the ignore list:"
+
+-- RaceOnLastMount Options
+L["Race on Last Mount"] = "Race on Last Mount"
+L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game). Note: Cannot automatically switch to Druid Flight Form due to API limitations."] = "When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game). Note: Cannot automatically switch to Druid Flight Form due to API limitations."
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = "Flashlight (Torch)"
