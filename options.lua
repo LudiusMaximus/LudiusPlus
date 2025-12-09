@@ -18,6 +18,7 @@ local CONFIG_DEFAULTS = {
   dismountToggle_travelFormEnabled    = true,
   dismountToggle_soarEnabled          = true,
   dismountToggle_changeActionBarTo    = "disabled",
+  dismountToggle_ignoredMounts        = "",
   flashlight_enabled                  = true,
   muteSounds_enabled                  = true,
   muteSounds_soundIds                 = "598079, 598187",
@@ -31,6 +32,7 @@ local CONFIG_DEFAULTS = {
   persistentUnsheath_autoUnsheath     = true,
   persistentUnsheath_muteToggleSounds = true,
   persistentCompanion_enabled         = true,
+  raceOnLastMount_enabled             = true,
 }
 
 
@@ -192,12 +194,14 @@ local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs. E.g. ann
 local dialogSkipperDesc = L["Automatically skip confirmation dialogs"]
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
 local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"]
+local raceOnLastMountDesc = L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game). Note: Cannot automatically switch to Druid Flight Form due to API limitations."]
 
 -- Module order (from most to least demanded)
 local dialogSkipperOrder = 1
 local dismountToggleOrder = 2
-local persistentCompanionOrder = 3
-local persistentUnsheathOrder = 4
+local raceOnLastMountOrder = 3
+local persistentCompanionOrder = 4
+local persistentUnsheathOrder = 5
 local muteSoundsOrder = 5
 local flashlightOrder = 6
 
@@ -319,8 +323,98 @@ local optionsTable = {
         
         n04 = {order = 2.5, type = "description", name = " ",},
         
-        dismountToggleChangeActionBarTo = {
+        dismountToggleIgnoredMounts = {
           order = 3,
+          type = "input",
+          name = L["Mounts to ignore (comma-separated Mount IDs)"],
+          desc = L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"],
+          width = "full",
+          multiline = 3,
+          get = function() return config.dismountToggle_ignoredMounts end,
+          set = 
+            function(_, newValue)
+              config.dismountToggle_ignoredMounts = newValue
+              -- Update LibMountInfo's ignore list
+              local LibMountInfo = LibStub("LibMountInfo-1.0")
+              LibMountInfo:SetIgnoredMounts(newValue)
+            end,
+          disabled = 
+            function()
+              return not config.dismountToggle_enabled
+            end,
+        },
+        
+        dismountToggleFillUtilityMounts = {
+          order = 3.5,
+          type = "execute",
+          name = L["Fill in Utility Mounts"],
+          desc = function()
+            local utilityMounts = {
+              {id = 280, name = nil},
+              {id = 284, name = nil},
+              {id = 460, name = nil},
+              {id = 1039, name = nil},
+              {id = 2237, name = nil},
+              {id = 2265, name = nil},
+            }
+            
+            -- Fetch mount names
+            for _, mount in ipairs(utilityMounts) do
+              local name = C_MountJournal.GetMountInfoByID(mount.id)
+              mount.name = name or ("Mount ID " .. mount.id)
+            end
+            
+            local desc = L["Adds commonly used utility mounts to the ignore list:"] .. "\n"
+            for _, mount in ipairs(utilityMounts) do
+              desc = desc .. "\n" .. mount.id .. ": " .. mount.name
+            end
+            
+            return desc
+          end,
+          width = "full",
+          func = function()
+            local utilityMountIDs = {280, 284, 460, 1039, 2237, 2265}
+            
+            -- Parse existing IDs
+            local existingIDs = {}
+            for id in string.gmatch(config.dismountToggle_ignoredMounts, "%d+") do
+              existingIDs[tonumber(id)] = true
+            end
+            
+            -- Add utility mount IDs if not already present
+            local idsToAdd = {}
+            for _, id in ipairs(utilityMountIDs) do
+              if not existingIDs[id] then
+                table.insert(idsToAdd, id)
+              end
+            end
+            
+            -- Build new string
+            if #idsToAdd > 0 then
+              local newIDs = table.concat(idsToAdd, ", ")
+              if config.dismountToggle_ignoredMounts == "" then
+                config.dismountToggle_ignoredMounts = newIDs
+              else
+                config.dismountToggle_ignoredMounts = config.dismountToggle_ignoredMounts .. ", " .. newIDs
+              end
+              
+              -- Update LibMountInfo
+              local LibMountInfo = LibStub("LibMountInfo-1.0")
+              LibMountInfo:SetIgnoredMounts(config.dismountToggle_ignoredMounts)
+              
+              -- Refresh options display
+              LibStub("AceConfigRegistry-3.0"):NotifyChange(appName)
+            end
+          end,
+          disabled = function()
+            return not config.dismountToggle_enabled
+          end,
+        },
+        
+        n045 = {order = 3.6, type = "description", name = " ",},
+        
+        dismountToggleChangeActionBarTo = {
+          order = 4,
           type = "select",
           name = L["When mounting, switch automatically to Action Bar:"],
           desc = L["Automatically switch to this action bar when you mount up, so you have your flying/mount abilities easily accessible. Set to 'disabled' to keep your current action bar."],
@@ -350,7 +444,7 @@ local optionsTable = {
         },
         
         dismountToggleTravelFormEnabled = {
-          order = 4,
+          order = 5,
           type = "toggle",
           name = L["Druid Travel Form instead of mounting"],
           desc = L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid form as \"dismounting\", instead of standard mounts."],
@@ -368,7 +462,7 @@ local optionsTable = {
         },
         
         dismountToggleSoarEnabled = {
-          order = 5,
+          order = 6,
           type = "toggle",
           name = L["Dracthyr Soar instead of mounting"],
           desc = L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."],
@@ -383,6 +477,37 @@ local optionsTable = {
             function()
               return not config.dismountToggle_enabled
             end,          
+        },
+        
+      },
+    },
+
+    raceOnLastMountGroup = {
+      type = "group",
+      name = function() return GetModuleGroupName(L["Race on Last Mount"], config.raceOnLastMount_enabled) end,
+      desc = raceOnLastMountDesc,
+      order = raceOnLastMountOrder,
+      args = {
+
+        raceOnLastMountDescription = {
+          order = 0,
+          type = "description",
+          name = raceOnLastMountDesc,
+          width = "full",
+        },
+
+        n041 = {order = 0.5, type = "description", name = " ",},
+
+        raceOnLastMountEnabled = {
+          order = 1,
+          type = "toggle",
+          name = L["Enable"],
+          width = "full",
+          get = function() return config.raceOnLastMount_enabled end,
+          set = 
+            function(_, newValue)
+              config.raceOnLastMount_enabled = newValue
+            end,
         },
         
       },

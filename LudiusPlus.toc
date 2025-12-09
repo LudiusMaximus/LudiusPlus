@@ -18,6 +18,7 @@ Flashlight.lua
 MuteSounds.lua
 PersistentCompanion.lua
 PersistentUnsheath.lua
+RaceOnLastMount.lua
 
 options.lua
 

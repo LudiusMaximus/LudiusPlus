@@ -24,6 +24,14 @@ L["Druid Travel Form instead of mounting"] = true
 L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid form as \"dismounting\", instead of standard mounts."] = true
 L["Dracthyr Soar instead of mounting"] = true
 L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."] = true
+L["Mounts to ignore (comma-separated Mount IDs)"] = true
+L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"] = true
+L["Fill in Utility Mounts"] = true
+L["Adds commonly used utility mounts to the ignore list:"] = true
+
+-- RaceOnLastMount Options
+L["Race on Last Mount"] = true
+L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game). Note: Cannot automatically switch to Druid Flight Form due to API limitations."] = true
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = true

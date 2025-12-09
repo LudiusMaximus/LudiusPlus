@@ -1,7 +1,7 @@
 local folderName, addon = ...
 
-local C_MountJournal_GetMountIDs = _G.C_MountJournal.GetMountIDs
-local C_MountJournal_GetMountInfoByID = _G.C_MountJournal.GetMountInfoByID
+local LibMountInfo = LibStub("LibMountInfo-1.0")
+
 local ChangeActionBarPage = _G.ChangeActionBarPage
 local IsMounted = _G.IsMounted
 local UnitAffectingCombat = _G.UnitAffectingCombat
@@ -16,41 +16,12 @@ local macroIcon = GetFileIDFromPath("Interface\\AddOns\\" .. folderName .. "\\Di
 
 
 
--- To track the last used mount.
-local function GetCurrentMount()
-  if not IsMounted() then return nil end
-
-  local lastMount = LP_lastMount[realmName][playerName]
-
-  -- Check last active mount first to save time.
-  if lastMount then
-    local _, _, _, active = C_MountJournal_GetMountInfoByID(lastMount)
-    if active then
-      return lastMount
-    end
-  end
-
-  -- Must be a new new mount, so go through all to find active one.
-  for _, v in pairs(C_MountJournal_GetMountIDs()) do
-    local _, _, _, active = C_MountJournal_GetMountInfoByID(v)
-    if active then
-      lastMount = v
-      return v
-    end
-  end
-
-  -- Should never happen, as we have checked IsMounted() above.
-  return nil
-end
-
-
 local MountingFunction = function()
   if not IsMounted() then return end
 
-  local currentMount = GetCurrentMount()
-  if currentMount then
-    LP_lastMount[realmName][playerName] = currentMount
-  end
+  -- LibMountInfo now handles storing to LP_lastMount automatically
+  -- Just trigger a GetCurrentMount to ensure it's tracked
+  LibMountInfo:GetCurrentMount()
   
   if not UnitAffectingCombat("player") and LP_config.dismountToggle_changeActionBarTo ~= "disabled" then
     ChangeActionBarPage(LP_config.dismountToggle_changeActionBarTo)
@@ -112,14 +83,14 @@ addon.SetupDismountToggleMacro = function()
   end
   
   -- Summon mount.
-  macroBody = macroBody .. "/run local lm = LPLMR[\"" .. playerName .. "\"] if lm "
+  macroBody = macroBody .. "/run local lm=LPLMR[\"" .. playerName .. "\"] if lm then local m=LPGM(lm) if m"
   if LP_config.dismountToggle_travelFormEnabled then
-    macroBody = macroBody .. "and not LPISK(783) "
+    macroBody = macroBody .. " and not LPISK(783)"
   end
   if LP_config.dismountToggle_soarEnabled then
-    macroBody = macroBody .. "and not LPISK(369536) "
+    macroBody = macroBody .. " and not LPISK(369536)"
   end
-  macroBody = macroBody ..  "then LPMJS(lm) end"
+  macroBody = macroBody ..  " then LPMJS(m)end end"
   
   
   if not GetMacroInfo(macroName) then
@@ -140,10 +111,27 @@ f:SetScript("OnEvent", function()
   LP_lastMount = LP_lastMount or {}
   LP_lastMount[realmName] = LP_lastMount[realmName] or {}
   
+  -- Integrate LibMountInfo with our persistent storage
+  LibMountInfo:SetPersistentStorage(LP_lastMount)
+  
+  -- Set up ignored mounts list
+  if LP_config.dismountToggle_ignoredMounts then
+    LibMountInfo:SetIgnoredMounts(LP_config.dismountToggle_ignoredMounts)
+  end
+  
   -- Abbreviations to use in macro.
   _G.LPMJS = _G.C_MountJournal.SummonByID
   _G.LPISK = _G.IsSpellKnown
   _G.LPLMR = LP_lastMount[realmName]
+  
+  -- Helper to get the right mount ID from the table
+  -- Returns the most recently used mount (flying or non-flying)
+  _G.LPGM = function(lm)
+    if type(lm) == "number" then return lm end -- Old format support
+    if type(lm) ~= "table" then return nil end
+    -- Return most recently used mount
+    return lm.last
+  end
   
   addon.SetupDismountToggleMacro()
 
