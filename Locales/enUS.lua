@@ -4,7 +4,7 @@ if not L then return end
 -- Module Descriptions
 L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = true
 L["Switch between Cave Spelunker's Torch on and off with a hotkey."] = true
-L["Mute specific sounds by their Sound File IDs. E.g. annoying summon sounds."] = true
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
 L["Automatically skip confirmation dialogs"] = true
 L["Automatically maintain your desired weapon sheath state."] = true
 L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = true
@@ -25,9 +25,11 @@ L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid for
 L["Dracthyr Soar instead of mounting"] = true
 L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."] = true
 L["Mounts to ignore (comma-separated Mount IDs)"] = true
-L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"] = true
+L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey.\n\nFind Mount IDs at: https://www.wowhead.com/spells/mounts"] = true
 L["Fill in Utility Mounts"] = true
 L["Adds commonly used utility mounts to the ignore list:"] = true
+L["Auto-mount last non-ignored mount when on ignored mounts"] = true
+L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = true
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = true
@@ -36,11 +38,13 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 -- Flashlight Options
 L["Flashlight (Torch)"] = true
 L["Torch Toggle"] = true
+L["Toy Missing:"] = true
+L["You don't have the Cave Spelunker's Torch!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
 L["Sound IDs to mute (comma-separated)"] = true
-L["Enter Sound File IDs separated by commas. Find IDs on WoW databases like Wowhead or using UI addons. Example: 598079, 598187"] = true
+L["Enter Sound File IDs separated by commas."] = true
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = true

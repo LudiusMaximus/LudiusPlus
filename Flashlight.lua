@@ -3,15 +3,23 @@ local folderName, addon = ...
 local C_UnitAuras_GetPlayerAuraBySpellID = _G.C_UnitAuras.GetPlayerAuraBySpellID
 local SetOverrideBindingMacro = _G.SetOverrideBindingMacro
 local UnitAffectingCombat = _G.UnitAffectingCombat
+local InCombatLockdown = _G.InCombatLockdown
 
 -- Cave Spelunker's Torch
 -- https://www.wowhead.com/spell=453163/cave-spelunkers-torch
 -- https://www.wowhead.com/item=224552/cave-spelunkers-torch
+-- https://www.wowhead.com/object=437211/illuminated-footlocker
 -- https://warcraft.wiki.gg/wiki/API_C_UnitAuras.GetPlayerAuraBySpellID
 -- https://warcraft.wiki.gg/wiki/FileDataID
 -- https://github.com/wowdev/wow-listfile
+
 local itemID = 224552
 local spellID = 453163
+
+-- Check if player owns the Cave Spelunker's Torch toy
+addon.HasFlashlightToy = function()
+  return PlayerHasToy(itemID)
+end
 local macroTorchOnName = "Torch On"
 local macroTorchOnIcon = 135433
 local macroTorchOffName = "Torch Off"
@@ -20,15 +28,31 @@ local flashlightBindingName = "MACRO Torch Toggle"
 
 local torchToggleButton = CreateFrame("button", "TorchToggleButton", nil, "SecureActionButtonTemplate")
 local torchBuffInstanceId = nil
-local lastHotkey = nil  -- Track the last hotkey that was set
+local deferredSetupNeeded = false  -- Deferred operation flag for combat lockdown protection
 
 -- Setup function to be called from options.lua
 addon.SetupFlashlightMacros = function()
-  
-  if not LP_config.flashlight_enabled then
+  -- Check combat lockdown - defer if in combat
+  if InCombatLockdown() then
+    deferredSetupNeeded = true
     return
   end
   
+  if not LP_config.flashlight_enabled then
+    -- Delete macros when module is disabled
+    if GetMacroInfo(macroTorchOnName) then
+      DeleteMacro(macroTorchOnName)
+    end
+    if GetMacroInfo(macroTorchOffName) then
+      DeleteMacro(macroTorchOffName)
+    end
+    return
+  end
+
+  -- Check if player has the toy
+  if not addon.HasFlashlightToy() then
+    return
+  end
   -- Ensure macros are created
   local item = Item:CreateFromItemID(itemID)
   item:ContinueOnItemLoad(function()
@@ -49,6 +73,18 @@ addon.SetupFlashlightMacros = function()
     else
       EditMacro(macroTorchOffName, macroTorchOffName, macroTorchOffIcon, macroTorchOffBody)
     end
+    
+    -- After macros are created, set up bindings
+    local hotkey = GetBindingKey(flashlightBindingName)
+    if hotkey then
+      local aura = C_UnitAuras_GetPlayerAuraBySpellID(spellID)
+      if UnitAffectingCombat("player") or not aura then
+        SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOnName)
+      else
+        SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOffName)
+        torchBuffInstanceId = aura.auraInstanceID
+      end
+    end
   end)
 end
 
@@ -56,87 +92,90 @@ local torchTrackingFrame = CreateFrame("Frame")
 torchTrackingFrame:RegisterEvent("PLAYER_LOGIN")
 torchTrackingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 torchTrackingFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+torchTrackingFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 torchTrackingFrame:RegisterEvent("UNIT_AURA")
 torchTrackingFrame:RegisterEvent("UPDATE_BINDINGS")
+
+-- Only register toy tracking events if player doesn't already have the toy
+if not PlayerHasToy(itemID) then
+  torchTrackingFrame:RegisterEvent("NEW_TOY_ADDED")
+  torchTrackingFrame:RegisterEvent("TOYS_UPDATED")
+end
+
 torchTrackingFrame:SetScript("OnEvent", function(_, event, ...)
-  if not LP_config or not LP_config.flashlight_enabled then return end
+
+  -- Handle toy acquisition events
+  if event == "NEW_TOY_ADDED" or event == "TOYS_UPDATED" then
+    local eventItemID = ...
+    if eventItemID == itemID and addon.HasFlashlightToy() then
+      -- Toy was just obtained! Set up macros and refresh options UI
+      if LP_config and LP_config.flashlight_enabled then
+        addon.SetupFlashlightMacros()
+      end
+      -- Refresh the options panel to update the warning message and enable button
+      if LibStub then
+        local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
+        if AceConfigRegistry then
+          AceConfigRegistry:NotifyChange("Ludius Plus")
+        end
+      end
+      -- Unregister these events now that we have the toy
+      torchTrackingFrame:UnregisterEvent("NEW_TOY_ADDED")
+      torchTrackingFrame:UnregisterEvent("TOYS_UPDATED")
+    end
+    return
+  end
+  
+  if not LP_config then return end
   
   if event == "PLAYER_LOGIN" then
     addon.SetupFlashlightMacros()
+    return
   end
 
-  local hotkey = GetBindingKey(flashlightBindingName)
-  if not hotkey then return end
-
   if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_DISABLED" then
-
     -- print(event, "Checking torch, combat:", UnitAffectingCombat("player"))
-
-    local aura = C_UnitAuras_GetPlayerAuraBySpellID(spellID)
-    -- Always set the the ON macro while in combat.
-    if UnitAffectingCombat("player") or not aura then
-      -- print("In combat or torch is OFF. Setting button to ON macro.")
-      SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOnName)
-      torchBuffInstanceId = nil
-    else
-      -- print("Torch is ON", aura.auraInstanceID, "Setting button to OFF macro.")
-      SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOffName)
-      torchBuffInstanceId = aura.auraInstanceID
-    end
-
+    addon.SetupFlashlightMacros()
 
   elseif event == "UNIT_AURA" then
-
     local unitTarget, updateInfo = ...
     if unitTarget ~= "player" then return end
-    -- Cannot override macros during combat.
-    if UnitAffectingCombat("player") then return end
+    -- Cannot override bindings during combat.
+    if InCombatLockdown() then return end
 
     if updateInfo.addedAuras or updateInfo.removedAuraInstanceIDs then
+      -- Check if torch aura was added or removed
+      local torchChanged = false
       if updateInfo.addedAuras then
         for _, k in pairs(updateInfo.addedAuras) do
-          -- print(event, "added", k.name, k.spellId, k.auraInstanceID)
           if k.spellId == spellID then
-            -- print(event, "Torch is now ON", k.auraInstanceID, "Setting button to OFF macro.")
-            SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOffName)
-            torchBuffInstanceId = k.auraInstanceID
+            torchChanged = true
+            break
           end
         end
       end
-      if updateInfo.removedAuraInstanceIDs then
+      if not torchChanged and updateInfo.removedAuraInstanceIDs then
         for _, k in pairs(updateInfo.removedAuraInstanceIDs) do
-          -- print(event, "removed", k)
           if k == torchBuffInstanceId then
-            -- print(event, "Torch is now OFF", k, "Setting button to ON macro.")
-            SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOnName)
-            torchBuffInstanceId = nil
+            torchChanged = true
+            break
           end
         end
+      end
+      
+      if torchChanged then
+        addon.SetupFlashlightMacros()
       end
     end
 
   elseif event == "UPDATE_BINDINGS" then
-    -- Get the new hotkey value when bindings are updated
-    local newHotkey = GetBindingKey(flashlightBindingName)
-    if not newHotkey then
-      -- If no binding is set, clear any override
-      ClearOverrideBindings(torchToggleButton)
-      lastHotkey = nil
-      return
-    end
-    -- Clear all old bindings before setting the new one (safer than clearing just lastHotkey with SetOverrideBindingMacro() without fourth parameter).
-    if lastHotkey and lastHotkey ~= newHotkey then
-      ClearOverrideBindings(torchToggleButton)
-    end
-    lastHotkey = newHotkey
-    -- Reapply the binding override with the new hotkey
-    local aura = C_UnitAuras_GetPlayerAuraBySpellID(spellID)
-    if UnitAffectingCombat("player") or not aura then
-      SetOverrideBindingMacro(torchToggleButton, true, newHotkey, macroTorchOnName)
-      torchBuffInstanceId = nil
-    else
-      SetOverrideBindingMacro(torchToggleButton, true, newHotkey, macroTorchOffName)
-      torchBuffInstanceId = aura.auraInstanceID
+    addon.SetupFlashlightMacros()
+
+  elseif event == "PLAYER_REGEN_ENABLED" then
+    -- Execute deferred setup after combat ends
+    if deferredSetupNeeded then
+      deferredSetupNeeded = false
+      addon.SetupFlashlightMacros()
     end
 
   end
