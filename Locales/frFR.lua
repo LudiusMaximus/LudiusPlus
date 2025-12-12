@@ -4,7 +4,7 @@ if not L then return end
 -- Module Descriptions
 L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."
 L["Switch between Cave Spelunker's Torch on and off with a hotkey."] = "Switch between Cave Spelunker's Torch on and off with a hotkey."
-L["Mute specific sounds by their Sound File IDs. E.g. annoying summon sounds."] = "Mute specific sounds by their Sound File IDs. E.g. annoying summon sounds."
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."
 L["Automatically skip confirmation dialogs"] = "Automatically skip confirmation dialogs"
 L["Automatically maintain your desired weapon sheath state."] = "Automatically maintain your desired weapon sheath state."
 L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"
@@ -25,9 +25,11 @@ L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid for
 L["Dracthyr Soar instead of mounting"] = "Dracthyr Soar instead of mounting"
 L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."] = "Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."
 L["Mounts to ignore (comma-separated Mount IDs)"] = "Mounts to ignore (comma-separated Mount IDs)"
-L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"] = "Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey. Find Mount IDs at: https://www.wowhead.com/spells/mounts"
+L["Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey.\n\nFind Mount IDs at: https://www.wowhead.com/spells/mounts"] = "Enter Mount IDs to ignore when storing your last mount. Useful for utility mounts like Yak or Brutosaur that you use temporarily but don't want to summon with your hotkey.\n\nFind Mount IDs at: https://www.wowhead.com/spells/mounts"
 L["Fill in Utility Mounts"] = "Fill in Utility Mounts"
 L["Adds commonly used utility mounts to the ignore list:"] = "Adds commonly used utility mounts to the ignore list:"
+L["Auto-mount last non-ignored mount when on ignored mounts"] = "Auto-mount last non-ignored mount when on ignored mounts"
+L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "Race on Last Mount"
@@ -36,11 +38,13 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 -- Flashlight Options
 L["Flashlight (Torch)"] = "Flashlight (Torch)"
 L["Torch Toggle"] = "Torch Toggle"
+L["Toy Missing:"] = "Toy Missing:"
+L["You don't have the Cave Spelunker's Torch!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "You don't have the Cave Spelunker's Torch!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Mute Sounds"
 L["Sound IDs to mute (comma-separated)"] = "Sound IDs to mute (comma-separated)"
-L["Enter Sound File IDs separated by commas. Find IDs on WoW databases like Wowhead or using UI addons. Example: 598079, 598187"] = "Enter Sound File IDs separated by commas. Find IDs on WoW databases like Wowhead or using UI addons. Example: 598079, 598187"
+L["Enter Sound File IDs separated by commas."] = "Enter Sound File IDs separated by commas."
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Dialog Skipper"

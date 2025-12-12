@@ -1,9 +1,5 @@
 local folderName, addon = ...
 
--- No Dutiful Squire summoning sound!! :-D
--- https://warcraft.wiki.gg/wiki/API_MuteSoundFile
--- https://www.wowhead.com/sounds/name:squire
-
 -- Store the currently muted sound IDs so we can unmute them if needed
 local currentlyMutedSounds = {}
 

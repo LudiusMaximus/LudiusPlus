@@ -4,21 +4,23 @@ A collection of little WoW tweaks by Ludius that enhance your gameplay with qual
 
 ## Features
 
-### 🐎 Dismount/Mount Toggle
-Bind a single hotkey to seamlessly switch between mounted and dismounted states. Perfect for fluid, uninterrupted combat transitions. Supports Druid Travel Forms and Dracthyr Soar. Optionally auto-switch your action bar when mounting to keep your abilities within reach.
-
-### 🔦 Flashlight (Torch)
-Toggle the Cave Spelunker's Torch on and off with a hotkey. Tired of manual toggling in dark caves and dungeons? Now your torch is just one keystroke away—always ready when you need it, gone when you don't.
-
-### 🔇 Mute Sounds
-Banish annoying sounds by their ID. Ever been bothered by repetitive summon sounds, ambient noise, or other audio distractions? Mute them individually while keeping all other game sounds intact. Fully customizable.
-
 ### ⚡ Dialog Skipper
-Skip tedious confirmation dialogs automatically. Streamline your auctions, pet charm purchases, and item bindings. Set price limits for auction auto-confirm to prevent costly mistakes—peace of mind with every transaction.
+Skip tedious confirmation dialogs automatically. Streamline your auctions, pet charm purchases, and item bindings. Set price limits for auction auto-confirm to prevent costly mistakes.
 
-### ⚔️ Persistent Unsheath
-Automatically maintain your desired weapon sheath state. Choose to keep your weapons sheathed in town and automatically unsheath them in combat, or vice versa. Optional silent mode disables the sounds for seamless weapon state restoration.
+### 🐎 Dismount/Mount Toggle
+Bind a single hotkey to seamlessly switch between mounted and dismounted states. Perfect for fluid "death from above" combat transitions and landing maneuvers. Saves you one action bar click to re-mount. You can also assign Druid Travel Forms and Dracthyr Soar instead of a mount.
+
+### 🏁 Race on Last Mount
+Start Skyriding races on your preferred flying mount, not the default Renewed Proto-Drake. If you start a race unmounted, the addon automatically switches to your last active flying mount during the race countdown which saves you one action bar click.
 
 ### 🐾 Persistent Companion
-Never lose your pet companion again. Automatically resummon your last active pet after it disappears—whether from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away.
+Never lose your pet companion again. The addon is aware of when you actively summon or dismiss your companion battle pet and automatically persists this state. It resummons the pet after it disappears — e.g. from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away. 
 
+### ⚔️ Persistent Unsheath
+The addon keeps track of when you actively sheathe or unsheathe and persists this state. It then automatically maintains your last desired weapon sheath state. For example, you never have to manually unsheathe your wand after a spell cast, if unsheathed is your preference, or you never have to manually sheathe your weapon after combat if sheathed is your preference.
+
+### 🔇 Mute Sounds
+Banish annoying sounds by their ID. Ever been bothered by repetitive summon sounds, ambient noise, or other audio distractions? Mute them individually while keeping all other game sounds intact.
+
+### 🔦 Flashlight (Torch)
+Toggle your Flashlight (Cave Spelunker's Torch) on and off "Half-Life-style" with a hotkey. Unfortunately, we cannot automatically restore the torch-on state, but the hotkey saves you an action bar click.
