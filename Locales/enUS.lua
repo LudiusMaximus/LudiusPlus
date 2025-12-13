@@ -3,7 +3,7 @@ if not L then return end
 
 -- Module Descriptions
 L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = true
-L["Switch between Cave Spelunker's Torch on and off with a hotkey."] = true
+L["Toggles the \"%s\" toy on and off with a hotkey."] = true
 L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
 L["Automatically skip confirmation dialogs"] = true
 L["Automatically maintain your desired weapon sheath state."] = true
@@ -19,7 +19,7 @@ L["Assign a new hotkey binding."] = true
 L["Unbind"] = true
 L["Unassign the current binding."] = true
 L["When mounting, switch automatically to Action Bar:"] = true
-L["Automatically switch to this action bar when you mount up, so you have your flying/mount abilities easily accessible. Set to 'disabled' to keep your current action bar."] = true
+L["Automatically switch to this action bar when you mount up, so you have your flying/mount abilities easily accessible. Set to \"disabled\" to keep your current action bar."] = true
 L["Druid Travel Form instead of mounting"] = true
 L["Druids only: Use Travel Form or Flight Form as \"mounting\", and Humanoid form as \"dismounting\", instead of standard mounts."] = true
 L["Dracthyr Soar instead of mounting"] = true
@@ -33,13 +33,13 @@ L["While on an ignored mount, the hotkey will dismount and immediately mount the
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = true
-L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game). Note: Cannot automatically switch to Druid Flight Form due to API limitations."] = true
+L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game).\n\nNote: Cannot automatically switch to Druid Flight Form due to API limitations."] = true
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = true
 L["Torch Toggle"] = true
 L["Toy Missing:"] = true
-L["You don't have the Cave Spelunker's Torch!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
+L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
@@ -54,7 +54,7 @@ L["Set the maximum price in gold for automatically confirming auctions."] = true
 L["Skip Polished Pet Charm purchases"] = true
 L["Skip Order Resources purchases"] = true
 L["Skip equip bind confirmations"] = true
-L["Automatically confirm 'Bind on Equip' dialogs when equipping gear from quest rewards, vendors, or other sources."] = true
+L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = true
 
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = true
