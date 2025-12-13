@@ -196,9 +196,14 @@ _G["BINDING_NAME_" .. dismountToggleBindingName] = L["Dismount/Mount Toggle"]
 local flashlightBindingName = "MACRO Torch Toggle"
 _G["BINDING_NAME_" .. flashlightBindingName] = L["Torch Toggle"]
 
+-- Get the toy name from the API (Cave Spelunker's Torch)
+local flashlightItemID = 224552
+local _, flashlightToyName = C_ToyBox.GetToyInfo(flashlightItemID)
+flashlightToyName = flashlightToyName or "Cave Spelunker's Torch"
+
 -- Module descriptions
 local dismountToggleDesc = L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."]
-local flashlightDesc = L["Switch between Cave Spelunker's Torch on and off with a hotkey."]
+local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
 local dialogSkipperDesc = L["Automatically skip confirmation dialogs"]
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
@@ -444,7 +449,7 @@ local optionsTable = {
           order = 4,
           type = "select",
           name = L["When mounting, switch automatically to Action Bar:"],
-          desc = L["Automatically switch to this action bar when you mount up, so you have your flying/mount abilities easily accessible. Set to 'disabled' to keep your current action bar."],
+          desc = L["Automatically switch to this action bar when you mount up, so you have your flying/mount abilities easily accessible. Set to \"disabled\" to keep your current action bar."],
           width = 2,
           disabled =
             function()
@@ -563,7 +568,7 @@ local optionsTable = {
           type = "description",
           name = function()
             if not addon.HasFlashlightToy() then
-              return "|cffff0000" .. L["Toy Missing:"] .. "|r " .. L["You don't have the Cave Spelunker's Torch!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"]
+              return "|cffff0000" .. L["Toy Missing:"] .. "|r " .. L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"]:format(flashlightToyName)
             end
             return ""
           end,
@@ -809,7 +814,7 @@ local optionsTable = {
           order = 6,
           type = "toggle",
           name = L["Skip equip bind confirmations"],
-          desc = L["Automatically confirm 'Bind on Equip' dialogs when equipping gear from quest rewards, vendors, or other sources."],
+          desc = L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."],
           width = "full",
           get = function() return config.dialogSkipper_skipEquipBind end,
           set =
