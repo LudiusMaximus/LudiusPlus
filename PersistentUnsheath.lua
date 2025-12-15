@@ -47,38 +47,41 @@ end
 
 
 local unmuteTimer = nil
+local restoreUnsheathTicker = nil
 local noRestoreBefore = GetTime()
 local currentPosition = UnitPosition("player")
 local function RestoreUnsheath()
   -- Return early if module is disabled
   if not LP_config or (not LP_config.persistentUnsheath_autoSheath and not LP_config.persistentUnsheath_autoUnsheath) then return end
-  
+
   local currentTime = GetTime()
   local lastPosition = currentPosition
   currentPosition = UnitPosition("player")
 
   if noRestoreBefore > currentTime then return end
-  
-  
-  local currentlySheated = GetSheathState() == 1
-  
+
+  -- print("RestoreUnsheath", GetSheathState(), "should be", desiredUnsheath[playerName])
+
+
+  local currentlyUnsheated = GetSheathState() ~= 1
+
   -- If only one of the two options is enabled, we might have to change desiredUnsheath.
   if (LP_config.persistentUnsheath_autoSheath ~= LP_config.persistentUnsheath_autoUnsheath) then
     -- If auto-sheath is disabled, and the game has unsheathed, the new desired state should become unsheathed.
-    if not LP_config.persistentUnsheath_autoSheath and not currentlySheated then
+    if not LP_config.persistentUnsheath_autoSheath and currentlyUnsheated then
       desiredUnsheath[playerName] = true
     -- If auto-unsheath is disabled, and the game has sheathed, the new desired state should become sheathed.
-    elseif not LP_config.persistentUnsheath_autoUnsheath and currentlySheated then
+    elseif not LP_config.persistentUnsheath_autoUnsheath and not currentlyUnsheated then
       desiredUnsheath[playerName] = false
     end
   end
 
   local shouldUnsheath = desiredUnsheath[playerName]
 
-  -- print("RestoreUnsheath", currentlySheated, "should be", shouldUnsheath)
-  
+  -- print("RestoreUnsheath", currentlyUnsheated, "should be", shouldUnsheath)
+
   -- Check if we should auto-unsheath
-  if shouldUnsheath and currentlySheated and LP_config.persistentUnsheath_autoUnsheath then
+  if shouldUnsheath and not currentlyUnsheated and LP_config.persistentUnsheath_autoUnsheath then
     if not UnitAffectingCombat("player")
       and not IsMounted()
       and not UnitOnTaxi("player")
@@ -104,9 +107,9 @@ local function RestoreUnsheath()
         end)
       end
     end
-  
+
   -- Check if we should auto-sheath
-  elseif not shouldUnsheath and not currentlySheated and LP_config.persistentUnsheath_autoSheath then
+  elseif not shouldUnsheath and currentlyUnsheated and LP_config.persistentUnsheath_autoSheath then
     if not C_UnitAuras_GetPlayerAuraBySpellID(453163) then -- Not while Cave Spelunker's Torch is out
       -- print("Got to auto-toggle sheath!")
       if unmuteTimer and not unmuteTimer:IsCancelled() then
@@ -127,29 +130,32 @@ local function RestoreUnsheath()
 end
 
 
-local function CheckUnsheath()
-  -- Value is only reliable after some time.
-  -- While checking we want no restoring.
-  noRestoreBefore = GetTime() + 0.5
-  C_Timer_After(0.5, function()
-    local newDesiredUnsheath = (GetSheathState() ~= 1)
-    if desiredUnsheath[playerName] ~= newDesiredUnsheath then
-      -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
-      desiredUnsheath[playerName] = newDesiredUnsheath
-    end
-  end)
-end
-
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_LOGIN")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:SetScript("OnEvent", function()
 
+  -- print("PLAYER_ENTERING_WORLD")
+
+  -- Right after the loading screen, calling GetSheathState() to early can lead to false value being stuck.
+  -- So we stop the ticker and only start it after some delay.
+  if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
+    -- print("Stopping ticker", GetTime())
+    restoreUnsheathTicker:Cancel()
+  end
+
+  -- Initialize variables if needed.
   LP_desiredUnsheath = LP_desiredUnsheath or {}
   LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-  desiredUnsheath = LP_desiredUnsheath[realmName]
+  desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
 
-  C_Timer.NewTicker(0.25, RestoreUnsheath)
+  -- Start ticker after delay.
+  C_Timer_After(1.5, function()
+    if not restoreUnsheathTicker or restoreUnsheathTicker:IsCancelled() then
+      -- print("Starting ticker", GetTime())
+      restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
+    end
+  end)
 
 end)
 
@@ -157,8 +163,18 @@ end)
 
 -- If player manually calls ToggleSheath(), we check the result.
 hooksecurefunc("ToggleSheath", function(caller)
+  -- print("ToggleSheath", caller)
   if caller ~= folderName then
-    CheckUnsheath()
+    -- Value is only reliable after some time.
+    -- While checking we want no restoring.
+    noRestoreBefore = GetTime() + 0.75
+    C_Timer_After(0.5, function()
+      local newDesiredUnsheath = (GetSheathState() ~= 1)
+      if desiredUnsheath[playerName] ~= newDesiredUnsheath then
+        -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
+        desiredUnsheath[playerName] = newDesiredUnsheath
+      end
+    end)
   end
 end)
 
