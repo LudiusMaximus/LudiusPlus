@@ -855,6 +855,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.persistentUnsheath_autoSheath = newValue
+              addon.SetupOrTeardownPersistentUnsheath()
             end,
         },
 
@@ -868,6 +869,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.persistentUnsheath_autoUnsheath = newValue
+              addon.SetupOrTeardownPersistentUnsheath()
             end,
         },
 

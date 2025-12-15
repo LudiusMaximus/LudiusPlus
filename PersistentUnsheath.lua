@@ -132,56 +132,90 @@ end
 
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:SetScript("OnEvent", function()
+local hooksSetup = false
 
-  -- print("PLAYER_ENTERING_WORLD")
 
-  -- Right after the loading screen, calling GetSheathState() to early can lead to false value being stuck.
-  -- So we stop the ticker and only start it after some delay.
-  if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
-    -- print("Stopping ticker", GetTime())
-    restoreUnsheathTicker:Cancel()
-  end
+local function SetupPersistentUnsheath()
+  eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  eventFrame:SetScript("OnEvent", function()
 
-  -- Initialize variables if needed.
-  LP_desiredUnsheath = LP_desiredUnsheath or {}
-  LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-  desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
+    -- print("PLAYER_ENTERING_WORLD")
 
-  -- Start ticker after delay.
-  C_Timer_After(1.5, function()
-    if not restoreUnsheathTicker or restoreUnsheathTicker:IsCancelled() then
-      -- print("Starting ticker", GetTime())
-      restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
+    -- Right after the loading screen, calling GetSheathState() to early can lead to false value being stuck.
+    -- So we stop the ticker and only start it after some delay.
+    if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
+      -- print("Stopping ticker", GetTime())
+      restoreUnsheathTicker:Cancel()
     end
-  end)
 
-end)
+    -- Initialize variables if needed.
+    LP_desiredUnsheath = LP_desiredUnsheath or {}
+    LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
+    desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
 
-
-
--- If player manually calls ToggleSheath(), we check the result.
-hooksecurefunc("ToggleSheath", function(caller)
-  -- print("ToggleSheath", caller)
-  if caller ~= folderName then
-    -- Value is only reliable after some time.
-    -- While checking we want no restoring.
-    noRestoreBefore = GetTime() + 0.75
-    C_Timer_After(0.5, function()
-      local newDesiredUnsheath = (GetSheathState() ~= 1)
-      if desiredUnsheath[playerName] ~= newDesiredUnsheath then
-        -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
-        desiredUnsheath[playerName] = newDesiredUnsheath
+    -- Start ticker after delay.
+    C_Timer_After(1.5, function()
+      if not restoreUnsheathTicker or restoreUnsheathTicker:IsCancelled() then
+        -- print("Starting ticker", GetTime())
+        restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
       end
     end)
+
+  end)
+
+  -- Only setup hooks once
+  if not hooksSetup then
+    -- If player manually calls ToggleSheath(), we check the result.
+    hooksecurefunc("ToggleSheath", function(caller)
+      -- print("ToggleSheath", caller)
+      if caller ~= folderName then
+        -- Value is only reliable after some time.
+        -- While checking we want no restoring.
+        noRestoreBefore = GetTime() + 0.75
+        C_Timer_After(0.5, function()
+          local newDesiredUnsheath = (GetSheathState() ~= 1)
+          if desiredUnsheath[playerName] ~= newDesiredUnsheath then
+            -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
+            desiredUnsheath[playerName] = newDesiredUnsheath
+          end
+        end)
+      end
+    end)
+
+    -- No restoring while an emote is in action! (roughly 3 seconds)
+    hooksecurefunc("DoEmote", function(...)
+      -- print("DoEmote", ...)
+      noRestoreBefore = GetTime() + 3
+    end)
+
+    hooksSetup = true
   end
-end)
+end
 
 
+local function TeardownPersistentUnsheath()
+  eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+  eventFrame:SetScript("OnEvent", nil)
+  
+  if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
+    restoreUnsheathTicker:Cancel()
+  end
+  if unmuteTimer and not unmuteTimer:IsCancelled() then
+    unmuteTimer:Cancel()
+  end
+end
 
--- No restoring while an emote is in action! (roughly 3 seconds)
-hooksecurefunc("DoEmote", function(...)
-  -- print("DoEmote", ...)
-  noRestoreBefore = GetTime() + 3
-end)
+
+function addon.SetupOrTeardownPersistentUnsheath()
+  if LP_config and (LP_config.persistentUnsheath_autoSheath or LP_config.persistentUnsheath_autoUnsheath) then
+    SetupPersistentUnsheath()
+  else
+    TeardownPersistentUnsheath()
+  end
+end
+
+
+-- Initialize the module if it's enabled
+if LP_config and (LP_config.persistentUnsheath_autoSheath or LP_config.persistentUnsheath_autoUnsheath) then
+  SetupPersistentUnsheath()
+end
