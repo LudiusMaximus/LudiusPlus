@@ -8,7 +8,7 @@
 ## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_config
 
 ## X-Curse-Project-ID: 1405431
-## X-WoWI-ID: 
+## X-WoWI-ID: 27000
 ## X-Wago-ID: kGr0mA6y
 
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
