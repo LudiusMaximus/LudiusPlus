@@ -4,9 +4,13 @@
 ## IconAtlas: nameplates-icon-flag-alliance
 ## Author: LudiusMaximus
 ## Notes: A collection of little WoW tweaks by Ludius.
+
 ## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_config
-## X-Curse-Project-ID: 
+
+## X-Curse-Project-ID: 1405431
 ## X-WoWI-ID: 
+## X-Wago-ID: kGr0mA6y
+
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
 ## X-License: The MIT License (MIT)
 
@@ -21,5 +25,3 @@ PersistentUnsheath.lua
 RaceOnLastMount.lua
 
 options.lua
-
-MinimalWorkingExample.lua
