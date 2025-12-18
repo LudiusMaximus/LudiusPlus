@@ -135,33 +135,36 @@ local eventFrame = CreateFrame("Frame")
 local hooksSetup = false
 
 
+local function StartTicker()
+
+  -- Stop existing ticker if running
+  if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
+    -- print("Stopping ticker", GetTime())
+    restoreUnsheathTicker:Cancel()
+  end
+
+  -- Start ticker after delay to ensure GetSheathState() returns reliable values
+  C_Timer_After(1.5, function()
+    if not restoreUnsheathTicker or restoreUnsheathTicker:IsCancelled() then
+      -- print("Starting ticker", GetTime())
+      restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
+    end
+  end)
+end
+
+
 local function SetupPersistentUnsheath()
+  -- print("SetupPersistentUnsheath")
+  
+  -- Register event handler for zone changes and reloads
   eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:SetScript("OnEvent", function()
-
     -- print("PLAYER_ENTERING_WORLD")
-
-    -- Right after the loading screen, calling GetSheathState() to early can lead to false value being stuck.
-    -- So we stop the ticker and only start it after some delay.
-    if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
-      -- print("Stopping ticker", GetTime())
-      restoreUnsheathTicker:Cancel()
-    end
-
-    -- Initialize variables if needed.
-    LP_desiredUnsheath = LP_desiredUnsheath or {}
-    LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-    desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
-
-    -- Start ticker after delay.
-    C_Timer_After(1.5, function()
-      if not restoreUnsheathTicker or restoreUnsheathTicker:IsCancelled() then
-        -- print("Starting ticker", GetTime())
-        restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
-      end
-    end)
-
+    StartTicker()
   end)
+
+  -- Start immediately if we're already in the world
+  StartTicker()
 
   -- Only setup hooks once
   if not hooksSetup then
@@ -174,7 +177,7 @@ local function SetupPersistentUnsheath()
         noRestoreBefore = GetTime() + 0.75
         C_Timer_After(0.5, function()
           local newDesiredUnsheath = (GetSheathState() ~= 1)
-          if desiredUnsheath[playerName] ~= newDesiredUnsheath then
+          if desiredUnsheath and desiredUnsheath[playerName] ~= newDesiredUnsheath then
             -- print("-----------> NOW CHANGING TO", newDesiredUnsheath)
             desiredUnsheath[playerName] = newDesiredUnsheath
           end
@@ -194,6 +197,8 @@ end
 
 
 local function TeardownPersistentUnsheath()
+  -- print("TeardownPersistentUnsheath")
+
   eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:SetScript("OnEvent", nil)
   
@@ -207,6 +212,7 @@ end
 
 
 function addon.SetupOrTeardownPersistentUnsheath()
+  -- print("SetupOrTeardownPersistentUnsheath", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
   if LP_config and (LP_config.persistentUnsheath_autoSheath or LP_config.persistentUnsheath_autoUnsheath) then
     SetupPersistentUnsheath()
   else
@@ -215,7 +221,18 @@ function addon.SetupOrTeardownPersistentUnsheath()
 end
 
 
--- Initialize the module if it's enabled
-if LP_config and (LP_config.persistentUnsheath_autoSheath or LP_config.persistentUnsheath_autoUnsheath) then
-  SetupPersistentUnsheath()
-end
+-- Initialize when addon loads
+eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:SetScript("OnEvent", function(self, event, addonName)
+  if addonName == "LudiusPlus" then
+  
+    -- Initialize variables if needed.
+    LP_desiredUnsheath = LP_desiredUnsheath or {}
+    LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
+    desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
+  
+    -- print("ADDON_LOADED LudiusPlus", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
+    self:UnregisterEvent("ADDON_LOADED")
+    addon.SetupOrTeardownPersistentUnsheath()
+  end
+end)
