@@ -1,16 +1,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("LudiusPlus", "frFR")
 if not L then return end
 
--- Module Descriptions
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Assigne le démontage et le remontage à une seule touche, pour que vous puissiez passer confortablement de l'un à l'autre."
-L["Toggles the \"%s\" toy on and off with a hotkey."] = "Active et désactive le jouet « %s » avec un raccourci clavier."
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Coupe des sons spécifiques par leurs ID de fichier son.\n\nTrouvez les ID sur Wowhead (https://www.wowhead.com/sounds/) ou apprenez d'autres méthodes sur https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExemple : 598079, 598187 (sons d'invocation de l'Écuyer dévoué)."
-L["Automatically skip confirmation dialogs"] = "Passe automatiquement les dialogues de confirmation."
-L["Automatically maintain your desired weapon sheath state."] = "Maintient automatiquement l'état rengainé/dégainé de votre arme."
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Rappelle automatiquement votre dernier compagnon mascotte actif après sa disparition. Par exemple, après avoir volé ou traversé des portails."
-
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Basculer Monter/Descendre"
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Assigne le démontage et le remontage à une seule touche, pour que vous puissiez passer confortablement de l'un à l'autre."
 L["Enable"] = "Activer"
 L["Assigned Hotkey:"] = "Raccourci assigné :"
 L["Not Bound"] = "Non assigné"
@@ -37,17 +30,20 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = "Lampe de poche (Torche)"
+L["Toggles the \"%s\" toy on and off with a hotkey."] = "Active et désactive le jouet « %s » avec un raccourci clavier."
 L["Torch Toggle"] = "Basculer la torche"
 L["Toy Missing:"] = "Jouet manquant :"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "Vous ne possédez pas le jouet « %s » !\nRécupérez-le dans la Cantine illuminée :\nhttps://www.wowhead.com/fr/object=437211/cantine-illumin%C3%A9e"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Couper les sons"
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Coupe des sons spécifiques par leurs ID de fichier son.\n\nTrouvez les ID sur Wowhead (https://www.wowhead.com/sounds/) ou apprenez d'autres méthodes sur https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExemple : 598079, 598187 (sons d'invocation de l'Écuyer dévoué)."
 L["Sound IDs to mute (comma-separated)"] = "ID de sons à couper (séparés par des virgules)"
 L["Enter Sound File IDs separated by commas."] = "Entrez les ID de fichiers son séparés par des virgules."
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Passeur de dialogue"
+L["Automatically skip confirmation dialogs"] = "Passe automatiquement les dialogues de confirmation."
 L["Skip auction house buyout confirmations"] = "Passer les confirmations d'achat immédiat à l'Hôtel des ventes"
 L["Only skip if price is below (gold)"] = "Passer seulement si le prix est inférieur à (or)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "Définit le prix maximum en or pour confirmer automatiquement les enchères."
@@ -56,8 +52,15 @@ L["Skip Order Resources purchases"] = "Passer les achats avec Ressources de doma
 L["Skip equip bind confirmations"] = "Passer les confirmations « Lié quand équipé »"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "Confirme automatiquement les dialogues « Lié quand équipé » lors de l'équipement d'objets provenant de récompenses de quête, de vendeurs ou d'autres sources."
 
+-- VendorItemOverlay Options
+L["Vendor Item Overlay"] = "Superposition des articles du vendeur"
+L["Display useful information as overlays for items at vendors."] = "Affiche des informations utiles en superposition pour les objets chez les vendeurs."
+L["Ownership for decor items"] = "Possession des objets déco"
+L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Affiche les informations de possession pour les objets de décoration d'habitat chez les vendeurs. Le nombre est affiché sous la forme [en stockage]/[total possédé] dans le coin supérieur droit de chaque icône d'objet."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Dégainage persistant"
+L["Automatically maintain your desired weapon sheath state."] = "Maintient automatiquement l'état rengainé/dégainé de votre arme."
 L["Restore sheathed"] = "Restaurer rengainé"
 L["Remembers if your last sheath/unsheath toggle was into the sheathed state and automatically returns to sheathed whenever a game action changes the state to unsheathed (for example, after combat)."] = "Se souvient si vous aviez rengainé votre arme et retourne automatiquement à l'état rengainé chaque fois qu'une action de jeu la dégaine (par exemple, après un combat)."
 L["Restore unsheathed"] = "Restaurer dégainé"
@@ -67,3 +70,7 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "Compagnon persistant"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Rappelle automatiquement votre dernier compagnon mascotte actif après sa disparition. Par exemple, après avoir volé ou traversé des portails."
+
+-- Welcome Message
+L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bienvenue dans LudiusPlus ! Tapez /ldp pour choisir les modules à activer."

@@ -1,16 +1,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("LudiusPlus", "zhTW")
 if not L then return end
 
--- Module Descriptions
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "將下馬和重新上馬分配給同一個按鍵，方便您在兩者之間切換。"
-L["Toggles the \"%s\" toy on and off with a hotkey."] = "使用熱鍵開啟或關閉「%s」玩具。"
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "根據聲音檔案 ID 靜音特定聲音。\n\n在 Wowhead (https://www.wowhead.com/sounds/) 上尋找 ID，或在 https://warcraft.wiki.gg/wiki/API_MuteSoundFile 上了解其他方法。\n\n範例：598079, 598187（盡責的侍從召喚聲音）。"
-L["Automatically skip confirmation dialogs"] = "自動跳過確認對話框。"
-L["Automatically maintain your desired weapon sheath state."] = "自動保持您期望的武器收拔狀態。"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "在最後激活的寵物夥伴消失後自動重新召喚。例如，在飛行或穿過傳送門之後。"
-
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "上下馬切換"
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "將下馬和重新上馬分配給同一個按鍵，方便您在兩者之間切換。"
 L["Enable"] = "啟用"
 L["Assigned Hotkey:"] = "已分配熱鍵："
 L["Not Bound"] = "未綁定"
@@ -37,17 +30,20 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = "手電筒（火把）"
+L["Toggles the \"%s\" toy on and off with a hotkey."] = "使用熱鍵開啟或關閉「%s」玩具。"
 L["Torch Toggle"] = "切換火把"
 L["Toy Missing:"] = "缺少玩具："
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "您沒有玩具「%s」！\n請從發光的置物箱中獲取：\nhttps://www.wowhead.com/tw/object=437211/發光的置物箱"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "靜音聲音"
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "根據聲音檔案 ID 靜音特定聲音。\n\n在 Wowhead (https://www.wowhead.com/sounds/) 上尋找 ID，或在 https://warcraft.wiki.gg/wiki/API_MuteSoundFile 上了解其他方法。\n\n範例：598079, 598187（盡責的侍從召喚聲音）。"
 L["Sound IDs to mute (comma-separated)"] = "要靜音的聲音 ID（逗號分隔）"
 L["Enter Sound File IDs separated by commas."] = "輸入用逗號分隔的聲音檔案 ID。"
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "對話跳過器"
+L["Automatically skip confirmation dialogs"] = "自動跳過確認對話框。"
 L["Skip auction house buyout confirmations"] = "跳過拍賣場直購確認"
 L["Only skip if price is below (gold)"] = "僅在價格低於（金幣）時跳過"
 L["Set the maximum price in gold for automatically confirming auctions."] = "設置自動確認拍賣的最高金幣價格。"
@@ -56,8 +52,15 @@ L["Skip Order Resources purchases"] = "跳過使用職業大廳資源購買確�
 L["Skip equip bind confirmations"] = "跳過裝備綁定確認"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "在裝備來自任務獎勵、商人或其他來源的裝備時，自動確認「裝備綁定」對話框。"
 
+-- VendorItemOverlay Options
+L["Vendor Item Overlay"] = "商人物品覆蓋"
+L["Display useful information as overlays for items at vendors."] = "為商人處的物品顯示有用的覆蓋資訊。"
+L["Ownership for decor items"] = "裝飾物品所有權"
+L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "訪問商人時顯示住房裝飾物品的所有權資訊。在每個物品圖示的右上角顯示數量，格式為[存儲中]/[總擁有]。"
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "持久武器狀態"
+L["Automatically maintain your desired weapon sheath state."] = "自動保持您期望的武器收拔狀態。"
 L["Restore sheathed"] = "恢復收起武器"
 L["Remembers if your last sheath/unsheath toggle was into the sheathed state and automatically returns to sheathed whenever a game action changes the state to unsheathed (for example, after combat)."] = "記住您最後是將武器收起，並在遊戲動作改變狀態為拔出（例如戰鬥後）時自動恢復為收起狀態。"
 L["Restore unsheathed"] = "恢復拔出武器"
@@ -67,3 +70,7 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "持久夥伴"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "在最後激活的寵物夥伴消失後自動重新召喚。例如，在飛行或穿過傳送門之後。"
+
+-- Welcome Message
+L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "歡迎使用 LudiusPlus！輸入 /ldp 選擇要啟用的模組。"

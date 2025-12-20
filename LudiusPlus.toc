@@ -23,5 +23,6 @@ MuteSounds.lua
 PersistentCompanion.lua
 PersistentUnsheath.lua
 RaceOnLastMount.lua
+VendorItemOverlay.lua
 
 options.lua
