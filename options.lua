@@ -40,6 +40,8 @@ local CONFIG_DEFAULTS = {
   muteSounds_enabled                   = false,
   muteSounds_soundIds                  = "598079, 598187",
 
+  vendorItemOverlay_enabled            = false,
+
   flashlight_enabled                   = false,
 
 }
@@ -201,17 +203,22 @@ local flashlightItemID = 224552
 local _, flashlightToyName = C_ToyBox.GetToyInfo(flashlightItemID)
 flashlightToyName = flashlightToyName or "Cave Spelunker's Torch"
 
+
 -- Module descriptions
+-- (Defining these here, as we use them as text and tooltip in the options.
+local dialogSkipperDesc = L["Automatically skip confirmation dialogs."]
+local vendorItemOverlayDesc = L["Display useful information as overlays for items at vendors."]
 local dismountToggleDesc = L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."]
-local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
-local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
-local dialogSkipperDesc = L["Automatically skip confirmation dialogs"]
-local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
-local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"]
 local raceOnLastMountDesc = L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game).\n\nNote: Cannot automatically switch to Druid Flight Form due to API limitations."]
+local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."]
+local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
+local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
+local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
+
 
 -- Module order (from most to least demanded)
 local dialogSkipperOrder = 1
+local vendorItemOverlayOrder = 1.5
 local dismountToggleOrder = 2
 local raceOnLastMountOrder = 3
 local persistentCompanionOrder = 4
@@ -829,6 +836,39 @@ local optionsTable = {
       },
     },
 
+    vendorItemOverlayGroup = {
+      type = "group",
+      name = function() return GetModuleGroupName(L["Vendor Item Overlay"], config.vendorItemOverlay_enabled) end,
+      desc = vendorItemOverlayDesc,
+      order = vendorItemOverlayOrder,
+      args = {
+
+        vendorItemOverlayDescription = {
+          order = 0,
+          type = "description",
+          name = vendorItemOverlayDesc,
+          width = "full",
+        },
+
+        vendorItemOverlayGroupBlank05 = {order = 0.5, type = "description", name = " ",},
+
+        vendorItemOverlayEnabled = {
+          order = 1,
+          type = "toggle",
+          name = L["Ownership for decor items"],
+          desc = L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+      },
+    },
+
     persistentUnsheathGroup = {
       type = "group",
       name = function() return GetModuleGroupName(L["Persistent Unsheath"], config.persistentUnsheath_autoSheath or config.persistentUnsheath_autoUnsheath) end,
@@ -926,6 +966,20 @@ local optionsTable = {
 
 
 
+local function AreAllModulesDisabled()
+  return not (
+    config.dialogSkipper_enabled or
+    config.dismountToggle_enabled or
+    config.raceOnLastMount_enabled or
+    config.persistentCompanion_enabled or
+    config.persistentUnsheath_autoSheath or
+    config.persistentUnsheath_autoUnsheath or
+    config.muteSounds_enabled or
+    config.vendorItemOverlay_enabled or
+    config.flashlight_enabled
+  )
+end
+
 function addon:OnInitialize()
 
   LP_config = LP_config or {}
@@ -950,7 +1004,18 @@ function addon:OnInitialize()
     end
   end
 
+  -- Print welcome message if all modules are disabled
+  if AreAllModulesDisabled() then
+    print("|cFFFF8800" .. L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] .. "|r")
+  end
+
   LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(appName, optionsTable)
   self.optionsMenu = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(appName)
+
+  -- Register chat command to open settings
+  SLASH_LUDIUSPLUS1 = "/ldp"
+  SlashCmdList["LUDIUSPLUS"] = function()
+    Settings.OpenToCategory(self.optionsMenu.name)
+  end
 
 end

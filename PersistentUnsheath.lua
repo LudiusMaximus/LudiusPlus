@@ -132,7 +132,7 @@ end
 
 
 local eventFrame = CreateFrame("Frame")
-local hooksSetup = false
+local isHooked = false
 
 
 local function StartTicker()
@@ -150,24 +150,47 @@ local function StartTicker()
       restoreUnsheathTicker = C_Timer.NewTicker(0.25, RestoreUnsheath)
     end
   end)
+
+end
+
+
+local function EventFrameScript(self, event, ...)
+
+  if event == "PLAYER_ENTERING_WORLD" then
+    -- print("PLAYER_ENTERING_WORLD")
+    StartTicker()
+
+  elseif event == "ADDON_LOADED" then
+    -- print("ADDON_LOADED")
+    local addonName = ...
+    if addonName == "LudiusPlus" then
+
+      -- Initialize variables if needed.
+      LP_desiredUnsheath = LP_desiredUnsheath or {}
+      LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
+      desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
+
+      -- print("ADDON_LOADED LudiusPlus", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
+      self:UnregisterEvent("ADDON_LOADED")
+      addon.SetupOrTeardownPersistentUnsheath()
+    end
+
+  end
 end
 
 
 local function SetupPersistentUnsheath()
   -- print("SetupPersistentUnsheath")
-  
+
   -- Register event handler for zone changes and reloads
   eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-  eventFrame:SetScript("OnEvent", function()
-    -- print("PLAYER_ENTERING_WORLD")
-    StartTicker()
-  end)
+  eventFrame:SetScript("OnEvent", EventFrameScript)
 
-  -- Start immediately if we're already in the world
+  -- Start immediately if we're already in the world.
   StartTicker()
 
-  -- Only setup hooks once
-  if not hooksSetup then
+  -- Only setup hooks once.
+  if not isHooked then
     -- If player manually calls ToggleSheath(), we check the result.
     hooksecurefunc("ToggleSheath", function(caller)
       -- print("ToggleSheath", caller)
@@ -191,7 +214,7 @@ local function SetupPersistentUnsheath()
       noRestoreBefore = GetTime() + 3
     end)
 
-    hooksSetup = true
+    isHooked = true
   end
 end
 
@@ -201,7 +224,7 @@ local function TeardownPersistentUnsheath()
 
   eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:SetScript("OnEvent", nil)
-  
+
   if restoreUnsheathTicker and not restoreUnsheathTicker:IsCancelled() then
     restoreUnsheathTicker:Cancel()
   end
@@ -223,16 +246,4 @@ end
 
 -- Initialize when addon loads
 eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:SetScript("OnEvent", function(self, event, addonName)
-  if addonName == "LudiusPlus" then
-  
-    -- Initialize variables if needed.
-    LP_desiredUnsheath = LP_desiredUnsheath or {}
-    LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-    desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
-  
-    -- print("ADDON_LOADED LudiusPlus", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
-    self:UnregisterEvent("ADDON_LOADED")
-    addon.SetupOrTeardownPersistentUnsheath()
-  end
-end)
+eventFrame:SetScript("OnEvent", EventFrameScript)

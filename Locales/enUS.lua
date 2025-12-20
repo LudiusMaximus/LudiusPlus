@@ -1,16 +1,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("LudiusPlus", "enUS", true, true)
 if not L then return end
 
--- Module Descriptions
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = true
-L["Toggles the \"%s\" toy on and off with a hotkey."] = true
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
-L["Automatically skip confirmation dialogs"] = true
-L["Automatically maintain your desired weapon sheath state."] = true
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = true
-
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = true
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = true
 L["Enable"] = true
 L["Assigned Hotkey:"] = true
 L["Not Bound"] = true
@@ -37,17 +30,20 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = true
+L["Toggles the \"%s\" toy on and off with a hotkey."] = true
 L["Torch Toggle"] = true
 L["Toy Missing:"] = true
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
 L["Sound IDs to mute (comma-separated)"] = true
 L["Enter Sound File IDs separated by commas."] = true
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = true
+L["Automatically skip confirmation dialogs"] = true
 L["Skip auction house buyout confirmations"] = true
 L["Only skip if price is below (gold)"] = true
 L["Set the maximum price in gold for automatically confirming auctions."] = true
@@ -56,8 +52,15 @@ L["Skip Order Resources purchases"] = true
 L["Skip equip bind confirmations"] = true
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = true
 
+-- VendorItemOverlay Options
+L["Vendor Item Overlay"] = true
+L["Display useful information as overlays for items at vendors."] = true
+L["Ownership for decor items"] = true
+L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = true
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = true
+L["Automatically maintain your desired weapon sheath state."] = true
 L["Restore sheathed"] = true
 L["Remembers if your last sheath/unsheath toggle was into the sheathed state and automatically returns to sheathed whenever a game action changes the state to unsheathed (for example, after combat)."] = true
 L["Restore unsheathed"] = true
@@ -67,3 +70,7 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = true
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = true
+
+-- Welcome Message
+L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = true

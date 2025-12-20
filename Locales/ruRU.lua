@@ -1,16 +1,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("LudiusPlus", "ruRU")
 if not L then return end
 
--- Module Descriptions
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Назначает спешивание и повторное использование транспорта на одну клавишу для удобного переключения."
-L["Toggles the \"%s\" toy on and off with a hotkey."] = "Включает и выключает игрушку \"%s\" горячей клавишей."
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Отключает определенные звуки по их ID файла звука.\n\nНайдите ID на Wowhead (https://www.wowhead.com/sounds/) или узнайте о других методах на https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nПример: 598079, 598187 (звуки призыва Верного оруженосца)."
-L["Automatically skip confirmation dialogs"] = "Автоматически пропускает диалоги подтверждения."
-L["Automatically maintain your desired weapon sheath state."] = "Автоматически поддерживает желаемое состояние оружия (в ножнах/в руках)."
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Автоматически повторно призывает вашего последнего активного спутника после его исчезновения. Например, после полета или прохождения через порталы."
-
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Переключение Транспорт/Спешивание"
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Назначает спешивание и повторное использование транспорта на одну клавишу для удобного переключения."
 L["Enable"] = "Включить"
 L["Assigned Hotkey:"] = "Назначенная клавиша:"
 L["Not Bound"] = "Не назначено"
@@ -37,17 +30,20 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = "Фонарик (Факел)"
+L["Toggles the \"%s\" toy on and off with a hotkey."] = "Включает и выключает игрушку \"%s\" горячей клавишей."
 L["Torch Toggle"] = "Переключить факел"
 L["Toy Missing:"] = "Игрушка отсутствует:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "У вас нет игрушки «%s»!\nПолучите ее из Сияющего сундука:\nhttps://www.wowhead.com/ru/object=437211/сияющий-сундук"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Отключить звуки"
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Отключает определенные звуки по их ID файла звука.\n\nНайдите ID на Wowhead (https://www.wowhead.com/sounds/) или узнайте о других методах на https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nПример: 598079, 598187 (звуки призыва Верного оруженосца)."
 L["Sound IDs to mute (comma-separated)"] = "ID звуков для отключения (через запятую)"
 L["Enter Sound File IDs separated by commas."] = "Введите ID звуковых файлов через запятую."
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Пропуск диалогов"
+L["Automatically skip confirmation dialogs"] = "Автоматически пропускает диалоги подтверждения."
 L["Skip auction house buyout confirmations"] = "Пропускать подтверждение выкупа на аукционе"
 L["Only skip if price is below (gold)"] = "Пропускать только если цена ниже (золото)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "Установите максимальную цену в золоте для автоматического подтверждения аукционов."
@@ -56,8 +52,15 @@ L["Skip Order Resources purchases"] = "Пропускать подтвержде
 L["Skip equip bind confirmations"] = "Пропускать подтверждение персональных предметов"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "Автоматически подтверждает диалоги «Становится персональным при надевании» при экипировке предметов из наград за задания, от торговцев или других источников."
 
+-- VendorItemOverlay Options
+L["Vendor Item Overlay"] = "Наложение предметов торговца"
+L["Display useful information as overlays for items at vendors."] = "Показывает полезную информацию в виде наложений для предметов у торговцев."
+L["Ownership for decor items"] = "Владение декором"
+L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Показывает информацию о владении предметами декора жилья при посещении торговцев. Количество отображается как [на складе]/[всего принадлежит] в правом верхнем углу каждого значка предмета."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Постоянное оружие"
+L["Automatically maintain your desired weapon sheath state."] = "Автоматически поддерживает желаемое состояние оружия (в ножнах/в руках)."
 L["Restore sheathed"] = "Восстанавливать в ножнах"
 L["Remembers if your last sheath/unsheath toggle was into the sheathed state and automatically returns to sheathed whenever a game action changes the state to unsheathed (for example, after combat)."] = "Запоминает, если вы убрали оружие, и автоматически убирает его снова, если какое-либо действие заставило достать его (например, после боя)."
 L["Restore unsheathed"] = "Восстанавливать в руках"
@@ -67,3 +70,7 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "Постоянный спутник"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Автоматически повторно призывает вашего последнего активного спутника после его исчезновения. Например, после полета или прохождения через порталы."
+
+-- Welcome Message
+L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Добро пожаловать в LudiusPlus! Введите /ldp, чтобы выбрать модули для включения."

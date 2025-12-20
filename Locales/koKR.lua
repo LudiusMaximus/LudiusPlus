@@ -1,16 +1,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("LudiusPlus", "koKR")
 if not L then return end
 
--- Module Descriptions
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "내리기와 다시 타기를 단일 키에 할당하여 편안하게 전환할 수 있습니다."
-L["Toggles the \"%s\" toy on and off with a hotkey."] = "단축키로 \"%s\" 장난감을 켜고 끕니다."
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "사운드 파일 ID로 특정 소리를 음소거합니다.\n\nWowhead(https://www.wowhead.com/sounds/)에서 ID를 찾거나 https://warcraft.wiki.gg/wiki/API_MuteSoundFile에서 다른 방법에 대해 알아보세요.\n\n예: 598079, 598187 (충직한 종자 소환 소리)."
-L["Automatically skip confirmation dialogs"] = "확인 대화 상자를 자동으로 건너뜁니다."
-L["Automatically maintain your desired weapon sheath state."] = "원하는 무기 무장/해제 상태를 자동으로 유지합니다."
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "사라진 후 마지막 활성 애완동물 동료를 자동으로 다시 소환합니다. 예: 비행 후 또는 포털을 통과한 후."
-
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "내리기/타기 전환"
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "내리기와 다시 타기를 단일 키에 할당하여 편안하게 전환할 수 있습니다."
 L["Enable"] = "활성화"
 L["Assigned Hotkey:"] = "할당된 단축키:"
 L["Not Bound"] = "할당 안 됨"
@@ -37,17 +30,20 @@ L["When you start a Skyriding race while not mounted, you're automatically place
 
 -- Flashlight Options
 L["Flashlight (Torch)"] = "손전등 (횃불)"
+L["Toggles the \"%s\" toy on and off with a hotkey."] = "단축키로 \"%s\" 장난감을 켜고 끕니다."
 L["Torch Toggle"] = "횃불 켜기/끄기"
 L["Toy Missing:"] = "장난감 없음:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "\"%s\" 장난감을 가지고 있지 않습니다!\n빛나는 사물함에서 획득하세요:\nhttps://www.wowhead.com/ko/object=437211/빛나는-사물함"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "소리 음소거"
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "사운드 파일 ID로 특정 소리를 음소거합니다.\n\nWowhead(https://www.wowhead.com/sounds/)에서 ID를 찾거나 https://warcraft.wiki.gg/wiki/API_MuteSoundFile에서 다른 방법에 대해 알아보세요.\n\n예: 598079, 598187 (충직한 종자 소환 소리)."
 L["Sound IDs to mute (comma-separated)"] = "음소거할 사운드 ID (쉼표로 구분)"
 L["Enter Sound File IDs separated by commas."] = "쉼표로 구분하여 사운드 파일 ID를 입력하십시오."
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "대화 건너뛰기"
+L["Automatically skip confirmation dialogs"] = "확인 대화 상자를 자동으로 건너뜁니다."
 L["Skip auction house buyout confirmations"] = "경매장 즉시 구입 확인 건너뛰기"
 L["Only skip if price is below (gold)"] = "가격이 다음 미만일 경우에만 건너뛰기 (골드)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "경매를 자동으로 확인할 최대 가격(골드)을 설정합니다."
@@ -56,8 +52,15 @@ L["Skip Order Resources purchases"] = "연맹 자원 구매 확인 건너뛰기"
 L["Skip equip bind confirmations"] = "착용 시 귀속 확인 건너뛰기"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "퀘스트 보상, 상인 또는 기타 출처의 장비를 착용할 때 \"착용 시 귀속\" 대화 상자를 자동으로 확인합니다."
 
+-- VendorItemOverlay Options
+L["Vendor Item Overlay"] = "상인 아이템 오버레이"
+L["Display useful information as overlays for items at vendors."] = "상인의 아이템에 유용한 정보를 오버레이로 표시합니다."
+L["Ownership for decor items"] = "장식 아이템 소유 정보"
+L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "상인 방문 시 주거 장식 아이템의 소유 정보를 표시합니다. 각 아이템 아이콘의 오른쪽 상단에 [보관 중]/[총 소유] 형식으로 수량이 표시됩니다."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "무기 상태 유지"
+L["Automatically maintain your desired weapon sheath state."] = "원하는 무기 무장/해제 상태를 자동으로 유지합니다."
 L["Restore sheathed"] = "무기 넣기 복원"
 L["Remembers if your last sheath/unsheath toggle was into the sheathed state and automatically returns to sheathed whenever a game action changes the state to unsheathed (for example, after combat)."] = "마지막으로 무기를 넣은 상태였는지 기억하고, 게임 동작으로 인해 무기를 꺼내게 될 때(예: 전투 후) 자동으로 무기를 넣은 상태로 돌아갑니다."
 L["Restore unsheathed"] = "무기 꺼내기 복원"
@@ -67,3 +70,7 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "지속적인 동료"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "사라진 후 마지막 활성 애완동물 동료를 자동으로 다시 소환합니다. 예: 비행 후 또는 포털을 통과한 후."
+
+-- Welcome Message
+L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."
