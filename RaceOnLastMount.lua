@@ -23,6 +23,17 @@ end
 -- where the mount swapping has to take place.
 local preRacePhase = nil
 local summoningLastMount = nil
+local trackingResumeTimer = nil
+
+local function ResumeTrackingWithCleanup()
+  preRacePhase = nil
+  summoningLastMount = nil
+  LibMountInfo:ResumeTracking()
+  if trackingResumeTimer then
+    trackingResumeTimer:Cancel()
+    trackingResumeTimer = nil
+  end
+end
 
 
 local mountingFrame = CreateFrame("Frame")
@@ -34,6 +45,7 @@ mountingFrame:SetScript("OnEvent", function(_, event, ...)
   local currentMount, isFlying = LibMountInfo:GetCurrentMount()
   local lastFlyingMount = LibMountInfo:GetLastFlyingMount()
 
+  -- print(preRacePhase, currentMount, isFlying, lastFlyingMount)
   if preRacePhase and currentMount and isFlying and lastFlyingMount and currentMount ~= lastFlyingMount then
     if not summoningLastMount then
       summoningLastMount = true
@@ -49,20 +61,27 @@ local unitAuraFrame = CreateFrame("Frame")
 unitAuraFrame:RegisterEvent("UNIT_AURA")
 unitAuraFrame:SetScript("OnEvent", function(_, _, unitTarget, updateInfo)
 
-  if not LP_config.raceOnLastMount_enabled then return end
+  if not LP_config.raceOnLastMount_enabled then return end  
   if unitTarget ~= "player" then return end
+
 
   if updateInfo and updateInfo.addedAuras then
     for _, v in pairs(updateInfo.addedAuras) do
       if v.spellId then
         if raceBuffs[v.spellId] then
-          -- Starting race countdown
+          -- print("Starting race countdown")
           preRacePhase = true
+          -- Pause LibMountInfo tracking so the automatic race mount is not recorded as the last mount
+          LibMountInfo:PauseTracking()
+          -- Safeguard: resume tracking after 10 seconds in case race proper spell is never detected
+          if trackingResumeTimer then
+            trackingResumeTimer:Cancel()
+          end
+          trackingResumeTimer = C_Timer.NewTimer(10, ResumeTrackingWithCleanup)
           break
         elseif v.spellId == 369968 then
-          -- Starting race proper
-          preRacePhase = nil
-          summoningLastMount = nil
+          -- print("Starting race proper")
+          ResumeTrackingWithCleanup()
           break
         end
       end
