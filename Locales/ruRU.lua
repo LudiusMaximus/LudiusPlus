@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = "Добавить полезных маунтов"
 L["Adds commonly used utility mounts to the ignore list:"] = "Добавляет часто используемых полезных маунтов (ремонт/торговцы) в список игнорирования:"
 L["Auto-mount last non-ignored mount when on ignored mounts"] = "Авто-маунт последнего неигнорируемого маунта"
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "Если вы на игнорируемом маунте, клавиша спешит вас и сразу призовет последнего неигнорируемого маунта. Отключите, чтобы только спешиваться."
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = "Модуль Переключение Транспорт/Спешивание отключен. Включите его в настройках аддона."
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "Гонка на последнем маунте"
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "Включает и в�
 L["Torch Toggle"] = "Переключить факел"
 L["Toy Missing:"] = "Игрушка отсутствует:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "У вас нет игрушки «%s»!\nПолучите ее из Сияющего сундука:\nhttps://www.wowhead.com/ru/object=437211/сияющий-сундук"
+L["Flashlight module is disabled. Enable it in the addon options."] = "Модуль Фонарик отключен. Включите его в настройках аддона."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Отключить звуки"
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = "Введите ID звуков
 L["Dialog Skipper"] = "Пропуск диалогов"
 L["Automatically skip confirmation dialogs"] = "Автоматически пропускает диалоги подтверждения."
 L["Skip auction house buyout confirmations"] = "Пропускать подтверждение выкупа на аукционе"
+L["Back to previous item list after buyout"] = "Вернуться к предыдущему списку после покупки"
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "После выкупа предмета аддон автоматически возвращает вас к предыдущему обзору списка предметов. Это полезно, когда вы обычно покупаете одно предложение предмета, а затем хотите вернуться, чтобы просматривать другие предметы."
 L["Only skip if price is below (gold)"] = "Пропускать только если цена ниже (золото)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "Установите максимальную цену в золоте для автоматического подтверждения аукционов."
 L["Skip Polished Pet Charm purchases"] = "Пропускать подтверждение покупок за Отполированные обереги"

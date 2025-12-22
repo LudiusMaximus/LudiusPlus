@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = "Rellenar Monturas de Utilidad"
 L["Adds commonly used utility mounts to the ignore list:"] = "Añade monturas de utilidad comúnmente usadas a la lista de ignorados:"
 L["Auto-mount last non-ignored mount when on ignored mounts"] = "Montar automáticamente última montura no ignorada si estás en montura ignorada"
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "Mientras estás en una montura ignorada, la tecla te desmontará e invocará inmediatamente la última montura no ignorada. Desactívalo para solo desmontar."
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = "El módulo Alternar Montar/Desmontar está desactivado. Actívalo en las opciones del addon."
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "Carrera en la última montura"
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "Activa y desactiva el j
 L["Torch Toggle"] = "Alternar antorcha"
 L["Toy Missing:"] = "Falta el juguete:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "¡No tienes el juguete «%s»!\nConsíguelo del Baúl iluminado:\nhttps://www.wowhead.com/es/object=437211/ba%C3%BAl-iluminado"
+L["Flashlight module is disabled. Enable it in the addon options."] = "El módulo Linterna está desactivado. Actívalo en las opciones del addon."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Silenciar sonidos"
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = "Introduce los IDs de archivo d
 L["Dialog Skipper"] = "Omitir Diálogos"
 L["Automatically skip confirmation dialogs"] = "Omite automáticamente los diálogos de confirmación."
 L["Skip auction house buyout confirmations"] = "Omitir confirmaciones de compra en subasta"
+L["Back to previous item list after buyout"] = "Volver a la lista anterior después de la compra"
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "Después de comprar un artículo, el addon te devuelve automáticamente a la vista general de la lista de artículos anterior. Esto es útil cuando normalmente compras una oferta de un artículo y luego quieres volver para explorar otros artículos."
 L["Only skip if price is below (gold)"] = "Solo omitir si el precio es inferior a (oro)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "Establece el precio máximo en oro para confirmar subastas automáticamente."
 L["Skip Polished Pet Charm purchases"] = "Omitir compras con Talismanes de mascotas pulidos"

@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = "편의성 탈것 채우기"
 L["Adds commonly used utility mounts to the ignore list:"] = "자주 사용하는 편의성 탈것을 무시 목록에 추가합니다:"
 L["Auto-mount last non-ignored mount when on ignored mounts"] = "무시된 탈것 탑승 시 마지막 비무시 탈것 자동 탑승"
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "무시된 탈것에 탑승한 상태에서 단축키를 누르면 내린 후 즉시 마지막으로 무시되지 않은 탈것에 탑승합니다. 내리기만 하려면 비활성화하십시오."
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = "내리기/타기 전환 모듈이 비활성화되어 있습니다. 애드온 설정에서 활성화하세요."
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "마지막 탈것으로 경주"
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "단축키로 \"%s\" 장
 L["Torch Toggle"] = "횃불 켜기/끄기"
 L["Toy Missing:"] = "장난감 없음:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "\"%s\" 장난감을 가지고 있지 않습니다!\n빛나는 사물함에서 획득하세요:\nhttps://www.wowhead.com/ko/object=437211/빛나는-사물함"
+L["Flashlight module is disabled. Enable it in the addon options."] = "횜래시 모듈이 비활성화되어 있습니다. 애드온 설정에서 활성화하세요."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "소리 음소거"
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = "쉼표로 구분하여 사운�
 L["Dialog Skipper"] = "대화 건너뛰기"
 L["Automatically skip confirmation dialogs"] = "확인 대화 상자를 자동으로 건너뜁니다."
 L["Skip auction house buyout confirmations"] = "경매장 즉시 구입 확인 건너뛰기"
+L["Back to previous item list after buyout"] = "구매 후 이전 목록으로 돌아가기"
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "아이템을 구매한 후 애드온이 자동으로 이전 아이템 목록 개요로 돌아갑니다. 일반적으로 아이템의 한 목록을 구매한 다음 돌아가서 다른 아이템을 탐색하려는 경우 유용합니다."
 L["Only skip if price is below (gold)"] = "가격이 다음 미만일 경우에만 건너뛰기 (골드)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "경매를 자동으로 확인할 최대 가격(골드)을 설정합니다."
 L["Skip Polished Pet Charm purchases"] = "윤나는 애완동물 부적 구매 확인 건너뛰기"

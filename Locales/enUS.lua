@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = true
 L["Adds commonly used utility mounts to the ignore list:"] = true
 L["Auto-mount last non-ignored mount when on ignored mounts"] = true
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = true
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = true
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = true
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = true
 L["Torch Toggle"] = true
 L["Toy Missing:"] = true
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
+L["Flashlight module is disabled. Enable it in the addon options."] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = true
 L["Dialog Skipper"] = true
 L["Automatically skip confirmation dialogs"] = true
 L["Skip auction house buyout confirmations"] = true
+L["Back to previous item list after buyout"] = true
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = true
 L["Only skip if price is below (gold)"] = true
 L["Set the maximum price in gold for automatically confirming auctions."] = true
 L["Skip Polished Pet Charm purchases"] = true

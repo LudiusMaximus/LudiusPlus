@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = "填入功能性坐骑"
 L["Adds commonly used utility mounts to the ignore list:"] = "将常用的功能性坐骑添加到忽略列表："
 L["Auto-mount last non-ignored mount when on ignored mounts"] = "在忽略坐骑上时自动召唤最后非忽略坐骑"
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "当在忽略坐骑上时，热键将下马并立即召唤最后一个非忽略坐骑。禁用此项则仅执行下马。"
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = "上下马切换模块已禁用。请在插件设置中启用。"
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "使用最后坐骑竞速"
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "使用热键开启或�
 L["Torch Toggle"] = "切换火把"
 L["Toy Missing:"] = "缺少玩具："
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "您没有玩具“%s”！\n请从光耀提箱中获取：\nhttps://www.wowhead.com/cn/object=437211/光耀提箱"
+L["Flashlight module is disabled. Enable it in the addon options."] = "手电筒模块已禁用。请在插件设置中启用。"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "静音声音"
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = "输入用逗号分隔的声音
 L["Dialog Skipper"] = "对话跳过器"
 L["Automatically skip confirmation dialogs"] = "自动跳过确认对话框。"
 L["Skip auction house buyout confirmations"] = "跳过拍卖行一口价确认"
+L["Back to previous item list after buyout"] = "购买后返回上一个列表"
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "购买物品后，插件自动返回上一个物品列表概览。当您通常购买一个物品的一条清单，然后想返回浏览其他物品时，这很有用。"
 L["Only skip if price is below (gold)"] = "仅在价格低于（金币）时跳过"
 L["Set the maximum price in gold for automatically confirming auctions."] = "设置自动确认拍卖的最高金币价格。"
 L["Skip Polished Pet Charm purchases"] = "跳过使用抛光的宠物符购买确认"
