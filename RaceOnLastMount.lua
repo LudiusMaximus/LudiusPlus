@@ -36,56 +36,100 @@ local function ResumeTrackingWithCleanup()
 end
 
 
-local mountingFrame = CreateFrame("Frame")
-mountingFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-mountingFrame:SetScript("OnEvent", function(_, event, ...)
+local eventFrame = CreateFrame("Frame")
 
-  if not LP_config.raceOnLastMount_enabled then return end
 
-  local currentMount, isFlying = LibMountInfo:GetCurrentMount()
-  local lastFlyingMount = LibMountInfo:GetLastFlyingMount()
+local function EventFrameScript(self, event, ...)
 
-  -- print(preRacePhase, currentMount, isFlying, lastFlyingMount)
-  if preRacePhase and currentMount and isFlying and lastFlyingMount and currentMount ~= lastFlyingMount then
-    if not summoningLastMount then
-      summoningLastMount = true
-      -- Got to delay because the game will switch back to the Protodrake within the first 2 seconds.
-      C_Timer_After(2, function() C_MountJournal_SummonByID(lastFlyingMount) end)
+  if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
+    local currentMount, isFlying = LibMountInfo:GetCurrentMount()
+    local lastFlyingMount = LibMountInfo:GetLastFlyingMount()
+
+    -- print(preRacePhase, currentMount, isFlying, lastFlyingMount)
+    if preRacePhase and currentMount and isFlying and lastFlyingMount and currentMount ~= lastFlyingMount then
+      if not summoningLastMount then
+        summoningLastMount = true
+        -- Got to delay because the game will switch back to the Protodrake within the first 2 seconds.
+        C_Timer_After(2, function() C_MountJournal_SummonByID(lastFlyingMount) end)
+      end
     end
-  end
 
-end)
+  elseif event == "UNIT_AURA" then
+    local unitTarget, updateInfo = ...
+    if unitTarget ~= "player" then return end
 
-
-local unitAuraFrame = CreateFrame("Frame")
-unitAuraFrame:RegisterEvent("UNIT_AURA")
-unitAuraFrame:SetScript("OnEvent", function(_, _, unitTarget, updateInfo)
-
-  if not LP_config.raceOnLastMount_enabled then return end  
-  if unitTarget ~= "player" then return end
-
-
-  if updateInfo and updateInfo.addedAuras then
-    for _, v in pairs(updateInfo.addedAuras) do
-      if v.spellId then
-        if raceBuffs[v.spellId] then
-          -- print("Starting race countdown")
-          preRacePhase = true
-          -- Pause LibMountInfo tracking so the automatic race mount is not recorded as the last mount
-          LibMountInfo:PauseTracking()
-          -- Safeguard: resume tracking after 10 seconds in case race proper spell is never detected
-          if trackingResumeTimer then
-            trackingResumeTimer:Cancel()
+    if updateInfo and updateInfo.addedAuras then
+      for _, v in pairs(updateInfo.addedAuras) do
+        if v.spellId then
+          if raceBuffs[v.spellId] then
+            -- print("Starting race countdown")
+            preRacePhase = true
+            -- Pause LibMountInfo tracking so the automatic race mount is not recorded as the last mount
+            LibMountInfo:PauseTracking()
+            -- Safeguard: resume tracking after 10 seconds in case race proper spell is never detected
+            if trackingResumeTimer then
+              trackingResumeTimer:Cancel()
+            end
+            trackingResumeTimer = C_Timer.NewTimer(10, ResumeTrackingWithCleanup)
+            break
+          elseif v.spellId == 369968 then
+            -- print("Starting race proper")
+            ResumeTrackingWithCleanup()
+            break
           end
-          trackingResumeTimer = C_Timer.NewTimer(10, ResumeTrackingWithCleanup)
-          break
-        elseif v.spellId == 369968 then
-          -- print("Starting race proper")
-          ResumeTrackingWithCleanup()
-          break
         end
       end
     end
+
+  elseif event == "ADDON_LOADED" then
+    local addonName = ...
+    if addonName == "LudiusPlus" then
+      self:UnregisterEvent("ADDON_LOADED")
+      addon.SetupOrTeardownRaceOnLastMount()
+    end
+
+  end
+end
+
+
+local function SetupRaceOnLastMount()
+  -- print("SetupRaceOnLastMount")
+
+  eventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+  eventFrame:RegisterEvent("UNIT_AURA")
+  eventFrame:SetScript("OnEvent", EventFrameScript)
+end
+
+
+local function TeardownRaceOnLastMount()
+  -- print("TeardownRaceOnLastMount")
+
+  eventFrame:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+  eventFrame:UnregisterEvent("UNIT_AURA")
+  eventFrame:SetScript("OnEvent", nil)
+
+  -- Clean up any pending timers
+  if trackingResumeTimer then
+    trackingResumeTimer:Cancel()
+    trackingResumeTimer = nil
   end
 
-end)
+  -- Resume tracking if it was paused
+  if preRacePhase then
+    ResumeTrackingWithCleanup()
+  end
+end
+
+
+function addon.SetupOrTeardownRaceOnLastMount()
+  if LP_config and LP_config.raceOnLastMount_enabled then
+    SetupRaceOnLastMount()
+  else
+    TeardownRaceOnLastMount()
+  end
+end
+
+
+-- Initialize when addon loads
+eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:SetScript("OnEvent", EventFrameScript)

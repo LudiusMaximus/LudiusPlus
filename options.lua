@@ -17,6 +17,7 @@ local CONFIG_DEFAULTS = {
 
   dialogSkipper_enabled                = false,
   dialogSkipper_skipAuction            = true,
+  dialogSkipper_auctionBackButton      = true,
   dialogSkipper_auctionPriceLimit      = 10000000,
   dialogSkipper_skipPetCharm           = true,
   dialogSkipper_skipOrderResources     = true,
@@ -274,7 +275,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dismountToggle_enabled = newValue
-              addon.SetupDismountToggleMacro()
+              addon.SetupOrTeardownDismountToggle()
             end,
         },
 
@@ -442,7 +443,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dismountToggle_ignoredMountAutoMount = newValue
-              addon.SetupDismountToggleMacro()
+              addon.SetupOrTeardownDismountToggle()
             end,
           disabled =
             function()
@@ -469,7 +470,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dismountToggle_changeActionBarTo = newValue
-              addon.SetupDismountToggleMacro()
+              addon.SetupOrTeardownDismountToggle()
             end,
           values = {
             [1] = "1",
@@ -494,7 +495,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dismountToggle_travelFormEnabled = newValue
-              addon.SetupDismountToggleMacro()
+              addon.SetupOrTeardownDismountToggle()
             end,
           disabled =
             function()
@@ -512,7 +513,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dismountToggle_soarEnabled = newValue
-              addon.SetupDismountToggleMacro()
+              addon.SetupOrTeardownDismountToggle()
             end,
           disabled =
             function()
@@ -548,6 +549,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.raceOnLastMount_enabled = newValue
+              addon.SetupOrTeardownRaceOnLastMount()
             end,
         },
 
@@ -594,7 +596,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.flashlight_enabled = newValue
-              addon.SetupFlashlightMacros()
+              addon.SetupOrTeardownFlashlight()
             end,
           disabled = function() return not addon.HasFlashlightToy() end,
         },
@@ -690,7 +692,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.muteSounds_enabled = newValue
-              addon.SetupMuteSounds()
+              addon.SetupOrTeardownMuteSounds()
             end,
         },
 
@@ -705,7 +707,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.muteSounds_soundIds = newValue
-              addon.SetupMuteSounds()
+              addon.SetupOrTeardownMuteSounds()
             end,
           disabled =
             function()
@@ -740,6 +742,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_enabled = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
         },
 
@@ -752,6 +755,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_skipAuction = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
             function()
@@ -760,6 +764,24 @@ local optionsTable = {
         },
 
         dialogSkipperGroupBlank15 = {order = 1.5, type = "description", name = " ",},
+
+        dialogSkipperAuctionBackButton = {
+          order = 2.5,
+          type = "toggle",
+          name = L["Back to previous item list after buyout"],
+          desc = L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."],
+          width = "full",
+          get = function() return config.dialogSkipper_auctionBackButton end,
+          set =
+            function(_, newValue)
+              config.dialogSkipper_auctionBackButton = newValue
+              addon.SetupOrTeardownDialogSkipper()
+            end,
+          disabled =
+            function()
+              return not config.dialogSkipper_enabled or not config.dialogSkipper_skipAuction
+            end,
+        },
 
         dialogSkipperAuctionPriceLimit = {
           order = 3,
@@ -773,6 +795,7 @@ local optionsTable = {
               local num = tonumber(newValue)
               if num then
                 config.dialogSkipper_auctionPriceLimit = math.floor(num * 10000)
+                addon.SetupOrTeardownDialogSkipper()
               end
             end,
           disabled =
@@ -792,6 +815,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_skipPetCharm = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
             function()
@@ -808,6 +832,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_skipOrderResources = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
             function()
@@ -827,6 +852,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_skipEquipBind = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
             function()
@@ -925,6 +951,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.persistentUnsheath_muteToggleSounds = newValue
+              addon.SetupOrTeardownPersistentUnsheath()
             end,
         },
       },
@@ -955,7 +982,7 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.persistentCompanion_enabled = newValue
-              addon.SetupPersistentCompanion()
+              addon.SetupOrTeardownPersistentCompanion()
             end,
         },
       },

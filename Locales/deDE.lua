@@ -23,6 +23,7 @@ L["Fill in Utility Mounts"] = "Nutz-Reittiere eintragen"
 L["Adds commonly used utility mounts to the ignore list:"] = "Fügt häufig genutzte Nutz-Reittiere zur Ignorierliste hinzu:"
 L["Auto-mount last non-ignored mount when on ignored mounts"] = "Automatisch auf nicht-ignoriertes Reittier wechseln, wenn auf ignoriertem Reittier"
 L["While on an ignored mount, the hotkey will dismount and immediately mount the last non-ignored mount. Disable to only dismount."] = "Wenn ihr auf einem ignorierten Reittier sitzt, wird der Hotkey euch absitzen lassen und sofort das letzte nicht-ignorierte Reittier beschwören. Deaktivieren, um nur abzusitzen."
+L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."] = "Ab-/Aufsitzen-Umschalter ist deaktiviert. Aktiviert ihn in den Addon-Optionen."
 
 -- RaceOnLastMount Options
 L["Race on Last Mount"] = "Rennen mit letztem Reittier"
@@ -34,6 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "Schaltet das „%s“ S
 L["Torch Toggle"] = "Fackel umschalten"
 L["Toy Missing:"] = "Spielzeug fehlt:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "Ihr besitzt das „%s“ nicht!\nHolt es euch aus der Beleuchteten Schließkiste:\nhttps://www.wowhead.com/de/object=437211/beleuchtete-schließkiste"
+L["Flashlight module is disabled. Enable it in the addon options."] = "Taschenlampen-Modul ist deaktiviert. Aktiviert es in den Addon-Optionen."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Töne stummschalten"
@@ -45,6 +47,8 @@ L["Enter Sound File IDs separated by commas."] = "Gebt Sound-Datei-IDs durch Kom
 L["Dialog Skipper"] = "Dialog-Überspringer"
 L["Automatically skip confirmation dialogs"] = "Überspringt automatisch Bestätigungsdialoge."
 L["Skip auction house buyout confirmations"] = "Sofortkauf-Bestätigungen im Auktionshaus überspringen"
+L["Back to previous item list after buyout"] = "Zurück zur vorherigen Artikelliste nach Sofortkauf"
+L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "Nach dem Sofortkauf bringt das Addon euch automatisch zur vorherigen Artikelübersicht zurück. Dies ist nützlich, wenn ihr normalerweise ein Angebot eines Artikels kauft und dann zur Übersicht zurückkehren möchtet, um andere Artikel zu durchsuchen."
 L["Only skip if price is below (gold)"] = "Nur überspringen, wenn Preis niedriger ist als (Gold)"
 L["Set the maximum price in gold for automatically confirming auctions."] = "Legt den Höchstpreis in Gold fest, bis zu dem Auktionen automatisch bestätigt werden."
 L["Skip Polished Pet Charm purchases"] = "Käufe mit Polierten Haustierglücksbringern überspringen"

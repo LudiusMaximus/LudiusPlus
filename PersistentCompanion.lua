@@ -22,6 +22,8 @@ local tickerHandle = nil
 
 
 local noResummon = false
+local isHooked = false
+
 local function ResummonPet()
   if not LP_config or not LP_config.persistentCompanion_enabled then return end
   if noResummon then return end
@@ -50,16 +52,7 @@ local function CheckPet()
   end)
 end
 
-addon.SetupPersistentCompanion = function()
-  if tickerHandle then
-    tickerHandle:Cancel()
-    tickerHandle = nil
-  end
-  
-  if not LP_config or not LP_config.persistentCompanion_enabled then return end
-  
-  tickerHandle = C_Timer.NewTicker(1, ResummonPet)
-end
+
 -- slot / 12 is the button prefix.
 -- https://warcraft.wiki.gg/wiki/Action_slot
 local buttonPrefix = {
@@ -118,41 +111,96 @@ local function TrackPetActionButton(actionSlot)
   end
 end
 
+
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_LOGIN")
-eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
-eventFrame:SetScript("OnEvent", function(_, event, ...)
-  -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
-  C_Timer_After(0.1, function()
-    for actionSlot = 1, 72 do
-      TrackPetActionButton(actionSlot)
-    end
-    -- 73 to 120 are class specific.
-    for actionSlot = 121, 132 do
-      TrackPetActionButton(actionSlot)
-    end
-    -- 133 to 144 are unknown.
-    for actionSlot = 145, 180 do
-      TrackPetActionButton(actionSlot)
-    end
-  end)
 
-  if event == "PLAYER_LOGIN" then
 
-    LP_desiredCompanion = LP_desiredCompanion or {}
-    LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
-    desiredCompanion = LP_desiredCompanion[realmName]
+local function TrackAllPetActionButtons()
+  for actionSlot = 1, 72 do
+    TrackPetActionButton(actionSlot)
+  end
+  -- 73 to 120 are class specific.
+  for actionSlot = 121, 132 do
+    TrackPetActionButton(actionSlot)
+  end
+  -- 133 to 144 are unknown.
+  for actionSlot = 145, 180 do
+    TrackPetActionButton(actionSlot)
+  end
+end
 
-    addon.SetupPersistentCompanion()
+
+local function EventFrameScript(self, event, ...)
+
+  if event == "BATTLE_PET_CURSOR_CLEAR" then
+    -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
+    C_Timer_After(0.1, TrackAllPetActionButtons)
+
+  elseif event == "ADDON_LOADED" then
+    local addonName = ...
+    if addonName == "LudiusPlus" then
+      LP_desiredCompanion = LP_desiredCompanion or {}
+      LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
+      desiredCompanion = LP_desiredCompanion[realmName]
+
+      self:UnregisterEvent("ADDON_LOADED")
+      addon.SetupOrTeardownPersistentCompanion()
+    end
 
   end
-end)
+end
 
 
+local function SetupPersistentCompanion()
+  -- print("SetupPersistentCompanion")
 
--- If anybody else (e.g. the Pet Journal "Summon/Dismiss" button) calls SummonPetByGUID(), we check the result.
-hooksecurefunc(C_PetJournal, "SummonPetByGUID", function(_, caller)
-  if caller ~= folderName then
-    CheckPet()
+  eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:SetScript("OnEvent", EventFrameScript)
+
+  -- Track all pet action buttons
+  TrackAllPetActionButtons()
+
+  -- Start ticker
+  if tickerHandle then
+    tickerHandle:Cancel()
   end
-end)
+  tickerHandle = C_Timer.NewTicker(1, ResummonPet)
+
+  -- Hook SummonPetByGUID only once
+  if not isHooked then
+    hooksecurefunc(C_PetJournal, "SummonPetByGUID", function(_, caller)
+      if caller ~= folderName then
+        CheckPet()
+      end
+    end)
+    isHooked = true
+  end
+end
+
+
+local function TeardownPersistentCompanion()
+  -- print("TeardownPersistentCompanion")
+
+  eventFrame:UnregisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:SetScript("OnEvent", nil)
+
+  -- Stop ticker
+  if tickerHandle then
+    tickerHandle:Cancel()
+    tickerHandle = nil
+  end
+end
+
+
+function addon.SetupOrTeardownPersistentCompanion()
+  if LP_config and LP_config.persistentCompanion_enabled then
+    SetupPersistentCompanion()
+  else
+    TeardownPersistentCompanion()
+  end
+end
+
+
+-- Initialize when addon loads
+eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:SetScript("OnEvent", EventFrameScript)
