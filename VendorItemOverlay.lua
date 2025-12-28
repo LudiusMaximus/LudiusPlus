@@ -59,7 +59,6 @@ local function CreateOverlayFrames()
       if not overlayFrames[i] then
         local overlay = itemButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmallOutline")
         overlay:SetPoint("TOPRIGHT", itemButton, "TOPRIGHT", -1, -2)
-        overlay:SetTextColor(1, 1, 1, 1)
         overlayFrames[i] = overlay
       end
     end
@@ -117,6 +116,12 @@ local function UpdateSingleOverlay(i, index)
     if totalOwned and inStorage then
       -- Display as "storage/total"
       overlayFrames[i]:SetText(string_format("%d/%d", inStorage, totalOwned))
+      if decorInfo.firstAcquisitionBonus > 0 then
+        overlayFrames[i]:SetTextColor(DARKYELLOW_FONT_COLOR:GetRGB())
+      else
+        overlayFrames[i]:SetTextColor(1, 1, 1, 1)
+      end
+      
       overlayFrames[i]:Show()
     else
       overlayFrames[i]:Hide()
