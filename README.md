@@ -2,6 +2,8 @@
 
 A collection of little WoW tweaks by Ludius that enhance your gameplay with quality-of-life improvements and convenient shortcuts.
 
+By default, all features are disabled. Type **/ldp** to get to the options fast.
+
 ## Features
 
 ### ⚡ Dialog Skipper

@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Attiva/Disattiva Cavalcatura"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Assegna smonta e rimonta a un singolo tasto, così puoi passare comodamente da uno all'altro."
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "Assegna smonta e rimonta a un singolo tasto, così puoi passare comodamente da uno all'altro. L'addon ricorderà la tua ultima cavalcatura e la richiamerà quando premerai nuovamente il tasto."
 L["Enable"] = "Abilita"
 L["Assigned Hotkey:"] = "Tasto assegnato:"
 L["Not Bound"] = "Non assegnato"

@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "내리기/타기 전환"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "내리기와 다시 타기를 단일 키에 할당하여 편안하게 전환할 수 있습니다."
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "내리기와 다시 타기를 단일 키에 할당하여 편안하게 전환할 수 있습니다. 애드온이 마지막 탈것을 기억하여 단축키를 다시 누르면 해당 탈것을 다시 소환합니다."
 L["Enable"] = "활성화"
 L["Assigned Hotkey:"] = "할당된 단축키:"
 L["Not Bound"] = "할당 안 됨"

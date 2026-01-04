@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "上下马切换"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "将下马和重新上马分配给同一个按键，方便您在两者之间切换。"
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "将下马和重新上马分配给同一个按键，方便您在两者之间切换。插件会记住你最后使用的坐骑，并在你再次按下热键时重新召唤它。"
 L["Enable"] = "启用"
 L["Assigned Hotkey:"] = "已分配热键："
 L["Not Bound"] = "未绑定"

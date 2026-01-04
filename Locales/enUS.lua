@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = true
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = true
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = true
 L["Enable"] = true
 L["Assigned Hotkey:"] = true
 L["Not Bound"] = true

@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Ab-/Aufsitzen-Umschalter"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Weist dem Ab- und Aufsitzen eine einzelne Taste zu, sodann ihr bequem zwischen beidem wechseln könnt."
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "Weist dem Ab- und Aufsitzen eine einzelne Taste zu, sodass ihr bequem zwischen beidem wechseln könnt. Das Addon merkt sich euer letztes Reittier und ruft es erneut, wenn ihr die Taste wieder drückt."
 L["Enable"] = "Aktivieren"
 L["Assigned Hotkey:"] = "Zugewiesener Hotkey:"
 L["Not Bound"] = "Nicht gebunden"
