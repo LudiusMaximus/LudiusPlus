@@ -61,6 +61,18 @@ L["Vendor Item Overlay"] = "Наложение предметов торговц
 L["Display useful information as overlays for items at vendors."] = "Показывает полезную информацию в виде наложений для предметов у торговцев."
 L["Ownership for decor items"] = "Владение декором"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Показывает информацию о владении предметами декора жилья при посещении торговцев. Количество отображается как [на складе]/[всего принадлежит] в правом верхнем углу каждого значка предмета."
+L["Already known for toys"] = "Уже известно для игрушек"
+L["Grey out and mark toys that you already know."] = "Затеняет и отмечает игрушки, которые вы уже знаете."
+L["Already known for mounts"] = "Уже известно для транспорта"
+L["Grey out and mark mounts that you already know."] = "Затеняет и отмечает транспорт, который вы уже знаете."
+L["Already known for transmogs and heirlooms"] = "Уже известно для трансмогрификации и наследуемых предметов"
+L["Grey out and mark transmog items/ensembles and heirlooms that you already know."] = "Затеняет и отмечает предметы/комплекты трансмогрификации и наследуемые предметы, которые вы уже знаете."
+L["Treat non-appearance items as known"] = "Считать предметы без внешнего вида известными"
+L["Necklaces, rings and trinkets will be marked as already known even though they technically cannot be learned. This prevents them from looking like uncollected items in the vendor."] = "Ожерелья, кольца и аксессуары будут отмечены как уже известные, даже если технически их нельзя изучить. Это предотвращает их отображение как несобранных предметов у торговца."
+L["Already known for pets"] = "Уже известно для питомцев"
+L["Grey out and mark battle pets that you have already collected."] = "Затеняет и отмечает боевых питомцев, которых вы уже собрали."
+L["Already known for recipes"] = "Уже известно для рецептов"
+L["Grey out and mark recipes that you already know."] = "Затеняет и отмечает рецепты, которые вы уже знаете."
 
 -- SpellIconOverlay Options
 L["Spell Icon Overlay"] = "Наложение значка заклинания"

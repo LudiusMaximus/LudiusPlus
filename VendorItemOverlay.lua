@@ -18,10 +18,38 @@ local string_match                               = _G.string.match
 
 -- Table to store our overlay text frames
 local overlayFrames = {}
+-- Table to store our checkmark textures
+local checkmarkFrames = {}
+-- Table to store our shadow textures
+local shadowFrames = {}
+
+-- Localized strings for "Already known"
+local knownStrings
+
+local function InitializeKnownStrings()
+  if knownStrings then return end
+
+  local candidates = { _G.ERR_COSMETIC_KNOWN, _G.ITEM_SPELL_KNOWN, _G.USED }
+  local unique = {}
+  local list = {}
+
+  for _, s in ipairs(candidates) do
+    if s and not unique[s] then
+      unique[s] = true
+      table.insert(list, s)
+    end
+  end
+
+  if #list == 1 then
+    knownStrings = list[1]
+  else
+    knownStrings = list
+  end
+end
 
 
 -- Tooltip used for scanning.
-local scannerTooltip = CreateFrame("GameTooltip", "BagnonRequiredLevelScannerTooltip", nil, "GameTooltipTemplate")
+local scannerTooltip = CreateFrame("GameTooltip", "LudiusPlusVendorItemOverlayScannerTooltip", nil, "GameTooltipTemplate")
 scannerTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 -- Convert the format string to a pattern for matching
@@ -61,8 +89,157 @@ local function CreateOverlayFrames()
         overlay:SetPoint("TOPRIGHT", itemButton, "TOPRIGHT", -1, -2)
         overlayFrames[i] = overlay
       end
+
+      -- Create a Texture for the checkmark
+      if not checkmarkFrames[i] then
+        local checkmark = itemButton:CreateTexture(nil, "OVERLAY", nil, 7)
+        checkmark:SetAtlas("QuestLog-icon-checkmark-yellow")
+        local checkmarkFactor = 1.3
+        checkmark:SetSize(17 * checkmarkFactor, 14 * checkmarkFactor)
+        checkmark:SetPoint("BOTTOMRIGHT", itemButton, "BOTTOMRIGHT", 5, -4)
+        checkmark:Hide()
+        checkmarkFrames[i] = checkmark
+
+        -- Shadow
+        local shadow = itemButton:CreateTexture(nil, "OVERLAY", nil, 6)
+        shadow:SetAtlas("Garr_BuildingShadowOverlay")
+        shadow:SetAlpha(0.7)
+        shadow:SetSize(32, 32)
+        shadow:SetPoint("CENTER", checkmark, "CENTER", -2, -1)
+        shadow:Hide()
+        shadowFrames[i] = shadow
+      end
     end
   end
+end
+
+
+-- Check if an item is already known (Toy, Mount, Transmog, Ensemble, Battle Pet)
+local function IsAlreadyKnown(itemLink)
+  if not itemLink then return false end
+  local itemID = C_Item.GetItemIDForItemInfo(itemLink)
+  if not itemID then return false end
+
+  -- Check Toy
+  if C_ToyBox and C_ToyBox.GetToyInfo(itemID) then
+    if LP_config.vendorItemOverlay_toys_enabled then
+      if PlayerHasToy(itemID) then
+        return true
+      end
+    end
+    return false
+  end
+
+  -- Check Mount
+  if C_MountJournal then
+    local mountID = C_MountJournal.GetMountFromItem(itemID)
+    if mountID then
+      if LP_config.vendorItemOverlay_mounts_enabled then
+        local isCollected = select(11, C_MountJournal.GetMountInfoByID(mountID))
+        if isCollected then
+          return true
+        end
+      end
+      return false
+    end
+  end
+
+  -- Check Battle Pet
+  if C_PetJournal and C_PetJournal.GetPetInfoByItemID then
+    local speciesID = select(13, C_PetJournal.GetPetInfoByItemID(itemID))
+    if speciesID then
+      if LP_config.vendorItemOverlay_pets_enabled then
+        local numCollected = C_PetJournal.GetNumCollectedInfo(speciesID)
+        if numCollected and numCollected > 0 then
+          return true
+        end
+      end
+      return false
+    end
+  end
+
+  -- Check Transmog Set (Ensemble)
+  if C_Item.GetItemLearnTransmogSet then
+    local setID = C_Item.GetItemLearnTransmogSet(itemLink)
+    if setID and C_TransmogSets then
+      if LP_config.vendorItemOverlay_transmog_enabled then
+        local setInfo = C_TransmogSets.GetSetInfo(setID)
+        if setInfo and setInfo.collected then
+          return true
+        end
+      end
+      -- We don't return false here, because Ensembles might also be detected via tooltip fallback (e.g. Arsenals)
+    end
+  end
+
+  
+
+  -- Check Transmog
+  if C_TransmogCollection and C_TransmogCollection.PlayerHasTransmog then
+    if C_TransmogCollection.PlayerHasTransmog(itemID) then
+      if LP_config.vendorItemOverlay_transmog_enabled then
+        return true
+      end
+      -- We don't return false here, because some items might be transmoggable but not detected by this API, 
+      -- or we might want to catch them via tooltip fallback if the API says false but tooltip says true (unlikely but possible for edge cases).
+      -- However, standard transmog items usually work with this API. 
+      -- But let's stick to the plan: Toys, Mounts, Pets are definitive.
+    end
+  end
+
+  -- Check for non-appearance items (Neck, Finger, Trinket)
+  if LP_config.vendorItemOverlay_transmog_enabled and LP_config.vendorItemOverlay_transmog_non_appearance_known then
+    local itemEquipLoc = select(9, C_Item.GetItemInfo(itemLink))
+    if itemEquipLoc == "INVTYPE_NECK" or itemEquipLoc == "INVTYPE_FINGER" or itemEquipLoc == "INVTYPE_TRINKET" then
+      return true
+    end
+  end
+
+  -- Fallback: Check Tooltip for "Already known"
+  -- This catches items that the specific APIs missed, or generic "Already known" items.
+  
+  -- Determine item type to respect settings
+  local shouldCheck = false
+  
+  -- We already handled Toys, Mounts and Pets above and returned if matched.
+  -- So here we are left with Transmog, Recipes and other stuff.
+  
+  -- Check if it is a recipe
+  local itemClassID = select(12, C_Item.GetItemInfo(itemLink))
+  if itemClassID == Enum.ItemClass.Recipe then
+      if LP_config.vendorItemOverlay_recipes_enabled then shouldCheck = true end
+  else
+      -- Assume everything else (Armor, Weapon, Ensembles) falls under Transmog/Cosmetic
+      if LP_config.vendorItemOverlay_transmog_enabled then shouldCheck = true end
+  end
+
+  if shouldCheck then
+    scannerTooltip:ClearLines()
+    scannerTooltip:SetHyperlink(itemLink)
+    local numLines = scannerTooltip:NumLines()
+    for i = 1, numLines do
+      local line = _G[scannerTooltip:GetName().."TextLeft"..i]
+      if line then
+        local text = line:GetText()
+
+        -- Differentiate between single string and list of strings (in case of multiple "Already known" strings due to localization).
+        if type(knownStrings) == "string" then
+          if text == knownStrings then
+            return true
+          end
+        elseif knownStrings then
+          for _, s in ipairs(knownStrings) do
+            if text == s then
+              return true
+            end
+          end
+        end
+
+      end
+    end
+  end
+
+  return false
 end
 
 
@@ -73,6 +250,26 @@ local function UpdateSingleOverlay(i, index)
   end
 
   local itemLink = GetMerchantItemLink(index)
+  local merchantItem = _G["MerchantItem"..i]
+  local itemButton = merchantItem.ItemButton
+
+  -- Check if already known and grey out
+  if IsAlreadyKnown(itemLink) then
+    SetItemButtonDesaturated(itemButton, true)
+    if checkmarkFrames[i] then
+      checkmarkFrames[i]:Show()
+    end
+    if shadowFrames[i] then
+      shadowFrames[i]:Show()
+    end
+  else
+    if checkmarkFrames[i] then
+      checkmarkFrames[i]:Hide()
+    end
+    if shadowFrames[i] then
+      shadowFrames[i]:Hide()
+    end
+  end
 
   -- Check if this is a housing decor item
   if IsHousingDecorItem(itemLink) then
@@ -148,6 +345,12 @@ local function UpdateOverlays()
         UpdateSingleOverlay(i, index)
       else
         overlayFrames[i]:Hide()
+        if checkmarkFrames[i] then
+          checkmarkFrames[i]:Hide()
+        end
+        if shadowFrames[i] then
+          shadowFrames[i]:Hide()
+        end
       end
     end
   end
@@ -177,6 +380,12 @@ local function EventFrameScript(self, event, ...)
       if overlayFrames[i] then
         overlayFrames[i]:Hide()
       end
+      if checkmarkFrames[i] then
+        checkmarkFrames[i]:Hide()
+      end
+      if shadowFrames[i] then
+        shadowFrames[i]:Hide()
+      end
     end
 
   elseif event == "PLAYER_ENTERING_WORLD" then
@@ -204,6 +413,8 @@ end
 
 local function SetupVendorItemOverlay()
   -- print("SetupVendorItemOverlay")
+
+  InitializeKnownStrings()
 
   -- Initialize housing catalog (in case module is enabled mid-session).
   C_Timer.After(2, function()
@@ -249,6 +460,12 @@ local function TeardownVendorItemOverlay()
   for i = 1, MERCHANT_ITEMS_PER_PAGE do
     if overlayFrames[i] then
       overlayFrames[i]:Hide()
+    end
+    if checkmarkFrames[i] then
+      checkmarkFrames[i]:Hide()
+    end
+    if shadowFrames[i] then
+      shadowFrames[i]:Hide()
     end
   end
 end
