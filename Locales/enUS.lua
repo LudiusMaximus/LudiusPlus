@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = true
 L["Ownership for decor items"] = true
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = true
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = true
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = true
+L["Show in Spellbook"] = true
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = true
+L["Show on Action Bars"] = true
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = true
+L["Only when Single-Button is used"] = true
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = true
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = true
 L["Automatically maintain your desired weapon sheath state."] = true

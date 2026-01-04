@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "為商人�
 L["Ownership for decor items"] = "裝飾物品所有權"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "訪問商人時顯示住房裝飾物品的所有權資訊。在每個物品圖示的右上角顯示數量，格式為[存儲中]/[總擁有]。"
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "法術圖示覆蓋"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "在法術書或快捷列中包含在單鍵戰鬥循環的法術上顯示 |A:UI-RefreshButton:16:16:0:0|a 圖示覆蓋。這樣您可以一目了然地識別它們。"
+L["Show in Spellbook"] = "在法術書中顯示"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "在您的法術書中包含在單鍵戰鬥循環的法術上顯示 |A:UI-RefreshButton:16:16:0:0|a 圖示覆蓋。"
+L["Show on Action Bars"] = "在快捷列上顯示"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "在包含在循環中的法術的快捷列按鈕上顯示 |A:UI-RefreshButton:16:16:0:0|a 圖示覆蓋。"
+L["Only when Single-Button is used"] = "僅在使用單鍵時"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "僅當單鍵助手法術當前放置在快捷列上時，才在快捷列上顯示 |A:UI-RefreshButton:16:16:0:0|a 圖示覆蓋。"
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "持久武器狀態"
 L["Automatically maintain your desired weapon sheath state."] = "自動保持您期望的武器收拔狀態。"

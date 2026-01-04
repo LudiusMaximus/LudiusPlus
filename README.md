@@ -10,6 +10,9 @@ Skip tedious confirmation dialogs automatically. Streamline your auctions, pet c
 ### 🛒 Vendor Item Overlay
 Enhance vendor browsing with additional item information overlays. Currently displays ownership details for housing decor items — showing "[in storage]/[total owned]" in the top-right corner of each icon, so you can see at a glance how many you already own.
 
+### 🔄 Spell Icon Overlay
+Display an icon overlay on spells in your spellbook or action bars that are included in the single-button combat rotation. This visual indicator helps you identify your rotation abilities at a glance, making it easier to manage your spellbook and action bars.
+
 ### 🐎 Dismount/Mount Toggle
 Bind a single hotkey to seamlessly switch between mounted and dismounted states. Perfect for fluid "death from above" combat transitions and landing maneuvers. Saves you one action bar click to re-mount. You can also assign Druid Travel Forms and Dracthyr Soar instead of a mount.
 

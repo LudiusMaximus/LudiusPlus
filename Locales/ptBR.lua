@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Exibe infor
 L["Ownership for decor items"] = "Propriedade de itens decorativos"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Exibe informações de propriedade para itens de decoração de moradia ao visitar vendedores. Mostra a contagem como [em armazenamento]/[total possuído] no canto superior direito de cada ícone de item."
 
+    -- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Sobreposição de ícone de feitiço"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Exibe uma sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a em feitiços no grimório ou barras de ação que estão incluídos na rotação de combate de botão único. Assim você pode identificá-los rapidamente."
+L["Show in Spellbook"] = "Mostrar no grimório"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a em feitiços no seu grimório que estão incluídos na rotação de combate de botão único."
+L["Show on Action Bars"] = "Mostrar nas barras de ação"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a nos botões da barra de ação para feitiços incluídos na rotação."
+L["Only when Single-Button is used"] = "Apenas quando o botão único é usado"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a nas barras de ação apenas se o feitiço Assistente de Botão Único estiver atualmente colocado em uma barra de ação."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Bainha Persistente"
 L["Automatically maintain your desired weapon sheath state."] = "Mantém automaticamente o estado desejado da bainha da arma."

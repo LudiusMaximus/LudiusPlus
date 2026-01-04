@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Affiche des
 L["Ownership for decor items"] = "Possession des objets déco"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Affiche les informations de possession pour les objets de décoration d'habitat chez les vendeurs. Le nombre est affiché sous la forme [en stockage]/[total possédé] dans le coin supérieur droit de chaque icône d'objet."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Superposition d'icône de sort"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Affiche une superposition d'icône |A:UI-RefreshButton:16:16:0:0|a sur les sorts du grimoire ou des barres d'action qui sont inclus dans la rotation de combat à bouton unique. Vous pouvez ainsi les identifier en un coup d'œil."
+L["Show in Spellbook"] = "Afficher dans le grimoire"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Affiche la superposition d'icône |A:UI-RefreshButton:16:16:0:0|a sur les sorts de votre grimoire qui sont inclus dans la rotation de combat à bouton unique."
+L["Show on Action Bars"] = "Afficher sur les barres d'action"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Affiche la superposition d'icône |A:UI-RefreshButton:16:16:0:0|a sur les boutons de la barre d'action pour les sorts inclus dans la rotation."
+L["Only when Single-Button is used"] = "Seulement si le bouton unique est utilisé"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Affiche la superposition d'icône |A:UI-RefreshButton:16:16:0:0|a sur les barres d'action uniquement si le sort Assistant à bouton unique est actuellement placé sur une barre d'action."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Dégainage persistant"
 L["Automatically maintain your desired weapon sheath state."] = "Maintient automatiquement l'état rengainé/dégainé de votre arme."

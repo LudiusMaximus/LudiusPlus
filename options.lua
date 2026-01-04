@@ -42,6 +42,10 @@ local CONFIG_DEFAULTS = {
   muteSounds_soundIds                  = "598079, 598187",
 
   vendorItemOverlay_enabled            = false,
+  
+  spellIconOverlay_showInSpellbook     = false,
+  spellIconOverlay_showOnActionBars    = false,
+  spellIconOverlay_onlyWhenAssistUsed  = false,
 
   flashlight_enabled                   = false,
 
@@ -209,6 +213,7 @@ flashlightToyName = flashlightToyName or "Cave Spelunker's Torch"
 -- (Defining these here, as we use them as text and tooltip in the options.
 local dialogSkipperDesc = L["Automatically skip confirmation dialogs."]
 local vendorItemOverlayDesc = L["Display useful information as overlays for items at vendors."]
+local spellIconOverlayDesc = L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."]
 local dismountToggleDesc = L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."]
 local raceOnLastMountDesc = L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game).\n\nNote: Cannot automatically switch to Druid Flight Form due to API limitations."]
 local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."]
@@ -220,6 +225,7 @@ local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:for
 -- Module order (from most to least demanded)
 local dialogSkipperOrder = 1
 local vendorItemOverlayOrder = 1.5
+local spellIconOverlayOrder = 1.6
 local dismountToggleOrder = 2
 local raceOnLastMountOrder = 3
 local persistentCompanionOrder = 4
@@ -889,6 +895,73 @@ local optionsTable = {
             function(_, newValue)
               config.vendorItemOverlay_enabled = newValue
               addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+      },
+    },
+
+    spellIconOverlayGroup = {
+      type = "group",
+      name = function() return GetModuleGroupName(L["Spell Icon Overlay"], config.spellIconOverlay_showInSpellbook or config.spellIconOverlay_showOnActionBars) end,
+      desc = spellIconOverlayDesc,
+      order = spellIconOverlayOrder,
+      args = {
+
+        spellIconOverlayDescription = {
+          order = 0,
+          type = "description",
+          name = spellIconOverlayDesc,
+          width = "full",
+        },
+
+        spellIconOverlayGroupBlank05 = {order = 0.5, type = "description", name = " ",},
+
+        spellIconOverlayShowInSpellbook = {
+          order = 1,
+          type = "toggle",
+          name = L["Show in Spellbook"],
+          desc = L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."],
+          width = "full",
+          get = function() return config.spellIconOverlay_showInSpellbook end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_showInSpellbook = newValue
+              addon.SetupOrTeardownSpellIconOverlay()
+            end,
+        },
+
+        spellIconOverlayShowOnActionBars = {
+          order = 2,
+          type = "toggle",
+          name = L["Show on Action Bars"],
+          desc = L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."],
+          width = "full",
+          get = function() return config.spellIconOverlay_showOnActionBars end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_showOnActionBars = newValue
+              addon.SetupOrTeardownSpellIconOverlay()
+            end,
+        },
+
+        spellIconOverlayGroupBlank25 = {order = 2.5, type = "description", name = " ", width = 0.1,},
+
+        spellIconOverlayOnlyWhenAssistUsed = {
+          order = 3,
+          type = "toggle",
+          name = L["Only when Single-Button is used"],
+          desc = L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."],
+          width = 1.5,
+          get = function() return config.spellIconOverlay_onlyWhenAssistUsed end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_onlyWhenAssistUsed = newValue
+              addon.SetupOrTeardownSpellIconOverlay()
+            end,
+          disabled =
+            function()
+              return not config.spellIconOverlay_showOnActionBars
             end,
         },
 
