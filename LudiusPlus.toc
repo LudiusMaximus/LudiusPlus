@@ -24,5 +24,6 @@ PersistentCompanion.lua
 PersistentUnsheath.lua
 RaceOnLastMount.lua
 VendorItemOverlay.lua
+SpellIconOverlay.lua
 
 options.lua

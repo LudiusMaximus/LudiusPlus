@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Zeigt nütz
 L["Ownership for decor items"] = "Besitz für Dekorationsartikel"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Zeigt Besitzinformationen für Wohndeko-Artikel bei Händlern an. Die Anzahl wird als [im Lager]/[insgesamt besessen] oben rechts an jedem Artikelsymbol angezeigt."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Zaubersymbol-Overlay"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Zeigt ein |A:UI-RefreshButton:16:16:0:0|a Symbol-Overlay auf Zaubern im Zauberbuch oder auf Aktionsleisten an, die in der Ein-Tasten-Kampfrotation enthalten sind. So könnt ihr sie auf einen Blick erkennen."
+L["Show in Spellbook"] = "Im Zauberbuch anzeigen"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Zeigt das |A:UI-RefreshButton:16:16:0:0|a Symbol-Overlay auf Zaubern in eurem Zauberbuch an, die in der Ein-Tasten-Kampfrotation enthalten sind."
+L["Show on Action Bars"] = "Auf Aktionsleisten anzeigen"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Zeigt das |A:UI-RefreshButton:16:16:0:0|a Symbol-Overlay auf Aktionsleisten-Buttons für Zauber an, die in der Rotation enthalten sind."
+L["Only when Single-Button is used"] = "Nur wenn Ein-Tasten-Assistent verwendet wird"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Zeigt das |A:UI-RefreshButton:16:16:0:0|a Symbol-Overlay auf Aktionsleisten nur an, wenn der Ein-Tasten-Assistent-Zauber aktuell auf einer Aktionsleiste platziert ist."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Dauerhafte Waffenhaltung"
 L["Automatically maintain your desired weapon sheath state."] = "Behält automatisch den gewünschten Waffen-Zieh-Status bei."

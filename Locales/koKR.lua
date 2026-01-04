@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "상인의 �
 L["Ownership for decor items"] = "장식 아이템 소유 정보"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "상인 방문 시 주거 장식 아이템의 소유 정보를 표시합니다. 각 아이템 아이콘의 오른쪽 상단에 [보관 중]/[총 소유] 형식으로 수량이 표시됩니다."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "주문 아이콘 오버레이"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "단일 버튼 전투 로테이션에 포함된 주문책이나 행동 단축바의 주문에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다. 한눈에 식별할 수 있습니다."
+L["Show in Spellbook"] = "주문책에 표시"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "단일 버튼 전투 로테이션에 포함된 주문책의 주문에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+L["Show on Action Bars"] = "행동 단축바에 표시"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "로테이션에 포함된 주문의 행동 단축바 버튼에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+L["Only when Single-Button is used"] = "단일 버튼 사용 시에만"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "단일 버튼 도우미 주문이 현재 행동 단축바에 배치된 경우에만 행동 단축바에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "무기 상태 유지"
 L["Automatically maintain your desired weapon sheath state."] = "원하는 무기 무장/해제 상태를 자동으로 유지합니다."

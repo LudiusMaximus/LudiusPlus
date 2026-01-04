@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Muestra inf
 L["Ownership for decor items"] = "Propiedad de artículos decorativos"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Muestra información de propiedad de artículos de decoración de vivienda en vendedores. Muestra la cuenta como [en almacén]/[total poseído] en la esquina superior derecha de cada icono de artículo."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Superposición de icono de hechizo"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Muestra una superposición de icono |A:UI-RefreshButton:16:16:0:0|a en los hechizos del libro de hechizos o barras de acción que están incluidos en la rotación de combate de un solo botón. Para que puedas identificarlos de un vistazo."
+L["Show in Spellbook"] = "Mostrar en el libro de hechizos"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Muestra la superposición de icono |A:UI-RefreshButton:16:16:0:0|a en los hechizos de tu libro de hechizos que están incluidos en la rotación de combate de un solo botón."
+L["Show on Action Bars"] = "Mostrar en barras de acción"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Muestra la superposición de icono |A:UI-RefreshButton:16:16:0:0|a en los botones de la barra de acción para los hechizos incluidos en la rotación."
+L["Only when Single-Button is used"] = "Solo cuando se usa un solo botón"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Solo muestra la superposición de icono |A:UI-RefreshButton:16:16:0:0|a en las barras de acción si el hechizo Asistente de un solo botón está colocado actualmente en una barra de acción."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Envainado persistente"
 L["Automatically maintain your desired weapon sheath state."] = "Mantiene automáticamente el estado de envainado de arma deseado."

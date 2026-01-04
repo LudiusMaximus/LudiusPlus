@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Mostra info
 L["Ownership for decor items"] = "Proprietà oggetti decorativi"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Mostra le informazioni di proprietà per gli oggetti decorativi per l'abitazione quando visiti i venditori. Mostra il conteggio come [in magazzino]/[totale posseduto] nell'angolo in alto a destra di ogni icona oggetto."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Sovrapposizione icona incantesimo"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Mostra una sovrapposizione dell'icona |A:UI-RefreshButton:16:16:0:0|a sugli incantesimi nel libro degli incantesimi o nelle barre delle azioni inclusi nella rotazione di combattimento a pulsante singolo. Così puoi identificarli a colpo d'occhio."
+L["Show in Spellbook"] = "Mostra nel libro degli incantesimi"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Mostra la sovrapposizione dell'icona |A:UI-RefreshButton:16:16:0:0|a sugli incantesimi nel tuo libro degli incantesimi inclusi nella rotazione di combattimento a pulsante singolo."
+L["Show on Action Bars"] = "Mostra sulle barre delle azioni"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Mostra la sovrapposizione dell'icona |A:UI-RefreshButton:16:16:0:0|a sui pulsanti della barra delle azioni per gli incantesimi inclusi nella rotazione."
+L["Only when Single-Button is used"] = "Solo quando si usa il pulsante singolo"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Mostra la sovrapposizione dell'icona |A:UI-RefreshButton:16:16:0:0|a sulle barre delle azioni solo se l'incantesimo Assistente a pulsante singolo è attualmente posizionato su una barra delle azioni."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Fodero Persistente"
 L["Automatically maintain your desired weapon sheath state."] = "Mantiene automaticamente lo stato di fodero dell'arma desiderato."

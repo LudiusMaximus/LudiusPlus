@@ -62,6 +62,16 @@ L["Display useful information as overlays for items at vendors."] = "Показ�
 L["Ownership for decor items"] = "Владение декором"
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = "Показывает информацию о владении предметами декора жилья при посещении торговцев. Количество отображается как [на складе]/[всего принадлежит] в правом верхнем углу каждого значка предмета."
 
+-- SpellIconOverlay Options
+L["Spell Icon Overlay"] = "Наложение значка заклинания"
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на заклинаниях в книге заклинаний или на панелях команд, которые включены в однокнопочную боевую ротацию. Так вы сможете сразу их определить."
+L["Show in Spellbook"] = "Показывать в книге заклинаний"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на заклинаниях в вашей книге заклинаний, которые включены в однокнопочную боевую ротацию."
+L["Show on Action Bars"] = "Показывать на панелях команд"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на кнопках панели команд для заклинаний, включенных в ротацию."
+L["Only when Single-Button is used"] = "Только при использовании одной кнопки"
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently размещено на панели команд."] = "Показывать наложение значка |A:UI-RefreshButton:16:16:0:0|a на панелях команд только в том случае, если заклинание Однокнопочный помощник в данный момент размещено на панели команд."
+
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Постоянное оружие"
 L["Automatically maintain your desired weapon sheath state."] = "Автоматически поддерживает желаемое состояние оружия (в ножнах/в руках)."
