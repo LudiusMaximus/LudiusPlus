@@ -42,6 +42,12 @@ local CONFIG_DEFAULTS = {
   muteSounds_soundIds                  = "598079, 598187",
 
   vendorItemOverlay_enabled            = false,
+  vendorItemOverlay_toys_enabled       = false,
+  vendorItemOverlay_mounts_enabled     = false,
+  vendorItemOverlay_transmog_enabled   = false,
+  vendorItemOverlay_transmog_non_appearance_known = true,
+  vendorItemOverlay_pets_enabled       = false,
+  vendorItemOverlay_recipes_enabled    = false,
   
   spellIconOverlay_showInSpellbook     = false,
   spellIconOverlay_showOnActionBars    = false,
@@ -870,7 +876,13 @@ local optionsTable = {
 
     vendorItemOverlayGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Vendor Item Overlay"], config.vendorItemOverlay_enabled) end,
+      name = function() return GetModuleGroupName(L["Vendor Item Overlay"],
+        config.vendorItemOverlay_enabled or
+        config.vendorItemOverlay_toys_enabled or
+        config.vendorItemOverlay_mounts_enabled or
+        config.vendorItemOverlay_transmog_enabled or
+        config.vendorItemOverlay_pets_enabled or
+        config.vendorItemOverlay_recipes_enabled) end,
       desc = vendorItemOverlayDesc,
       order = vendorItemOverlayOrder,
       args = {
@@ -894,6 +906,98 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.vendorItemOverlay_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+        vendorItemOverlayGroupBlank15 = {order = 1.5, type = "description", name = " ",},
+
+        vendorItemOverlayToysEnabled = {
+          order = 2,
+          type = "toggle",
+          name = L["Already known for toys"],
+          desc = L["Grey out and mark toys that you already know."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_toys_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_toys_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+        vendorItemOverlayMountsEnabled = {
+          order = 3,
+          type = "toggle",
+          name = L["Already known for mounts"],
+          desc = L["Grey out and mark mounts that you already know."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_mounts_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_mounts_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+        vendorItemOverlayTransmogEnabled = {
+          order = 4,
+          type = "toggle",
+          name = L["Already known for transmogs and heirlooms"],
+          desc = L["Grey out and mark transmog items/ensembles and heirlooms that you already know."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_transmog_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_transmog_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+        vendorItemOverlayGroupBlank45 = {order = 4.5, type = "description", name = " ", width = 0.1,},
+
+        vendorItemOverlayTransmogNonAppearanceKnown = {
+          order = 4.6,
+          type = "toggle",
+          name = L["Treat non-appearance items as known"],
+          desc = L["Necklaces, rings and trinkets will be marked as already known even though they technically cannot be learned. This prevents them from looking like uncollected items in the vendor."],
+          width = 1.5,
+          get = function() return config.vendorItemOverlay_transmog_non_appearance_known end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_transmog_non_appearance_known = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+          disabled =
+            function()
+              return not config.vendorItemOverlay_transmog_enabled
+            end,
+        },
+
+        vendorItemOverlayPetsEnabled = {
+          order = 5,
+          type = "toggle",
+          name = L["Already known for pets"],
+          desc = L["Grey out and mark battle pets that you have already collected."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_pets_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_pets_enabled = newValue
+              addon.SetupOrTeardownVendorItemOverlay()
+            end,
+        },
+
+        vendorItemOverlayRecipesEnabled = {
+          order = 6,
+          type = "toggle",
+          name = L["Already known for recipes"],
+          desc = L["Grey out and mark recipes that you already know."],
+          width = "full",
+          get = function() return config.vendorItemOverlay_recipes_enabled end,
+          set =
+            function(_, newValue)
+              config.vendorItemOverlay_recipes_enabled = newValue
               addon.SetupOrTeardownVendorItemOverlay()
             end,
         },

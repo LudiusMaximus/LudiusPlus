@@ -61,6 +61,18 @@ L["Vendor Item Overlay"] = true
 L["Display useful information as overlays for items at vendors."] = true
 L["Ownership for decor items"] = true
 L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."] = true
+L["Already known for toys"] = true
+L["Grey out and mark toys that you already know."] = true
+L["Already known for mounts"] = true
+L["Grey out and mark mounts that you already know."] = true
+L["Already known for transmogs and heirlooms"] = true
+L["Grey out and mark transmog items/ensembles and heirlooms that you already know."] = true
+L["Treat non-appearance items as known"] = true
+L["Necklaces, rings and trinkets will be marked as already known even though they technically cannot be learned. This prevents them from looking like uncollected items in the vendor."] = true
+L["Already known for pets"] = true
+L["Grey out and mark battle pets that you have already collected."] = true
+L["Already known for recipes"] = true
+L["Grey out and mark recipes that you already know."] = true
 
 -- SpellIconOverlay Options
 L["Spell Icon Overlay"] = true
