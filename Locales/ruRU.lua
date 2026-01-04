@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Переключение Транспорт/Спешивание"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Назначает спешивание и повторное использование транспорта на одну клавишу для удобного переключения."
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "Назначает спешивание и повторное использование транспорта на одну клавишу для удобного переключения. Аддон запомнит ваше последнее средство передвижения и призовет его снова при повторном нажатии клавиши."
 L["Enable"] = "Включить"
 L["Assigned Hotkey:"] = "Назначенная клавиша:"
 L["Not Bound"] = "Не назначено"

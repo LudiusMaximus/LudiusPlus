@@ -3,7 +3,7 @@ if not L then return end
 
 -- DismountToggle Options
 L["Dismount/Mount Toggle"] = "Basculer Monter/Descendre"
-L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both."] = "Assigne le démontage et le remontage à une seule touche, pour que vous puissiez passer confortablement de l'un à l'autre."
+L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."] = "Assigne le démontage et le remontage à une seule touche, pour que vous puissiez passer confortablement de l'un à l'autre. L'addon se souviendra de votre dernière monture et la réinvoquera lorsque vous appuierez à nouveau sur la touche."
 L["Enable"] = "Activer"
 L["Assigned Hotkey:"] = "Raccourci assigné :"
 L["Not Bound"] = "Non assigné"
