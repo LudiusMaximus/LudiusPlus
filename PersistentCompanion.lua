@@ -82,6 +82,7 @@ end
 
 
 local hookedButton = {}
+local hookedButtonScript = {}  -- Store the hooked script reference for verification
 local activeButton = {}
 local function TrackPetActionButton(actionSlot)
 
@@ -96,6 +97,12 @@ local function TrackPetActionButton(actionSlot)
   if actionType and actionType == "summonpet" then
     -- print(actionSlot, id, C_PetJournal.GetPetInfoByPetID(id))
 
+    -- Check if hook was lost (button was recreated with same name but different frame)
+    local currentScript = actionButton:GetScript("OnClick")
+    if hookedButton[actionButton] and hookedButtonScript[actionButton] ~= currentScript then
+      hookedButton[actionButton] = nil
+    end
+
     if not hookedButton[actionButton] then
       actionButton:HookScript("OnClick", function(self, _, down)
         if down then return end
@@ -103,6 +110,7 @@ local function TrackPetActionButton(actionSlot)
         CheckPet()
       end)
       hookedButton[actionButton] = true
+      hookedButtonScript[actionButton] = actionButton:GetScript("OnClick")
     end
     activeButton[actionButton] = true
 
@@ -132,8 +140,12 @@ end
 
 local function EventFrameScript(self, event, ...)
 
-  if event == "BATTLE_PET_CURSOR_CLEAR" then
-    -- New slot is not ready after BATTLE_PET_CURSOR_CLEAR.
+  if event == "BATTLE_PET_CURSOR_CLEAR"
+      or event == "PLAYER_ENTERING_WORLD"
+      or event == "EDIT_MODE_LAYOUTS_UPDATED"
+      or event == "ACTIONBAR_SLOT_CHANGED"
+      or event == "UPDATE_BONUS_ACTIONBAR" then
+    -- New slot is not ready immediately after the event.
     C_Timer_After(0.1, TrackAllPetActionButtons)
 
   elseif event == "ADDON_LOADED" then
@@ -155,6 +167,10 @@ local function SetupPersistentCompanion()
   -- print("SetupPersistentCompanion")
 
   eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+  eventFrame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+  eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
   eventFrame:SetScript("OnEvent", EventFrameScript)
 
   -- Track all pet action buttons
@@ -182,6 +198,10 @@ local function TeardownPersistentCompanion()
   -- print("TeardownPersistentCompanion")
 
   eventFrame:UnregisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+  eventFrame:UnregisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+  eventFrame:UnregisterEvent("ACTIONBAR_SLOT_CHANGED")
+  eventFrame:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")
   eventFrame:SetScript("OnEvent", nil)
 
   -- Stop ticker

@@ -39,7 +39,7 @@ L["Flashlight module is disabled. Enable it in the addon options."] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true
 L["Sound IDs to mute (comma-separated)"] = true
 L["Enter Sound File IDs separated by commas."] = true
 
