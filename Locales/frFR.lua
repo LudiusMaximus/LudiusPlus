@@ -39,7 +39,7 @@ L["Flashlight module is disabled. Enable it in the addon options."] = "Le module
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Couper les sons"
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Coupe des sons spécifiques par leurs ID de fichier son.\n\nTrouvez les ID sur Wowhead (https://www.wowhead.com/sounds/) ou apprenez d'autres méthodes sur https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExemple : 598079, 598187 (sons d'invocation de l'Écuyer dévoué)."
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Coupe des sons spécifiques par leurs ID de fichier son.\n\nTrouvez les ID sur Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) ou apprenez d'autres méthodes sur https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExemple : 598079, 598187 (sons d'invocation de l'Écuyer dévoué)."
 L["Sound IDs to mute (comma-separated)"] = "ID de sons à couper (séparés par des virgules)"
 L["Enter Sound File IDs separated by commas."] = "Entrez les ID de fichiers son séparés par des virgules."
 

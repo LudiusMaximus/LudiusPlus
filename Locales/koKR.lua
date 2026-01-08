@@ -39,7 +39,7 @@ L["Flashlight module is disabled. Enable it in the addon options."] = "횜래시
 
 -- MuteSounds Options
 L["Mute Sounds"] = "소리 음소거"
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "사운드 파일 ID로 특정 소리를 음소거합니다.\n\nWowhead(https://www.wowhead.com/sounds/)에서 ID를 찾거나 https://warcraft.wiki.gg/wiki/API_MuteSoundFile에서 다른 방법에 대해 알아보세요.\n\n예: 598079, 598187 (충직한 종자 소환 소리)."
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "사운드 파일 ID로 특정 소리를 음소거합니다.\n\nWago(https://wago.tools/sounds), Wowhead(https://www.wowhead.com/sounds/)에서 ID를 찾거나 https://warcraft.wiki.gg/wiki/API_MuteSoundFile에서 다른 방법에 대해 알아보세요.\n\n예: 598079, 598187 (충직한 종자 소환 소리)."
 L["Sound IDs to mute (comma-separated)"] = "음소거할 사운드 ID (쉼표로 구분)"
 L["Enter Sound File IDs separated by commas."] = "쉼표로 구분하여 사운드 파일 ID를 입력하십시오."
 

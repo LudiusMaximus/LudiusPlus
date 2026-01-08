@@ -39,7 +39,7 @@ L["Flashlight module is disabled. Enable it in the addon options."] = "Моду�
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Отключить звуки"
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Отключает определенные звуки по их ID файла звука.\n\nНайдите ID на Wowhead (https://www.wowhead.com/sounds/) или узнайте о других методах на https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nПример: 598079, 598187 (звуки призыва Верного оруженосца)."
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "Отключает определенные звуки по их ID файла звука.\n\nНайдите ID на Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) или узнайте о других методах на https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nПример: 598079, 598187 (звуки призыва Верного оруженосца)."
 L["Sound IDs to mute (comma-separated)"] = "ID звуков для отключения (через запятую)"
 L["Enter Sound File IDs separated by commas."] = "Введите ID звуковых файлов через запятую."
 

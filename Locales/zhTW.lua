@@ -39,7 +39,7 @@ L["Flashlight module is disabled. Enable it in the addon options."] = "手電筒
 
 -- MuteSounds Options
 L["Mute Sounds"] = "靜音聲音"
-L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "根據聲音檔案 ID 靜音特定聲音。\n\n在 Wowhead (https://www.wowhead.com/sounds/) 上尋找 ID，或在 https://warcraft.wiki.gg/wiki/API_MuteSoundFile 上了解其他方法。\n\n範例：598079, 598187（盡責的侍從召喚聲音）。"
+L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = "根據聲音檔案 ID 靜音特定聲音。\n\n在 Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) 上尋找 ID，或在 https://warcraft.wiki.gg/wiki/API_MuteSoundFile 上了解其他方法。\n\n範例：598079, 598187（盡責的侍從召喚聲音）。"
 L["Sound IDs to mute (comma-separated)"] = "要靜音的聲音 ID（逗號分隔）"
 L["Enter Sound File IDs separated by commas."] = "輸入用逗號分隔的聲音檔案 ID。"
 
