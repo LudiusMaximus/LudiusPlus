@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "Введите ID звуков
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Пропуск диалогов"
-L["Automatically skip confirmation dialogs"] = "Автоматически пропускает диалоги подтверждения."
+L["Automatically skip confirmation dialogs."] = "Автоматически пропускает диалоги подтверждения."
 L["Skip auction house buyout confirmations"] = "Пропускать подтверждение выкупа на аукционе"
 L["Back to previous item list after buyout"] = "Вернуться к предыдущему списку после покупки"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "После выкупа предмета аддон автоматически возвращает вас к предыдущему обзору списка предметов. Это полезно, когда вы обычно покупаете одно предложение предмета, а затем хотите вернуться, чтобы просматривать другие предметы."
@@ -82,7 +82,7 @@ L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your sp
 L["Show on Action Bars"] = "Показывать на панелях команд"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на кнопках панели команд для заклинаний, включенных в ротацию."
 L["Only when Single-Button is used"] = "Только при использовании одной кнопки"
-L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently размещено на панели команд."] = "Показывать наложение значка |A:UI-RefreshButton:16:16:0:0|a на панелях команд только в том случае, если заклинание Однокнопочный помощник в данный момент размещено на панели команд."
+L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Показывать наложение значка |A:UI-RefreshButton:16:16:0:0|a на панелях команд только в том случае, если заклинание Однокнопочный помощник в данный момент размещено на панели команд."
 
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Постоянное оружие"
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "Постоянный спутник"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Автоматически повторно призывает вашего последнего активного спутника после его исчезновения. Например, после полета или прохождения через порталы."
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "Автоматически повторно призывает вашего последнего активного спутника после его исчезновения. Например, после полета или прохождения через порталы."
+L["Dismiss pet while stealthed"] = "Отпускать питомца в незаметности"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "Автоматически отпускает питомца при входе в незаметность и призывает его снова при выходе."
+L["Dismiss pet in combat"] = "Отпускать питомца в бою"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "Автоматически отпускает питомца при входе в бой и призывает его снова, когда бой заканчивается."
+L["Mute automatic summon sound"] = "Отключить звук автоматического призыва"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "Отключает звук призыва питомца при его автоматическом перепризыве. Звук от ручного призыва не затрагивается.\n\nЭто работает для большинства питомцев (тех, кто использует звук \"huntertrapopen\"). Не стесняйтесь сообщать автору аддона ID других звуков призыва питомцев, которые нужно добавить."
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Добро пожаловать в LudiusPlus! Введите /ldp, чтобы выбрать модули для включения."

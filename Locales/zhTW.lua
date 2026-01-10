@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "輸入用逗號分隔的聲音
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "對話跳過器"
-L["Automatically skip confirmation dialogs"] = "自動跳過確認對話框。"
+L["Automatically skip confirmation dialogs."] = "自動跳過確認對話框。"
 L["Skip auction house buyout confirmations"] = "跳過拍賣場直購確認"
 L["Back to previous item list after buyout"] = "購買後返回上一個列表"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "購買物品後，插件自動返回上一個物品列表概覽。當您通常購買一個物品的一條清單，然後想返回瀏覽其他物品時，這很有用。"
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "持久夥伴"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "在最後激活的寵物夥伴消失後自動重新召喚。例如，在飛行或穿過傳送門之後。"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "在最後激活的寵物夥伴消失後自動重新召喚。例如，在飛行或穿過傳送門之後。"
+L["Dismiss pet while stealthed"] = "潛行時解散寵物"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "進入潛行時自動解散寵物，離開潛行時重新召喚。"
+L["Dismiss pet in combat"] = "戰鬥中解散寵物"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "進入戰鬥時自動解散寵物，戰鬥結束時重新召喚。"
+L["Mute automatic summon sound"] = "靜音自動召喚音效"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "自動重新召喚時靜音寵物召喚音效。手動召喚的聲音不受影響。\n\n這適用於大多數寵物（使用「huntertrapopen」聲音的寵物）。歡迎告知插件作者其他需要添加的寵物召喚聲音 ID。"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "歡迎使用 LudiusPlus！輸入 /ldp 選擇要啟用的模組。"

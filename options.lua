@@ -33,6 +33,9 @@ local CONFIG_DEFAULTS = {
   raceOnLastMount_enabled              = false,
 
   persistentCompanion_enabled          = false,
+  persistentCompanion_dismissWhileStealthed = false,
+  persistentCompanion_dismissInCombat  = false,
+  persistentCompanion_muteSummonSound  = false,
 
   persistentUnsheath_autoSheath        = false,
   persistentUnsheath_autoUnsheath      = false,
@@ -1130,6 +1133,10 @@ local optionsTable = {
               config.persistentUnsheath_muteToggleSounds = newValue
               addon.SetupOrTeardownPersistentUnsheath()
             end,
+          disabled =
+            function()
+              return not (config.persistentUnsheath_autoSheath or config.persistentUnsheath_autoUnsheath)
+            end,
         },
       },
     },
@@ -1162,6 +1169,55 @@ local optionsTable = {
               addon.SetupOrTeardownPersistentCompanion()
             end,
         },
+
+        persistentCompanionGroupBlank15 = {order = 1.5, type = "description", name = " ",},
+
+        persistentCompanionMuteSummonSound = {
+          order = 2,
+          type = "toggle",
+          name = L["Mute automatic summon sound"],
+          desc = L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."],
+          width = "full",
+          disabled = function() return not config.persistentCompanion_enabled end,
+          get = function() return config.persistentCompanion_muteSummonSound end,
+          set =
+            function(_, newValue)
+              config.persistentCompanion_muteSummonSound = newValue
+            end,
+        },
+
+        persistentCompanionGroupBlank25 = {order = 2.5, type = "description", name = " ",},
+
+        persistentCompanionDismissWhileStealthed = {
+          order = 3,
+          type = "toggle",
+          name = L["Dismiss pet while stealthed"],
+          desc = L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."],
+          width = "full",
+          disabled = function() return not config.persistentCompanion_enabled end,
+          get = function() return config.persistentCompanion_dismissWhileStealthed end,
+          set =
+            function(_, newValue)
+              config.persistentCompanion_dismissWhileStealthed = newValue
+              addon.SetupOrTeardownPersistentCompanion()
+            end,
+        },
+
+        persistentCompanionDismissInCombat = {
+          order = 4,
+          type = "toggle",
+          name = L["Dismiss pet in combat"],
+          desc = L["Automatically dismiss your pet when entering combat and resummon it when combat ends."],
+          width = "full",
+          disabled = function() return not config.persistentCompanion_enabled end,
+          get = function() return config.persistentCompanion_dismissInCombat end,
+          set =
+            function(_, newValue)
+              config.persistentCompanion_dismissInCombat = newValue
+              addon.SetupOrTeardownPersistentCompanion()
+            end,
+        },
+
       },
     },
 
