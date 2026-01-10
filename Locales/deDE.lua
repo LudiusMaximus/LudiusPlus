@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "Gebt Sound-Datei-IDs durch Kom
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Dialog-Überspringer"
-L["Automatically skip confirmation dialogs"] = "Überspringt automatisch Bestätigungsdialoge."
+L["Automatically skip confirmation dialogs."] = "Überspringt automatisch Bestätigungsdialoge."
 L["Skip auction house buyout confirmations"] = "Sofortkauf-Bestätigungen im Auktionshaus überspringen"
 L["Back to previous item list after buyout"] = "Zurück zur vorherigen Artikelliste nach Sofortkauf"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "Nach dem Sofortkauf bringt das Addon euch automatisch zur vorherigen Artikelübersicht zurück. Dies ist nützlich, wenn ihr normalerweise ein Angebot eines Artikels kauft und dann zur Übersicht zurückkehren möchtet, um andere Artikel zu durchsuchen."
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "Dauerhafter Begleiter"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Beschwört automatisch euren letzten aktiven Haustier-Begleiter neu, nachdem er verschwunden ist. Zum Beispiel nach dem Fliegen oder dem Durchschreiten von Portalen."
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "Beschwört automatisch euren letzten aktiven Haustier-Begleiter neu, nachdem er verschwunden ist. Zum Beispiel nach dem Fliegen oder dem Durchschreiten von Portalen."
+L["Dismiss pet while stealthed"] = "Haustier in Verstohlenheit wegschicken"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "Schickt euer Haustier automatisch weg, wenn ihr in Verstohlenheit geht, und ruft es wieder, wenn ihr die Verstohlenheit verlasst."
+L["Dismiss pet in combat"] = "Haustier im Kampf wegschicken"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "Schickt euer Haustier automatisch weg, wenn der Kampf beginnt, und ruft es wieder, wenn der Kampf endet."
+L["Mute automatic summon sound"] = "Automatischen Beschwörungs-Ton stummschalten"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "Schaltet den Beschwörungs-Ton stumm, wenn euer Haustier automatisch wiederbeschworen wird. Der Ton durch manuelle Beschwörung ist nicht betroffen.\n\nDies funktioniert für die meisten Haustiere (diejenigen, die den „huntertrapopen“-Ton verwenden). Gerne könnt ihr dem Addon-Autor die IDs anderer Haustier-Beschwörungs-Töne mitteilen, die hinzugefügt werden sollen."
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Willkommen bei LudiusPlus! Gebt /ldp ein, um Module zu aktivieren."

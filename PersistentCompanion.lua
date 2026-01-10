@@ -1,15 +1,32 @@
 local folderName, addon = ...
 
 local math_floor                          = _G.math.floor
+local C_PetJournal_DismissSummonedPet     = _G.C_PetJournal.DismissSummonedPet
 local C_PetJournal_GetSummonedPetGUID     = _G.C_PetJournal.GetSummonedPetGUID
 local C_PetJournal_SummonPetByGUID        = _G.C_PetJournal.SummonPetByGUID
 local C_Timer_After                       = _G.C_Timer.After
 local C_UnitAuras_GetPlayerAuraBySpellID  = _G.C_UnitAuras.GetPlayerAuraBySpellID
 local GetActionInfo                       = _G.GetActionInfo
+local IsStealthed                         = _G.IsStealthed
+local MuteSoundFile                       = _G.MuteSoundFile
 local UnitAffectingCombat                 = _G.UnitAffectingCombat
-local UnitIsDeadOrGhost                   = _G.UnitIsDeadOrGhost
 local UnitInVehicle                       = _G.UnitInVehicle
+local UnitIsDeadOrGhost                   = _G.UnitIsDeadOrGhost
 local UnitOnTaxi                          = _G.UnitOnTaxi
+local UnmuteSoundFile                     = _G.UnmuteSoundFile
+
+
+local stealthSpells = {
+  [1784] = true,    -- Rogue: Stealth
+  [1856] = true,    -- Rogue: Vanish
+  [114018] = true,  -- Rogue: Shroud of Concealment
+  [5215] = true,    -- Druid: Prowl
+  [199483] = true,  -- Hunter: Camouflage
+  [66] = true,      -- Mage: Invisibility
+  [110959] = true,  -- Mage: Greater Invisibility
+  [198158] = true,  -- Mage: Mass Invisibility
+  [58984] = true,   -- Night Elf: Shadowmeld
+}
 
 
 local realmName = GetRealmName()
@@ -35,9 +52,23 @@ local function ResummonPet()
     and not UnitIsDeadOrGhost("player")
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
+    and not (LP_config.persistentCompanion_dismissWhileStealthed and IsStealthed())  -- Not while stealthed (if option enabled).
     then
     -- print("Resummoning", desiredCompanion[playerName])
+
+    -- Mute the pet summon sound if option is enabled
+    if LP_config.persistentCompanion_muteSummonSound then
+      MuteSoundFile(565429)
+    end
+
     C_PetJournal_SummonPetByGUID(desiredCompanion[playerName], folderName)
+
+    -- Unmute after a short delay if option is enabled
+    if LP_config.persistentCompanion_muteSummonSound then
+      C_Timer_After(0.5, function()
+        UnmuteSoundFile(565429)
+      end)
+    end
   end
 end
 
@@ -148,6 +179,24 @@ local function EventFrameScript(self, event, ...)
     -- New slot is not ready immediately after the event.
     C_Timer_After(0.1, TrackAllPetActionButtons)
 
+  elseif event == "UNIT_SPELLCAST_SENT" then
+    if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then
+      local unit, _, _, spellID = ...
+      if unit == "player" and stealthSpells[spellID] then
+        local petGUID = C_PetJournal_GetSummonedPetGUID()
+        if petGUID then
+          -- print("Entering stealth, dismissing pet:", petGUID)
+          C_PetJournal_DismissSummonedPet(petGUID, folderName)
+        end
+      end
+    end
+  elseif event == "PLAYER_REGEN_DISABLED" then
+    if LP_config and LP_config.persistentCompanion_dismissInCombat then
+      local petGUID = C_PetJournal_GetSummonedPetGUID()
+      if petGUID then
+        C_PetJournal_DismissSummonedPet(petGUID, folderName)
+      end
+    end
   elseif event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == "LudiusPlus" then
@@ -166,11 +215,14 @@ end
 local function SetupPersistentCompanion()
   -- print("SetupPersistentCompanion")
 
-  eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
-  eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-  eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
   eventFrame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+  eventFrame:RegisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+  eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  if LP_config and LP_config.persistentCompanion_dismissInCombat then eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED") end
+  if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT") end
   eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
+
   eventFrame:SetScript("OnEvent", EventFrameScript)
 
   -- Track all pet action buttons
@@ -182,9 +234,14 @@ local function SetupPersistentCompanion()
   end
   tickerHandle = C_Timer.NewTicker(1, ResummonPet)
 
-  -- Hook SummonPetByGUID only once
+  -- Hook only once.
   if not isHooked then
     hooksecurefunc(C_PetJournal, "SummonPetByGUID", function(_, caller)
+      if caller ~= folderName then
+        CheckPet()
+      end
+    end)
+    hooksecurefunc(C_PetJournal, "DismissSummonedPet", function(_, caller)
       if caller ~= folderName then
         CheckPet()
       end
@@ -197,10 +254,12 @@ end
 local function TeardownPersistentCompanion()
   -- print("TeardownPersistentCompanion")
 
-  eventFrame:UnregisterEvent("BATTLE_PET_CURSOR_CLEAR")
-  eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-  eventFrame:UnregisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
   eventFrame:UnregisterEvent("ACTIONBAR_SLOT_CHANGED")
+  eventFrame:UnregisterEvent("BATTLE_PET_CURSOR_CLEAR")
+  eventFrame:UnregisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+  eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+  eventFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+  eventFrame:UnregisterEvent("UNIT_SPELLCAST_SENT")
   eventFrame:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")
   eventFrame:SetScript("OnEvent", nil)
 

@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = true
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = true
-L["Automatically skip confirmation dialogs"] = true
+L["Automatically skip confirmation dialogs."] = true
 L["Skip auction house buyout confirmations"] = true
 L["Back to previous item list after buyout"] = true
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = true
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = true
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = true
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = true
+L["Dismiss pet while stealthed"] = true
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = true
+L["Dismiss pet in combat"] = true
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = true
+L["Mute automatic summon sound"] = true
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = true
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = true

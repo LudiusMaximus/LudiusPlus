@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "쉼표로 구분하여 사운�
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "대화 건너뛰기"
-L["Automatically skip confirmation dialogs"] = "확인 대화 상자를 자동으로 건너뜁니다."
+L["Automatically skip confirmation dialogs."] = "확인 대화 상자를 자동으로 건너뜁니다."
 L["Skip auction house buyout confirmations"] = "경매장 즉시 구입 확인 건너뛰기"
 L["Back to previous item list after buyout"] = "구매 후 이전 목록으로 돌아가기"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "아이템을 구매한 후 애드온이 자동으로 이전 아이템 목록 개요로 돌아갑니다. 일반적으로 아이템의 한 목록을 구매한 다음 돌아가서 다른 아이템을 탐색하려는 경우 유용합니다."
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "지속적인 동료"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "사라진 후 마지막 활성 애완동물 동료를 자동으로 다시 소환합니다. 예: 비행 후 또는 포털을 통과한 후."
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "사라진 후 마지막 활성 애완동물 동료를 자동으로 다시 소환합니다. 예: 비행 후 또는 포털을 통과한 후."
+L["Dismiss pet while stealthed"] = "은신 시 애완동물 소환 해제"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "은신 상태에 들어갈 때 자동으로 애완동물을 소환 해제하고 은신이 풀리면 다시 소환합니다."
+L["Dismiss pet in combat"] = "전투 중 애완동물 소환 해제"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "전투가 시작되면 자동으로 애완동물을 소환 해제하고 전투가 끝나면 다시 소환합니다."
+L["Mute automatic summon sound"] = "자동 소환 소리 음소거"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "애드온이 애완동물을 자동으로 재소환할 때 소환 소리를 음소거합니다. 수동 소환 소리는 영향을 받지 않습니다.\n\n이 기능은 대부분의 애완동물(\"huntertrapopen\" 소리를 사용하는 애완동물)에서 작동합니다. 추가할 다른 애완동물 소환 소리의 ID를 애드온 제작자에게 알려주세요."
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."

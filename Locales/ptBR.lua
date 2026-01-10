@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "Insira IDs de arquivos de som 
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "Pular Diálogos"
-L["Automatically skip confirmation dialogs"] = "Pula automaticamente diálogos de confirmação."
+L["Automatically skip confirmation dialogs."] = "Pula automaticamente diálogos de confirmação."
 L["Skip auction house buyout confirmations"] = "Pular confirmações de compra na Casa de Leilões"
 L["Back to previous item list after buyout"] = "Voltar à lista anterior após compra"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "Após comprar um item, o addon retorna automaticamente à visão geral da lista de itens anterior. Isso é útil quando você normalmente compra uma listagem de um item e depois quer voltar para explorar outros itens."
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "Companheiro Persistente"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "Reinvoca automaticamente seu último companheiro mascote ativo após ele desaparecer. Por exemplo, após voar ou passar por portais."
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "Reinvoca automaticamente seu último companheiro mascote ativo após ele desaparecer. Por exemplo, após voar ou passar por portais."
+L["Dismiss pet while stealthed"] = "Dispensar mascote em furtividade"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "Dispensa automaticamente seu mascote ao entrar em furtividade e o invoca novamente ao sair."
+L["Dismiss pet in combat"] = "Dispensar mascote em combate"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "Dispensa automaticamente seu mascote ao entrar em combate e o invoca novamente quando o combate termina."
+L["Mute automatic summon sound"] = "Silenciar som de invocação automática"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "Silencia o som de invocação do mascote ao reinvocá-lo automaticamente. O som da invocação manual não é afetado.\n\nIsso funciona para a maioria dos mascotes (aqueles que usam o som \"huntertrapopen\"). Sinta-se à vontade para informar ao autor do addon os IDs de outros sons de invocação de mascotes a serem adicionados."
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bem-vindo ao LudiusPlus! Digite /ldp para escolher os módulos a ativar."

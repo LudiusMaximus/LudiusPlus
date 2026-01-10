@@ -45,7 +45,7 @@ L["Enter Sound File IDs separated by commas."] = "输入用逗号分隔的声音
 
 -- DialogSkipper Options
 L["Dialog Skipper"] = "对话跳过器"
-L["Automatically skip confirmation dialogs"] = "自动跳过确认对话框。"
+L["Automatically skip confirmation dialogs."] = "自动跳过确认对话框。"
 L["Skip auction house buyout confirmations"] = "跳过拍卖行一口价确认"
 L["Back to previous item list after buyout"] = "购买后返回上一个列表"
 L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."] = "购买物品后，插件自动返回上一个物品列表概览。当您通常购买一个物品的一条清单，然后想返回浏览其他物品时，这很有用。"
@@ -96,7 +96,13 @@ L["Mutes the sheath and unsheath sound effects when the addon automatically rest
 
 -- PersistentCompanion Options
 L["Persistent Companion"] = "持久伙伴"
-L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals"] = "在最后激活的宠物伙伴消失后自动重新召唤。例如，在飞行或穿过传送门之后。"
+L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."] = "在最后激活的宠物伙伴消失后自动重新召唤。例如，在飞行或穿过传送门之后。"
+L["Dismiss pet while stealthed"] = "潜行时解散宠物"
+L["Automatically dismiss your pet when entering stealth and resummon it when leaving stealth."] = "进入潜行时自动解散宠物，离开潜行时重新召唤。"
+L["Dismiss pet in combat"] = "战斗中解散宠物"
+L["Automatically dismiss your pet when entering combat and resummon it when combat ends."] = "进入战斗时自动解散宠物，战斗结束时重新召唤。"
+L["Mute automatic summon sound"] = "静音自动召唤音效"
+L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "自动重新召唤宠物时静音召唤音效。手动召唤的声音不受影响。\n\n这适用于大多数宠物（使用“huntertrapopen”声音的宠物）。欢迎告诉插件作者其他需要添加的宠物召唤声音 ID。"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "欢迎使用 LudiusPlus！输入 /ldp 选择要启用的模块。"
