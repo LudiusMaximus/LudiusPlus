@@ -179,9 +179,9 @@ local function EventFrameScript(self, event, ...)
     -- New slot is not ready immediately after the event.
     C_Timer_After(0.1, TrackAllPetActionButtons)
 
-  elseif event == "UNIT_SPELLCAST_SENT" then
+  elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then
-      local unit, _, _, spellID = ...
+      local unit, _, spellID = ...
       if unit == "player" and stealthSpells[spellID] then
         local petGUID = C_PetJournal_GetSummonedPetGUID()
         if petGUID then
@@ -220,7 +220,7 @@ local function SetupPersistentCompanion()
   eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
   eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   if LP_config and LP_config.persistentCompanion_dismissInCombat then eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED") end
-  if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT") end
+  if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") end
   eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 
   eventFrame:SetScript("OnEvent", EventFrameScript)
@@ -259,7 +259,7 @@ local function TeardownPersistentCompanion()
   eventFrame:UnregisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
   eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
-  eventFrame:UnregisterEvent("UNIT_SPELLCAST_SENT")
+  eventFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   eventFrame:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")
   eventFrame:SetScript("OnEvent", nil)
 
