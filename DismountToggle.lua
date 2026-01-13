@@ -85,6 +85,7 @@ local function UpdateMacro()
   -- Module is enabled - set up the macro binding
   local hotkey = GetBindingKey(dismountToggleBindingName)
   if hotkey then
+    ClearOverrideBindings(dismountToggleButton)
     dismountToggleButton:SetScript("OnClick", nil)
     SetOverrideBindingMacro(dismountToggleButton, true, hotkey, macroName)
   end
@@ -94,6 +95,7 @@ end
 local function SetupDisabledNotification()
   local hotkey = GetBindingKey(dismountToggleBindingName)
   if hotkey then
+    ClearOverrideBindings(dismountToggleButton)
     SetOverrideBinding(dismountToggleButton, true, hotkey, "CLICK DismountToggleButton:LeftButton")
     dismountToggleButton:SetScript("OnClick", function()
       print("|cffff0000Ludius Plus:|r " .. L["Dismount/Mount Toggle module is disabled. Enable it in the addon options."])
@@ -127,6 +129,7 @@ local function EventFrameScript(self, event, ...)
     end
 
   elseif event == "UPDATE_BINDINGS" then
+    ClearOverrideBindings(dismountToggleButton)
     if LP_config and LP_config.dismountToggle_enabled then
       UpdateMacro()
     else
