@@ -87,6 +87,7 @@ local function UpdateMacros()
     -- After macros are created, set up bindings
     local hotkey = GetBindingKey(flashlightBindingName)
     if hotkey then
+      ClearOverrideBindings(torchToggleButton)
       local aura = C_UnitAuras_GetPlayerAuraBySpellID(spellID)
       if UnitAffectingCombat("player") or not aura then
         SetOverrideBindingMacro(torchToggleButton, true, hotkey, macroTorchOnName)
@@ -102,6 +103,7 @@ end
 local function SetupDisabledNotification()
   local hotkey = GetBindingKey(flashlightBindingName)
   if hotkey then
+    ClearOverrideBindings(torchToggleButton)
     SetOverrideBinding(torchToggleButton, true, hotkey, "CLICK TorchToggleButton:LeftButton")
     torchToggleButton:SetScript("OnClick", function()
       print("|cffff0000Ludius Plus:|r " .. L["Flashlight module is disabled. Enable it in the addon options."])
@@ -144,6 +146,7 @@ local function EventFrameScript(self, event, ...)
     end
 
   elseif event == "UPDATE_BINDINGS" then
+    ClearOverrideBindings(torchToggleButton)
     if LP_config and LP_config.flashlight_enabled then
       UpdateMacros()
     else
