@@ -61,8 +61,21 @@ local function UpdateMacros()
 
   -- Check if player has the toy
   if not addon.HasFlashlightToy() then
+    if LP_config and LP_config.flashlight_enabled then
+      LP_config.flashlight_enabled = false
+      print("|cffff0000Ludius Plus:|r " .. L["Flashlight module disabled because you don't own the toy."])
+
+      -- Refresh the options panel to update the warning message and enable button
+      if LibStub then
+        local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
+        if AceConfigRegistry then
+          AceConfigRegistry:NotifyChange("Ludius Plus")
+        end
+      end
+    end
     return
   end
+
   -- Ensure macros are created
   local item = Item:CreateFromItemID(itemID)
   item:ContinueOnItemLoad(function()

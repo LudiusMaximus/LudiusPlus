@@ -209,8 +209,8 @@ local function SetupPersistentUnsheath()
     end)
 
     -- No restoring while an emote is in action! (roughly 3 seconds)
-    hooksecurefunc("DoEmote", function(...)
-      -- print("DoEmote", ...)
+    hooksecurefunc(C_ChatInfo, "PerformEmote", function(...)
+      -- print("PerformEmote", ...)
       noRestoreBefore = GetTime() + 3
     end)
 

@@ -177,7 +177,7 @@ local function EventFrameScript(self, event, ...)
 
       -- Abbreviations to use in macro.
       _G.LPMJS = _G.C_MountJournal.SummonByID
-      _G.LPISK = _G.IsSpellKnown
+      _G.LPISK = _G.C_SpellBook.IsSpellKnown
       _G.LPLMR = LP_lastMount[realmName]
 
       -- Helper to check if current mount is ignored
