@@ -55,6 +55,9 @@ local function EventFrameScript(self, event, ...)
     end
 
   elseif event == "UNIT_AURA" then
+    -- Skip processing during combat to avoid taint issues.
+    if InCombatLockdown() then return end
+
     local unitTarget, updateInfo = ...
     if unitTarget ~= "player" then return end
 

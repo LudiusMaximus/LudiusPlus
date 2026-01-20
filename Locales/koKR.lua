@@ -106,3 +106,7 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."
+
+-- Dangerous Scripts Warning
+L["To use certain features (like Dismount Toggle and Flashlight), LudiusPlus needs your permission to run macros.\n\nPlease click \"Allow Scripts\" below, then \"Yes\" in the game's confirmation pop-up to enable these modules."] = "특정 기능(내리기/타기 전환 및 손전등 등)을 사용하려면 LudiusPlus가 매크로를 실행할 수 있는 권한이 필요합니다.\n\n아래의 \"스크립트 허용\"을 클릭한 다음 게임의 확인 창에서 \"예\"를 클릭하여 이러한 모듈을 활성화하세요."
+L["Allow Scripts"] = "스크립트 허용"
