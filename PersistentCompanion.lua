@@ -193,6 +193,7 @@ local function EventFrameScript(self, event, ...)
   elseif event == "PLAYER_REGEN_DISABLED" then
     if LP_config and LP_config.persistentCompanion_dismissInCombat then
       local petGUID = C_PetJournal_GetSummonedPetGUID()
+      -- print("Entering combat, dismissing pet.", petGUID)
       if petGUID then
         C_PetJournal_DismissSummonedPet(petGUID, folderName)
       end

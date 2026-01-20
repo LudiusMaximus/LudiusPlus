@@ -9,6 +9,38 @@ end
 -- For the options menu.
 local appName = "Ludius Plus"
 
+-- ##############################################################################
+-- ### Modules that require dangerous scripts (macro execution)
+-- ### Add any future modules that need macros here.
+-- ##############################################################################
+local MODULES_REQUIRING_SCRIPTS = {
+  "dismountToggle_enabled",
+  "flashlight_enabled",
+}
+
+-- Track if we've already shown the dangerous scripts warning this session.
+local dangerousScriptsWarningShown = false
+
+-- Function to check if any modules requiring scripts are enabled
+-- and show warning if dangerous scripts are not allowed
+function addon.CheckDangerousScriptsOnStartup()
+  if dangerousScriptsWarningShown or AreDangerousScriptsAllowed() then
+    return
+  end
+
+  -- Check if any modules requiring scripts are enabled.
+  for _, configKey in ipairs(MODULES_REQUIRING_SCRIPTS) do
+    if LP_config[configKey] then
+      dangerousScriptsWarningShown = true
+      C_Timer.After(1, function()
+        StaticPopup_Show("LUDIUSPLUS_DANGEROUS_SCRIPTS_WARNING")
+      end)
+      break
+    end
+  end
+
+end
+
 
 -- A local variable for saved variable LP_config for easier access.
 local config
@@ -51,7 +83,7 @@ local CONFIG_DEFAULTS = {
   vendorItemOverlay_transmog_non_appearance_known = true,
   vendorItemOverlay_pets_enabled       = false,
   vendorItemOverlay_recipes_enabled    = false,
-  
+
   spellIconOverlay_showInSpellbook     = false,
   spellIconOverlay_showOnActionBars    = false,
   spellIconOverlay_onlyWhenAssistUsed  = false,
@@ -202,6 +234,111 @@ StaticPopupDialogs["LUDIUSPLUS_KEYBIND_CONFIRM"] = {
 }
 
 
+-- Pending callbacks for modules waiting for dangerous scripts to be enabled.
+local pendingModuleEnableCallbacks = {}
+
+-- Created lazily only when needed (most users already have scripts allowed).
+local dangerousScriptsButton = nil
+local dangerousScriptsMonitor = nil
+
+StaticPopupDialogs["LUDIUSPLUS_DANGEROUS_SCRIPTS_WARNING"] = {
+  text = "",
+  button1 = CANCEL,
+  OnShow = function(dialog, data)
+    local text = _G[dialog:GetName().."Text"]
+    local textString = L["To use certain features (like Dismount Toggle and Flashlight), LudiusPlus needs your permission to run macros.\n\nPlease click \"Allow Scripts\" below, then \"Yes\" in the game's confirmation pop-up to enable these modules."]
+    textString = textString .. "\n\n\n\n"
+    text:SetText(textString)
+
+    local cancelButton = _G[dialog:GetName().."Button1"]
+
+    -- Create the button lazily (only when this popup is shown).
+    if not dangerousScriptsButton then
+      dangerousScriptsButton = CreateFrame("Button", "LudiusPlusDangerousScriptsButton", UIParent, "UIPanelButtonTemplate, SecureActionButtonTemplate")
+      dangerousScriptsButton:SetSize(200, 22)
+      dangerousScriptsButton:SetText(L["Allow Scripts"])
+      dangerousScriptsButton:SetFrameStrata("FULLSCREEN")
+      dangerousScriptsButton:SetFrameLevel(100)
+      dangerousScriptsButton:RegisterForClicks("AnyUp", "AnyDown")
+      dangerousScriptsButton:SetAttribute("useOnKeyDown", false) -- Fire on release, not press
+      dangerousScriptsButton:SetAttribute("type", "macro")
+      dangerousScriptsButton:SetAttribute("macrotext", '/run print("Allowing scripts...")')
+      dangerousScriptsButton:SetScript("PostClick", function(self, button, down)
+        if not down then
+          StaticPopup_Hide("LUDIUSPLUS_DANGEROUS_SCRIPTS_WARNING")
+        end
+      end)
+    end
+
+    -- Create the monitor lazily.
+    if not dangerousScriptsMonitor then
+      dangerousScriptsMonitor = CreateFrame("Frame")
+    end
+
+    -- Position and show the button.
+    dangerousScriptsButton:ClearAllPoints()
+    dangerousScriptsButton:SetPoint("TOP", UIParent, "TOP", 0, -360)
+    dangerousScriptsButton:Show()
+
+    -- Position the dialog above the button.
+    dialog:ClearAllPoints()
+    dialog:SetPoint("BOTTOM", dangerousScriptsButton, "BOTTOM", 0, - cancelButton:GetHeight() - 25)
+
+    -- Start monitoring for when dangerous scripts become allowed.
+    dangerousScriptsMonitor:SetScript("OnUpdate", function(self)
+      if AreDangerousScriptsAllowed() and #pendingModuleEnableCallbacks > 0 then
+        for _, callback in ipairs(pendingModuleEnableCallbacks) do
+          callback()
+        end
+        pendingModuleEnableCallbacks = {}
+        self:SetScript("OnUpdate", nil)
+      end
+    end)
+
+    -- Block clicks on the options panel while the popup is open.
+    ShowCoverOptionsFrame()
+  end,
+  OnAccept = function(dialog, data)
+    if dangerousScriptsButton then dangerousScriptsButton:Hide() end
+    if dangerousScriptsMonitor then dangerousScriptsMonitor:SetScript("OnUpdate", nil) end
+    coverOptionsFrame:Hide()
+  end,
+  OnCancel = function(dialog, data)
+    if dangerousScriptsButton then dangerousScriptsButton:Hide() end
+    if dangerousScriptsMonitor then dangerousScriptsMonitor:SetScript("OnUpdate", nil) end
+    pendingModuleEnableCallbacks = {}
+    coverOptionsFrame:Hide()
+  end,
+  OnHide = function(dialog, data)
+    if dangerousScriptsButton then dangerousScriptsButton:Hide() end
+    coverOptionsFrame:Hide()
+  end,
+  timeout = 0,
+  whileDead = 1,
+  showAlert = 1,
+  hideOnEscape = 1,
+  preferredIndex = 3,
+}
+
+
+-- Helper function to check if dangerous scripts are allowed and show popup if not
+-- Stores callback to enable the module once scripts are allowed
+-- Returns true if scripts are allowed, false if not
+local function CheckDangerousScriptsAllowed(enableCallback)
+  if AreDangerousScriptsAllowed() then
+    return true
+  end
+
+  -- Store the callback to execute when dangerous scripts are enabled
+  if enableCallback then
+    table.insert(pendingModuleEnableCallbacks, enableCallback)
+  end
+
+  -- Show our custom popup
+  StaticPopup_Show("LUDIUSPLUS_DANGEROUS_SCRIPTS_WARNING")
+  return false
+end
+
 
 -- In order to make a keybinding run a macro, I have to call it this in bindings.xml:
 local dismountToggleMacroName = "Dismount/Mount Toggle"
@@ -289,6 +426,20 @@ local optionsTable = {
           get = function() return config.dismountToggle_enabled end,
           set =
             function(_, newValue)
+              if newValue then
+                -- Check if dangerous scripts are allowed before enabling
+                if not CheckDangerousScriptsAllowed(function()
+                  -- This callback will be executed once dangerous scripts are enabled
+                  config.dismountToggle_enabled = true
+                  addon.SetupOrTeardownDismountToggle()
+                  LibStub("AceConfigRegistry-3.0"):NotifyChange(appName)
+                end) then
+                  -- Popup shown, waiting for user to enable dangerous scripts
+                  return
+                end
+              end
+
+              -- If disabling or scripts were already allowed, proceed normally
               config.dismountToggle_enabled = newValue
               addon.SetupOrTeardownDismountToggle()
             end,
@@ -610,6 +761,20 @@ local optionsTable = {
           get = function() return config.flashlight_enabled end,
           set =
             function(_, newValue)
+              if newValue then
+                -- Check if dangerous scripts are allowed before enabling
+                if not CheckDangerousScriptsAllowed(function()
+                  -- This callback will be executed once dangerous scripts are enabled
+                  config.flashlight_enabled = true
+                  addon.SetupOrTeardownFlashlight()
+                  LibStub("AceConfigRegistry-3.0"):NotifyChange(appName)
+                end) then
+                  -- Popup shown, waiting for user to enable dangerous scripts
+                  return
+                end
+              end
+
+              -- If disabling or scripts were already allowed, proceed normally
               config.flashlight_enabled = newValue
               addon.SetupOrTeardownFlashlight()
             end,

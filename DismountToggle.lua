@@ -196,6 +196,10 @@ local function EventFrameScript(self, event, ...)
       end
 
       self:UnregisterEvent("ADDON_LOADED")
+      
+      -- Check if module requires dangerous scripts on startup
+      addon.CheckDangerousScriptsOnStartup()
+      
       addon.SetupOrTeardownDismountToggle()
     end
 

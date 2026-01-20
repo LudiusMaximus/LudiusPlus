@@ -236,6 +236,10 @@ local function EventFrameScript(self, event, ...)
     local addonName = ...
     if addonName == folderName then
       self:UnregisterEvent("ADDON_LOADED")
+      
+      -- Check if module requires dangerous scripts on startup
+      addon.CheckDangerousScriptsOnStartup()
+      
       addon.SetupOrTeardownFlashlight()
     end
 

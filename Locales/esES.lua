@@ -106,3 +106,7 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "¡Bienvenido a LudiusPlus! Escribe /ldp para elegir los módulos a activar."
+
+-- Dangerous Scripts Warning
+L["To use certain features (like Dismount Toggle and Flashlight), LudiusPlus needs your permission to run macros.\n\nPlease click \"Allow Scripts\" below, then \"Yes\" in the game's confirmation pop-up to enable these modules."] = "Para usar ciertas funciones (como Alternar Montar/Desmontar y Linterna), LudiusPlus necesita tu permiso para ejecutar macros.\n\nPor favor, haz clic en \"Permitir Scripts\" abajo, y luego en \"Sí\" en la confirmación del juego para habilitar estos módulos."
+L["Allow Scripts"] = "Permitir Scripts"
