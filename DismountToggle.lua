@@ -119,7 +119,7 @@ local function EventFrameScript(self, event, ...)
 
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     local _, unit, _, spellId = ...
-    if unit ~= "player" then return end
+    if issecretvalue(unit) or unit ~= "player" then return end
 
     -- Travel form or soar.
     if spellId == 783 or spellId == 369536 then
