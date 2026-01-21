@@ -52,18 +52,6 @@ end
 local scannerTooltip = CreateFrame("GameTooltip", "LudiusPlusVendorItemOverlayScannerTooltip", nil, "GameTooltipTemplate")
 scannerTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
--- Convert the format string to a pattern for matching
--- HOUSING_DECOR_OWNED_COUNT_FORMAT = "Owned: |cnHIGHLIGHT_FONT_COLOR:%d (Placed: %d, Storage: %d)|r"
-local formatString = HOUSING_DECOR_OWNED_COUNT_FORMAT
--- Remove color codes
-formatString = string.gsub(formatString, "|c%x%x%x%x%x%x%x%x", "")
-formatString = string.gsub(formatString, "|r", "")
--- Escape all pattern special characters except %
-formatString = string.gsub(formatString, "([%(%)%.%+%-%*%?%[%]%^%$])", "%%%1")
--- Now replace %d with capture pattern - must escape the % first
-formatString = string.gsub(formatString, "%%d", "(%%d+)")
-
-
 
 -- Check if an item is a housing decor item
 local function IsHousingDecorItem(itemLink)
@@ -172,7 +160,7 @@ local function IsAlreadyKnown(itemLink)
     end
   end
 
-  
+
 
   -- Check Transmog
   if C_TransmogCollection and C_TransmogCollection.PlayerHasTransmog then
@@ -180,9 +168,9 @@ local function IsAlreadyKnown(itemLink)
       if LP_config.vendorItemOverlay_transmog_enabled then
         return true
       end
-      -- We don't return false here, because some items might be transmoggable but not detected by this API, 
+      -- We don't return false here, because some items might be transmoggable but not detected by this API,
       -- or we might want to catch them via tooltip fallback if the API says false but tooltip says true (unlikely but possible for edge cases).
-      -- However, standard transmog items usually work with this API. 
+      -- However, standard transmog items usually work with this API.
       -- But let's stick to the plan: Toys, Mounts, Pets are definitive.
     end
   end
@@ -197,13 +185,13 @@ local function IsAlreadyKnown(itemLink)
 
   -- Fallback: Check Tooltip for "Already known"
   -- This catches items that the specific APIs missed, or generic "Already known" items.
-  
+
   -- Determine item type to respect settings
   local shouldCheck = false
-  
+
   -- We already handled Toys, Mounts and Pets above and returned if matched.
   -- So here we are left with Transmog, Recipes and other stuff.
-  
+
   -- Check if it is a recipe
   local itemClassID = select(12, C_Item.GetItemInfo(itemLink))
   if itemClassID == Enum.ItemClass.Recipe then
@@ -275,50 +263,23 @@ local function UpdateSingleOverlay(i, index)
   if IsHousingDecorItem(itemLink) then
 
     local decorInfo = C_HousingCatalog_GetCatalogEntryInfoByItem(itemLink, true)
-    -- print(itemLink, decorInfo.numPlaced, decorInfo.numStored)
+    -- print(itemLink, decorInfo.numPlaced, decorInfo.quantity, decorInfo.showQuantity, decorInfo.remainingRedeemable )
 
-    -- Probably a bug, but when numStored is 0, numPlaced also returns 0 even when there are some placed.
-    -- So we double check the tooltip.
-    if not decorInfo or (decorInfo.numPlaced == 0 and decorInfo.numStored == 0) then
-      scannerTooltip:ClearLines()
-      scannerTooltip:SetItemByID(C_Item.GetItemIDForItemInfo(itemLink))
+    if decorInfo and decorInfo.numPlaced and decorInfo.quantity and decorInfo.remainingRedeemable then
 
-      -- Scan tooltip lines for owned count info. Start from line 4 to skip item name and basic info.
-      for j = 4, scannerTooltip:NumLines(), 1 do
-        local line = _G[scannerTooltip:GetName().."TextLeft"..j]
-        if line then
-          local msg = line:GetText()
-          if msg then
-            -- print(j, msg)
-            if string_find(msg, formatString) then
-              local totalOwned, placed, inStorage = string_match(msg, formatString)
-              if placed and inStorage then
-                -- print("Matched owned info from tooltip:", totalOwned, placed, inStorage)
-                decorInfo = decorInfo or {}
-                decorInfo.numPlaced = tonumber(placed)
-                decorInfo.numStored = tonumber(inStorage)
-                break
-              end
-            end
-          end
-        end
-      end
+      -- Apparently, if you have never placed but bought an item, the amount in storage is not stored as quantity
+      -- but as remainingRedeemable. For our overlay, we treat these the same!
+      local amountInStorage = decorInfo.quantity + decorInfo.remainingRedeemable
+      local totalOwned = amountInStorage + decorInfo.numPlaced
 
-    end
-
-    -- Calculate total owned and in storage
-    local totalOwned = decorInfo.numPlaced + decorInfo.numStored
-    local inStorage = decorInfo.numStored
-
-    if totalOwned and inStorage then
       -- Display as "storage/total"
-      overlayFrames[i]:SetText(string_format("%d/%d", inStorage, totalOwned))
-      if decorInfo.firstAcquisitionBonus > 0 then
+      overlayFrames[i]:SetText(string_format("%d/%d", amountInStorage, totalOwned))
+      if decorInfo.firstAcquisitionBonus and decorInfo.firstAcquisitionBonus > 0 then
         overlayFrames[i]:SetTextColor(DARKYELLOW_FONT_COLOR:GetRGB())
       else
         overlayFrames[i]:SetTextColor(1, 1, 1, 1)
       end
-      
+
       overlayFrames[i]:Show()
     else
       overlayFrames[i]:Hide()
@@ -416,17 +377,11 @@ local function SetupVendorItemOverlay()
 
   InitializeKnownStrings()
 
-  -- Initialize housing catalog (in case module is enabled mid-session).
-  C_Timer.After(2, function()
-    C_HousingCatalog.CreateCatalogSearcher()
-  end)
-
   -- Register event handlers.
   eventFrame:RegisterEvent("HOUSING_STORAGE_ENTRY_UPDATED")
   eventFrame:RegisterEvent("MERCHANT_CLOSED")
   eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:SetScript("OnEvent", EventFrameScript)
-
 
   -- Create overlay frames if not already created
   if #overlayFrames == 0 then
