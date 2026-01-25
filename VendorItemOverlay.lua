@@ -305,7 +305,7 @@ local function UpdateSingleOverlay(i, index)
                   local newAmountInStorage = tonumber(ttAmountInStorage)
                   local newTotalOwned = tonumber(ttTotalOwned)
                   if newAmountInStorage ~= amountInStorage or newTotalOwned ~= totalOwned then
-                    print("Tooltip corrected API:", itemLink, "amountInStorage:", amountInStorage, "to", newAmountInStorage, "totalOwned", totalOwned, "to", newTotalOwned)
+                    -- print("Tooltip corrected API:", itemLink, "amountInStorage:", amountInStorage, "to", newAmountInStorage, "totalOwned", totalOwned, "to", newTotalOwned)
                     amountInStorage = tonumber(ttAmountInStorage)
                     totalOwned = tonumber(ttTotalOwned)
                   end
