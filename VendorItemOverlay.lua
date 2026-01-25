@@ -53,6 +53,19 @@ local scannerTooltip = CreateFrame("GameTooltip", "LudiusPlusVendorItemOverlaySc
 scannerTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 
+-- Convert the format string to a pattern for matching
+-- HOUSING_DECOR_OWNED_COUNT_FORMAT = "Owned: |cnHIGHLIGHT_FONT_COLOR:%d (Placed: %d, Storage: %d)|r"
+local formatString = HOUSING_DECOR_OWNED_COUNT_FORMAT
+-- Remove color codes
+formatString = string.gsub(formatString, "|c%x%x%x%x%x%x%x%x", "")
+formatString = string.gsub(formatString, "|r", "")
+-- Escape all pattern special characters except %
+formatString = string.gsub(formatString, "([%(%)%.%+%-%*%?%[%]%^%$])", "%%%1")
+-- Now replace %d with capture pattern - must escape the % first
+formatString = string.gsub(formatString, "%%d", "(%%d+)")
+
+
+
 -- Check if an item is a housing decor item
 local function IsHousingDecorItem(itemLink)
   if not itemLink then
@@ -272,6 +285,38 @@ local function UpdateSingleOverlay(i, index)
       local amountInStorage = decorInfo.quantity + decorInfo.remainingRedeemable
       local totalOwned = amountInStorage + decorInfo.numPlaced
 
+  
+      -- Probably a bug, when we get all 0, don't trust it but double check the (also not reliable) tooltip.
+      if amountInStorage == 0 and totalOwned == 0 then
+        scannerTooltip:ClearLines()
+        scannerTooltip:SetItemByID(C_Item.GetItemIDForItemInfo(itemLink))
+
+        -- Scan tooltip lines for owned count info. Start from line 4 to skip item name and basic info.
+        for j = 4, scannerTooltip:NumLines(), 1 do
+          local line = _G[scannerTooltip:GetName().."TextLeft"..j]
+          if line then
+            local msg = line:GetText()
+            if msg then
+              -- print(j, msg)
+              if string_find(msg, formatString) then
+                local ttTotalOwned, ttNumPlaced, ttAmountInStorage = string_match(msg, formatString)
+                if ttTotalOwned and ttAmountInStorage then
+                  -- print("Matched owned info from tooltip:", ttTotalOwned, ttNumPlaced, ttAmountInStorage)
+                  local newAmountInStorage = tonumber(ttAmountInStorage)
+                  local newTotalOwned = tonumber(ttTotalOwned)
+                  if newAmountInStorage ~= amountInStorage or newTotalOwned ~= totalOwned then
+                    print("Tooltip corrected API:", itemLink, "amountInStorage:", amountInStorage, "to", newAmountInStorage, "totalOwned", totalOwned, "to", newTotalOwned)
+                    amountInStorage = tonumber(ttAmountInStorage)
+                    totalOwned = tonumber(ttTotalOwned)
+                  end
+                  break
+                end
+              end
+            end
+          end
+        end
+      end
+      
       -- Display as "storage/total"
       overlayFrames[i]:SetText(string_format("%d/%d", amountInStorage, totalOwned))
       if decorInfo.firstAcquisitionBonus and decorInfo.firstAcquisitionBonus > 0 then
