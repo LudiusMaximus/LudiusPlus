@@ -291,8 +291,8 @@ local function UpdateSingleOverlay(i, index)
         scannerTooltip:ClearLines()
         scannerTooltip:SetItemByID(C_Item.GetItemIDForItemInfo(itemLink))
 
-        -- Scan tooltip lines for owned count info. Start from line 4 to skip item name and basic info.
-        for j = 4, scannerTooltip:NumLines(), 1 do
+        -- Scan tooltip lines for owned count info. Start from line 4 (sometimes 3, when they forgot the "Housing Decor" label) to skip item name and basic info.
+        for j = 3, scannerTooltip:NumLines(), 1 do
           local line = _G[scannerTooltip:GetName().."TextLeft"..j]
           if line then
             local msg = line:GetText()

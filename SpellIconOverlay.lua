@@ -51,23 +51,35 @@ local function UpdateActionBarButtonOverlay(button)
 
   -- No need to check for enabled state here, as the teardown unregisters all events leading to this function.
 
-  if not button.LudiusPlusOverlay then
-    button.LudiusPlusOverlay = button:CreateTexture(nil, "OVERLAY", nil, 7)
+  if not button.LudiusPlusOverlayFrame then
+    -- Create a frame to hold the overlay so we can control strata/level
+    -- Set to MEDIUM strata, level 100 to appear above AssistedCombatHighlightFrame (MEDIUM, level 99)
+    button.LudiusPlusOverlayFrame = CreateFrame("Frame", nil, button)
+    button.LudiusPlusOverlayFrame:SetFrameStrata("MEDIUM")
+    button.LudiusPlusOverlayFrame:SetFrameLevel(100)
+    button.LudiusPlusOverlayFrame:SetSize(16, 16)
+    
+    -- Create the icon texture on the frame
+    button.LudiusPlusOverlay = button.LudiusPlusOverlayFrame:CreateTexture(nil, "OVERLAY", nil, 7)
     button.LudiusPlusOverlay:SetAtlas("UI-RefreshButton")
     
     -- Rotate 90 degrees counter-clockwise
     button.LudiusPlusOverlay:SetRotation(math.rad(90))
     
-    button.LudiusPlusOverlay:SetSize(16, 16)
-    button.LudiusPlusOverlay:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0)
+    button.LudiusPlusOverlay:SetAllPoints(button.LudiusPlusOverlayFrame)
 
     -- Shadow
-    button.LudiusPlusShadow = button:CreateTexture(nil, "OVERLAY", nil, 6)
+    button.LudiusPlusShadow = button.LudiusPlusOverlayFrame:CreateTexture(nil, "OVERLAY", nil, 6)
     button.LudiusPlusShadow:SetAtlas("Garr_BuildingShadowOverlay")
     button.LudiusPlusShadow:SetAlpha(0.7)
     button.LudiusPlusShadow:SetSize(25, 25)
     button.LudiusPlusShadow:SetPoint("CENTER", button.LudiusPlusOverlay, "CENTER", 0, 0)
   end
+
+  -- Update position (always, to handle position changes)
+  local position = (LP_config and LP_config.spellIconOverlay_actionBarPosition) or "BOTTOMLEFT"
+  button.LudiusPlusOverlayFrame:ClearAllPoints()
+  button.LudiusPlusOverlayFrame:SetPoint(position, button, position, 0, 0)
 
   local showOverlay = false
   if LP_config and LP_config.spellIconOverlay_showOnActionBars then
@@ -87,10 +99,7 @@ local function UpdateActionBarButtonOverlay(button)
     end
   end
 
-  button.LudiusPlusOverlay:SetShown(showOverlay)
-  if button.LudiusPlusShadow then
-    button.LudiusPlusShadow:SetShown(showOverlay)
-  end
+  button.LudiusPlusOverlayFrame:SetShown(showOverlay)
 end
 
 local function CheckIfActionSpellIsOnActionBar()
@@ -143,7 +152,6 @@ local function UpdateSpellbookOverlay(button)
     button.Button.LudiusPlusOverlay:SetRotation(math.rad(90))
     
     button.Button.LudiusPlusOverlay:SetSize(16, 16)
-    button.Button.LudiusPlusOverlay:SetPoint("BOTTOMRIGHT", button.Button, "BOTTOMRIGHT", 0, 0)
 
     -- Shadow
     button.Button.LudiusPlusShadow = button.Button:CreateTexture(nil, "OVERLAY", nil, 6)
@@ -152,6 +160,11 @@ local function UpdateSpellbookOverlay(button)
     button.Button.LudiusPlusShadow:SetSize(25, 25)
     button.Button.LudiusPlusShadow:SetPoint("CENTER", button.Button.LudiusPlusOverlay, "CENTER", 0, 0)
   end
+
+  -- Update position (always, to handle position changes)
+  local position = (LP_config and LP_config.spellIconOverlay_spellbookPosition) or "BOTTOMLEFT"
+  button.Button.LudiusPlusOverlay:ClearAllPoints()
+  button.Button.LudiusPlusOverlay:SetPoint(position, button.Button, position, 0, 0)
   
   local showOverlay = false
   
@@ -239,11 +252,8 @@ local function TeardownSpellIconOverlay()
   for _, prefix in ipairs(actionBarButtonPrefixes) do
     for i = 1, 12 do
       local button = _G[prefix .. i]
-      if button and button.LudiusPlusOverlay then
-        button.LudiusPlusOverlay:Hide()
-        if button.LudiusPlusShadow then
-          button.LudiusPlusShadow:Hide()
-        end
+      if button and button.LudiusPlusOverlayFrame then
+        button.LudiusPlusOverlayFrame:Hide()
       end
     end
   end
@@ -254,6 +264,19 @@ function addon.SetupOrTeardownSpellIconOverlay()
     SetupSpellIconOverlay()
   else
     TeardownSpellIconOverlay()
+  end
+end
+
+function addon.RefreshSpellIconOverlayPositions()
+  -- Refresh action bar overlays
+  UpdateAllActionBarOverlays()
+  
+  -- Refresh spellbook overlays by triggering SpellBookFrame update if it's open
+  if SpellBookFrame and SpellBookFrame:IsShown() then
+    -- Force spellbook buttons to update
+    if SpellBookFrame.UpdateSpells then
+      SpellBookFrame:UpdateSpells()
+    end
   end
 end
 

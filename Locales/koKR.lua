@@ -35,7 +35,7 @@ L["Toggles the \"%s\" toy on and off with a hotkey."] = "단축키로 \"%s\" 장
 L["Torch Toggle"] = "횃불 켜기/끄기"
 L["Toy Missing:"] = "장난감 없음:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "\"%s\" 장난감을 가지고 있지 않습니다!\n빛나는 사물함에서 획득하세요:\nhttps://www.wowhead.com/ko/object=437211/빛나는-사물함"
-L["Flashlight module is disabled. Enable it in the addon options."] = "횜래시 모듈이 비활성화되어 있습니다. 애드온 설정에서 활성화하세요."
+L["Flashlight module is disabled. Enable it in the addon options."] = "손전등 모듈이 비활성화되어 있습니다. 애드온 설정에서 활성화하세요."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "소리 음소거"
@@ -79,10 +79,18 @@ L["Spell Icon Overlay"] = "주문 아이콘 오버레이"
 L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "단일 버튼 전투 로테이션에 포함된 주문책이나 행동 단축바의 주문에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다. 한눈에 식별할 수 있습니다."
 L["Show in Spellbook"] = "주문책에 표시"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "단일 버튼 전투 로테이션에 포함된 주문책의 주문에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+L["Spellbook Icon Position"] = "주문책 아이콘 위치"
+L["Choose the corner where the overlay icon appears on spellbook buttons."] = "주문책 버튼에 오버레이 아이콘이 표시될 모서리를 선택하세요."
 L["Show on Action Bars"] = "행동 단축바에 표시"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "로테이션에 포함된 주문의 행동 단축바 버튼에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+L["Action Bar Icon Position"] = "행동 단축바 아이콘 위치"
+L["Choose the corner where the overlay icon appears on action bar buttons."] = "행동 단축바 버튼에 오버레이 아이콘이 표시될 모서리를 선택하세요."
 L["Only when Single-Button is used"] = "단일 버튼 사용 시에만"
 L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "단일 버튼 도우미 주문이 현재 행동 단축바에 배치된 경우에만 행동 단축바에 |A:UI-RefreshButton:16:16:0:0|a 아이콘 오버레이를 표시합니다."
+L["Top Left"] = "왼쪽 위"
+L["Top Right"] = "오른쪽 위"
+L["Bottom Left"] = "왼쪽 아래"
+L["Bottom Right"] = "오른쪽 아래"
 
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "무기 상태 유지"
