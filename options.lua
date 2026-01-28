@@ -87,6 +87,8 @@ local CONFIG_DEFAULTS = {
   spellIconOverlay_showInSpellbook     = false,
   spellIconOverlay_showOnActionBars    = false,
   spellIconOverlay_onlyWhenAssistUsed  = false,
+  spellIconOverlay_spellbookPosition   = "BOTTOMLEFT",
+  spellIconOverlay_actionBarPosition   = "BOTTOMLEFT",
 
   flashlight_enabled                   = false,
 
@@ -1203,8 +1205,36 @@ local optionsTable = {
             end,
         },
 
-        spellIconOverlayShowOnActionBars = {
+        spellIconOverlayGroupBlank15 = {order = 1.5, type = "description", name = " ", width = 0.1,},
+
+        spellIconOverlaySpellbookPosition = {
           order = 2,
+          type = "select",
+          name = L["Spellbook Icon Position"],
+          desc = L["Choose the corner where the overlay icon appears on spellbook buttons."],
+          width = 1.5,
+          get = function() return config.spellIconOverlay_spellbookPosition end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_spellbookPosition = newValue
+              addon.RefreshSpellIconOverlayPositions()
+            end,
+          values = {
+            ["TOPLEFT"] = L["Top Left"],
+            ["TOPRIGHT"] = L["Top Right"],
+            ["BOTTOMLEFT"] = L["Bottom Left"],
+            ["BOTTOMRIGHT"] = L["Bottom Right"],
+          },
+          disabled =
+            function()
+              return not config.spellIconOverlay_showInSpellbook
+            end,
+        },
+
+        spellIconOverlayGroupBlank25 = {order = 2.5, type = "description", name = " ",},
+
+        spellIconOverlayShowOnActionBars = {
+          order = 3,
           type = "toggle",
           name = L["Show on Action Bars"],
           desc = L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."],
@@ -1217,24 +1247,64 @@ local optionsTable = {
             end,
         },
 
-        spellIconOverlayGroupBlank25 = {order = 2.5, type = "description", name = " ", width = 0.1,},
 
-        spellIconOverlayOnlyWhenAssistUsed = {
-          order = 3,
-          type = "toggle",
-          name = L["Only when Single-Button is used"],
-          desc = L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."],
+        spellIconOverlayGroupBlank35 = {order = 3.5, type = "description", name = " ", width = 0.1,},
+
+        spellIconOverlayActionBarPosition = {
+          order = 4,
+          type = "select",
+          name = L["Action Bar Icon Position"],
+          desc = L["Choose the corner where the overlay icon appears on action bar buttons."],
           width = 1.5,
-          get = function() return config.spellIconOverlay_onlyWhenAssistUsed end,
+          get = function() return config.spellIconOverlay_actionBarPosition end,
           set =
             function(_, newValue)
-              config.spellIconOverlay_onlyWhenAssistUsed = newValue
-              addon.SetupOrTeardownSpellIconOverlay()
+              config.spellIconOverlay_actionBarPosition = newValue
+              addon.RefreshSpellIconOverlayPositions()
             end,
+          values = {
+            ["TOPLEFT"] = L["Top Left"],
+            ["TOPRIGHT"] = L["Top Right"],
+            ["BOTTOMLEFT"] = L["Bottom Left"],
+            ["BOTTOMRIGHT"] = L["Bottom Right"],
+          },
           disabled =
             function()
               return not config.spellIconOverlay_showOnActionBars
             end,
+        },
+
+
+
+        -- When we want to indent an option following a non-full-width option, we use a wrapper inline group such that the spacer is definitely placed at the beginning of the option's row.
+        spellIconOverlayOnlyWhenAssistUsedGroup = {
+          type = "group",
+          name = "",
+          order = 5,
+          inline = true,
+          args = {
+
+            spellIconOverlayOnlyWhenAssistUsedGroupBlank1 = {order = 1, type = "description", name = " ", width = 0.1,},
+
+            spellIconOverlayOnlyWhenAssistUsed = {
+              order = 2,
+              type = "toggle",
+              name = L["Only when Single-Button is used"],
+              desc = L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."],
+              width = 1.5,
+              get = function() return config.spellIconOverlay_onlyWhenAssistUsed end,
+              set =
+                function(_, newValue)
+                  config.spellIconOverlay_onlyWhenAssistUsed = newValue
+                  addon.SetupOrTeardownSpellIconOverlay()
+                end,
+              disabled =
+                function()
+                  return not config.spellIconOverlay_showOnActionBars
+                end,
+            },
+
+          },
         },
 
       },

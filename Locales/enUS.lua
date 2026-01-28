@@ -79,10 +79,18 @@ L["Spell Icon Overlay"] = true
 L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = true
 L["Show in Spellbook"] = true
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = true
+L["Spellbook Icon Position"] = true
+L["Choose the corner where the overlay icon appears on spellbook buttons."] = true
 L["Show on Action Bars"] = true
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = true
+L["Action Bar Icon Position"] = true
+L["Choose the corner where the overlay icon appears on action bar buttons."] = true
 L["Only when Single-Button is used"] = true
 L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = true
+L["Top Left"] = true
+L["Top Right"] = true
+L["Bottom Left"] = true
+L["Bottom Right"] = true
 
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = true

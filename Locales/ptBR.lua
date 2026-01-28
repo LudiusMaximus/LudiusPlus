@@ -74,15 +74,23 @@ L["Grey out and mark battle pets that you have already collected."] = "Acinenta 
 L["Already known for recipes"] = "Já conhecido para receitas"
 L["Grey out and mark recipes that you already know."] = "Acinenta e marca receitas que você já conhece."
 
-    -- SpellIconOverlay Options
+-- SpellIconOverlay Options
 L["Spell Icon Overlay"] = "Sobreposição de ícone de feitiço"
 L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Exibe uma sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a em feitiços no grimório ou barras de ação que estão incluídos na rotação de combate de botão único. Assim você pode identificá-los rapidamente."
 L["Show in Spellbook"] = "Mostrar no grimório"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a em feitiços no seu grimório que estão incluídos na rotação de combate de botão único."
+L["Spellbook Icon Position"] = "Posição do ícone no grimório"
+L["Choose the corner where the overlay icon appears on spellbook buttons."] = "Escolha o canto onde o ícone de sobreposição aparece nos botões do grimório."
 L["Show on Action Bars"] = "Mostrar nas barras de ação"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a nos botões da barra de ação para feitiços incluídos na rotação."
+L["Action Bar Icon Position"] = "Posição do ícone na barra de ação"
+L["Choose the corner where the overlay icon appears on action bar buttons."] = "Escolha o canto onde o ícone de sobreposição aparece nos botões da barra de ação."
 L["Only when Single-Button is used"] = "Apenas quando o botão único é usado"
 L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Exibe a sobreposição de ícone |A:UI-RefreshButton:16:16:0:0|a nas barras de ação apenas se o feitiço Assistente de Botão Único estiver atualmente colocado em uma barra de ação."
+L["Top Left"] = "Superior Esquerdo"
+L["Top Right"] = "Superior Direito"
+L["Bottom Left"] = "Inferior Esquerdo"
+L["Bottom Right"] = "Inferior Direito"
 
 -- PersistentUnsheath Options
 L["Persistent Unsheath"] = "Bainha Persistente"
