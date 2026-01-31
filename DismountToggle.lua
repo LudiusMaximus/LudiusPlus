@@ -1,7 +1,7 @@
 local folderName, addon = ...
 
 local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
-local LibMountInfo = LibStub("LibMountInfo-1.0")
+local LibMountInfo = LibStub("LibMountInfo-1.1")
 
 local ChangeActionBarPage = _G.ChangeActionBarPage
 local IsMounted = _G.IsMounted
