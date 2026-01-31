@@ -1,6 +1,6 @@
 local folderName, addon = ...
 
-local LibMountInfo = LibStub("LibMountInfo-1.0")
+local LibMountInfo = LibStub("LibMountInfo-1.1")
 
 local C_MountJournal_SummonByID = C_MountJournal.SummonByID
 local C_Timer_After = C_Timer.After
