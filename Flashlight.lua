@@ -182,6 +182,10 @@ local function EventFrameScript(self, event, ...)
       local torchChanged = false
       if updateInfo.addedAuras then
         for _, k in pairs(updateInfo.addedAuras) do
+          if issecretvalue(k.spellId) then
+            deferredSetupNeeded = true
+            return
+          end
           if k.spellId == spellID then
             torchChanged = true
             break
