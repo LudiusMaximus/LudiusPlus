@@ -63,7 +63,7 @@ local function EventFrameScript(self, event, ...)
 
     if updateInfo and updateInfo.addedAuras then
       for _, v in pairs(updateInfo.addedAuras) do
-        if v.spellId then
+        if v.spellId and not issecretvalue(v.spellId) then
           if raceBuffs[v.spellId] then
             -- print("Starting race countdown")
             preRacePhase = true
