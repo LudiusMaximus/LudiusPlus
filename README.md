@@ -11,7 +11,7 @@ Skip tedious confirmation dialogs automatically. Streamline your auctions, pet c
 
 ### 🛒 Vendor Item Overlay
 Enhance vendor browsing with additional item information overlays.
-* **Ownership for decor items:** Displays ownership details for housing decor items — showing "[in storage]/[total owned]" in the top-right corner of each icon, so you can see at a glance how many you already own.
+* **Ownership for decor items:** Displays ownership details for housing decor items - showing "[in storage]/[total owned]" in the top-right corner of each icon, so you can see at a glance how many you already own.
 * **Already known items:** Greys out and marks items you already know (Toys, Mounts, Pets, Transmog, Recipes) with a checkmark, so you can see at a glance what you have already collected.
 
 ### 🔄 Spell Icon Overlay
@@ -24,7 +24,7 @@ Bind a single hotkey to seamlessly switch between mounted and dismounted states.
 Start Skyriding races on your preferred flying mount, not the default Renewed Proto-Drake. If you start a race unmounted, the addon automatically switches to your last active flying mount during the race countdown which saves you one action bar click.
 
 ### 🐾 Persistent Companion
-Never lose your pet companion again. The addon is aware of when you actively summon or dismiss your companion battle pet and automatically persists this state. It resummons the pet after it disappears — e.g. from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away.
+Never lose your pet companion again. The addon is aware of when you actively summon or dismiss your companion battle pet and automatically persists this state. It resummons the pet after it disappears - e.g. from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away.
 
 Additional features:
 * **Dismiss pet while stealthed:** Nothing breaks immersion like your pet seemingly giving you away while you are stealthed (Rogue Stealth/Vanish, Druid Prowl, Hunter Camouflage, Mage Invisibility, Night Elf Shadowmeld, etc.). The addon can automatically dismiss your pet when entering stealth and resummon it when stealth ends.
