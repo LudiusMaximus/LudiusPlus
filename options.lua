@@ -92,6 +92,9 @@ local CONFIG_DEFAULTS = {
 
   flashlight_enabled                   = false,
 
+  houseEditorEnhancer_enabled          = false,
+  houseEditorEnhancer_itemSize         = 1.0,
+
 }
 
 
@@ -368,18 +371,21 @@ local persistentCompanionDesc = L["Automatically resummon your last active pet c
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
 local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
+local houseEditorEnhancerDesc = L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"]
 
 
 -- Module order (from most to least demanded)
-local dialogSkipperOrder = 1
-local vendorItemOverlayOrder = 1.5
-local spellIconOverlayOrder = 1.6
-local dismountToggleOrder = 2
-local raceOnLastMountOrder = 3
-local persistentCompanionOrder = 4
-local persistentUnsheathOrder = 5
-local muteSoundsOrder = 6
-local flashlightOrder = 7
+local dialogSkipperOrder       = 1
+local vendorItemOverlayOrder   = 2
+local houseEditorEnhancerOrder = 3
+local spellIconOverlayOrder    = 4
+local dismountToggleOrder      = 5
+local raceOnLastMountOrder     = 6
+local persistentCompanionOrder = 7
+local persistentUnsheathOrder  = 8
+local muteSoundsOrder          = 9
+local flashlightOrder          = 10
+
 
 -- Dynamic group name functions (return grey text if module disabled)
 local function GetModuleGroupName(name, ...)
@@ -1456,6 +1462,39 @@ local optionsTable = {
       },
     },
 
+    houseEditorEnhancerGroup = {
+      type = "group",
+      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_enabled) end,
+      desc = houseEditorEnhancerDesc,
+      order = houseEditorEnhancerOrder,
+      args = {
+
+        houseEditorEnhancerDescription = {
+          order = 0,
+          type = "description",
+          name = houseEditorEnhancerDesc,
+          width = "full",
+        },
+
+        houseEditorEnhancerGroupBlank05 = {order = 0.5, type = "description", name = " ",},
+
+        houseEditorEnhancerEnabled = {
+          order = 1,
+          type = "toggle",
+          name = L["Enable"],
+          desc = L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."],
+          width = "full",
+          get = function() return config.houseEditorEnhancer_enabled end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_enabled = newValue
+              addon.SetupOrTeardownHouseEditorEnhancer()
+            end,
+        },
+
+      },
+    },
+
   },
 }
 
@@ -1471,7 +1510,8 @@ local function AreAllModulesDisabled()
     config.persistentUnsheath_autoUnsheath or
     config.muteSounds_enabled or
     config.vendorItemOverlay_enabled or
-    config.flashlight_enabled
+    config.flashlight_enabled or
+    config.houseEditorEnhancer_enabled
   )
 end
 

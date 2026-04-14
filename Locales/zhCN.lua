@@ -112,6 +112,16 @@ L["Automatically dismiss your pet when entering combat and resummon it when comb
 L["Mute automatic summon sound"] = "静音自动召唤音效"
 L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "自动重新召唤宠物时静音召唤音效。手动召唤的声音不受影响。\n\n这适用于大多数宠物（使用“huntertrapopen”声音的宠物）。欢迎告诉插件作者其他需要添加的宠物召唤声音 ID。"
 
+-- HouseEditorEnhancer Options
+L["Enhanced House Editor"] = "增强型房屋编辑器"
+L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "房屋编辑器中的装饰品预览图标可能太小，无法清晰辨认。增强型房屋编辑器允许您直接在房屋编辑器窗口中使用滑块更改图标的大小。"
+L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "启用增强型房屋编辑器，在房屋编辑器顶部显示装饰图标大小滑块。"
+L["Decor Icon Size:"] = "装饰图标大小："
+L["Resize decor item icons"] = "调整装饰品图标大小"
+L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Ludius Plus 的一项功能。"
+L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "无法与 %s 配合使用！"
+L["Reset to default size"] = "恢复默认大小"
+
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "欢迎使用 LudiusPlus！输入 /ldp 选择要启用的模块。"
 

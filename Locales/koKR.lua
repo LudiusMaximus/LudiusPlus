@@ -112,6 +112,16 @@ L["Automatically dismiss your pet when entering combat and resummon it when comb
 L["Mute automatic summon sound"] = "자동 소환 소리 음소거"
 L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "애드온이 애완동물을 자동으로 재소환할 때 소환 소리를 음소거합니다. 수동 소환 소리는 영향을 받지 않습니다.\n\n이 기능은 대부분의 애완동물(\"huntertrapopen\" 소리를 사용하는 애완동물)에서 작동합니다. 추가할 다른 애완동물 소환 소리의 ID를 애드온 제작자에게 알려주세요."
 
+-- HouseEditorEnhancer Options
+L["Enhanced House Editor"] = "향상된 하우스 편집기"
+L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "하우스 편집기의 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. 향상된 하우스 편집기를 사용하면 하우스 편집기 창에서 슬라이더를 통해 아이콘 크기를 직접 변경할 수 있습니다."
+L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "향상된 하우스 편집기를 활성화하여 하우스 편집기 상단에 장식 아이콘 크기 조절 슬라이더를 표시합니다."
+L["Decor Icon Size:"] = "장식 아이콘 크기:"
+L["Resize decor item icons"] = "장식 아이템 아이콘 크기 조절"
+L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Ludius Plus의 기능입니다."
+L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "%s와(과) 연동하여 작동하지 않습니다!"
+L["Reset to default size"] = "기본 크기로 초기화"
+
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."
 

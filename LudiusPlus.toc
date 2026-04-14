@@ -25,5 +25,6 @@ PersistentUnsheath.lua
 RaceOnLastMount.lua
 VendorItemOverlay.lua
 SpellIconOverlay.lua
+HouseEditorEnhancer.lua
 
 options.lua
