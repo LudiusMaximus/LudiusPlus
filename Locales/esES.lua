@@ -112,6 +112,16 @@ L["Automatically dismiss your pet when entering combat and resummon it when comb
 L["Mute automatic summon sound"] = "Silenciar sonido de invocación automática"
 L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "Silencia el sonido de invocación de mascota cuando se vuelve a invocar automáticamente. El sonido de la invocación manual no se ve afectado.\n\nEsto funciona para la mayoría de las mascotas (las que usan el sonido \"huntertrapopen\"). No dudes en informar al autor del addon sobre los ID de otros sonidos de invocación de mascotas para agregarlos."
 
+-- HouseEditorEnhancer Options
+L["Enhanced House Editor"] = "Editor de casa mejorado"
+L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "Los iconos de vista previa de los objetos de decoración en el editor de casas pueden ser demasiado pequeños para verse con claridad. El editor de casas mejorado permite cambiar el tamaño de los iconos con un control deslizante directamente en la ventana del editor de casas."
+L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "Activa el editor de casas mejorado para mostrar un control deslizante para el tamaño de los iconos de decoración en la parte superior del editor de casas."
+L["Decor Icon Size:"] = "Tamaño de iconos de decoración:"
+L["Resize decor item icons"] = "Cambiar el tamaño de los iconos de objetos de decoración"
+L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Una función de Ludius Plus."
+L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "¡No funciona en conjunto con %s!"
+L["Reset to default size"] = "Restablecer al tamaño predeterminado"
+
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "¡Bienvenido a LudiusPlus! Escribe /ldp para elegir los módulos a activar."
 

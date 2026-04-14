@@ -112,6 +112,16 @@ L["Automatically dismiss your pet when entering combat and resummon it when comb
 L["Mute automatic summon sound"] = true
 L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = true
 
+-- HouseEditorEnhancer Options
+L["Enhanced House Editor"] = true
+L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = true
+L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = true
+L["Decor Icon Size:"] = true
+L["Resize decor item icons"] = true
+L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = true
+L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = true
+L["Reset to default size"] = true
+
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = true
 

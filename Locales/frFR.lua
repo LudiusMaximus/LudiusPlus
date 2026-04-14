@@ -112,6 +112,16 @@ L["Automatically dismiss your pet when entering combat and resummon it when comb
 L["Mute automatic summon sound"] = "Couper le son d'invocation automatique"
 L["Mute the pet summon sound when automatically resummoning your pet. The sound from manual summoning is not affected.\n\nThis works for most pets (the ones using the \"huntertrapopen\" sound). Feel free to let the addon author know the IDs of other pet summing sounds to be added."] = "Coupe le son d'invocation de la mascotte lors de son rappel automatique. Le son de l'invocation manuelle n'est pas affecté.\n\nCela fonctionne pour la plupart des mascottes (celles utilisant le son « huntertrapopen »). N'hésitez pas à communiquer à l'auteur de l'addon les ID d'autres sons d'invocation de mascottes à ajouter."
 
+-- HouseEditorEnhancer Options
+L["Enhanced House Editor"] = "Éditeur de maison amélioré"
+L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "Les icônes d'aperçu des objets de décoration dans l'éditeur de maison peuvent être trop petites pour être vues clairement. L'éditeur de maison amélioré permet de modifier la taille des icônes à l'aide d'un curseur directement dans la fenêtre de l'éditeur de maison."
+L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "Active l'éditeur de maison amélioré pour afficher un curseur pour la taille des icônes de décoration en haut de l'éditeur de maison."
+L["Decor Icon Size:"] = "Taille des icônes de décoration :"
+L["Resize decor item icons"] = "Modifier la taille des icônes d'objets de décoration"
+L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Une fonctionnalité de Ludius Plus."
+L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "Ne fonctionne pas en conjonction avec %s !"
+L["Reset to default size"] = "Réinitialiser à la taille par défaut"
+
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bienvenue dans LudiusPlus ! Tapez /ldp pour choisir les modules à activer."
 
