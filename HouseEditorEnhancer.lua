@@ -210,11 +210,18 @@ local function SetupEnhancer()
   -- the callback via GenerateClosure - hooking OnCategoryFocusChanged on
   -- the panel would be bypassed. SetFocus is the universal entry point.
   if storagePanel.Categories and not storagePanel.Categories._lpFocusHooked then
+    -- Defer the refresh by one frame: SetFocus runs mid-transition, before
+    -- the new data provider is fully populated. Calling Rebuild inline
+    -- here re-invokes element initializers on half-initialized entries
+    -- (e.g. CatalogShop product cards without productInfo yet), causing
+    -- Blizzard-side Lua errors.
     hooksecurefunc(storagePanel.Categories, "SetFocus", function()
-      RefreshCatalog()
-      if slider and slider._lpUpdateControlStates then
-        slider._lpUpdateControlStates()
-      end
+      C_Timer.After(0, function()
+        RefreshCatalog()
+        if slider and slider._lpUpdateControlStates then
+          slider._lpUpdateControlStates()
+        end
+      end)
     end)
     storagePanel.Categories._lpFocusHooked = true
   end
