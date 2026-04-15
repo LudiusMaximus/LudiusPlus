@@ -215,9 +215,17 @@ local function SetupEnhancer()
     -- here re-invokes element initializers on half-initialized entries
     -- (e.g. CatalogShop product cards without productInfo yet), causing
     -- Blizzard-side Lua errors.
+    --
+    -- Also skip RefreshCatalog entirely when Featured is focused: its
+    -- CatalogShop product cards populate productInfo asynchronously, so
+    -- even a deferred Rebuild can re-init a card before its data arrives.
+    -- Our scale is forced to 1.0 in Featured (see GetScale), so no refresh
+    -- is needed there anyway - Blizzard's own SetDataProvider does it.
     hooksecurefunc(storagePanel.Categories, "SetFocus", function()
       C_Timer.After(0, function()
-        RefreshCatalog()
+        if not IsFeaturedFocused() then
+          RefreshCatalog()
+        end
         if slider and slider._lpUpdateControlStates then
           slider._lpUpdateControlStates()
         end
