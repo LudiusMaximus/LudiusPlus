@@ -114,12 +114,15 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Editor de casa mejorado"
-L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "Los iconos de vista previa de los objetos de decoración en el editor de casas pueden ser demasiado pequeños para verse con claridad. El editor de casas mejorado permite cambiar el tamaño de los iconos con un control deslizante directamente en la ventana del editor de casas."
-L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "Activa el editor de casas mejorado para mostrar un control deslizante para el tamaño de los iconos de decoración en la parte superior del editor de casas."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Los iconos de vista previa de los objetos de decoración en las ventanas %s y %s del editor de casas pueden ser demasiado pequeños para verse con claridad. El editor de casas mejorado de Ludius Plus añade, entre otras cosas, un control deslizante para cambiar el tamaño de los iconos y un panel lateral de vista previa (se abre con CTRL - CLIC IZQUIERDO)."
+L["Icon size slider"] = "Control deslizante de tamaño de icono"
+L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Si está activado, se añade un control deslizante a la ventana %s/%s del editor de casas para personalizar el tamaño de los iconos de decoración."
+L["Decor preview for %s/%s frame"] = "Vista previa de decoración para la ventana %s/%s"
+L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Si está activado, puedes hacer CTRL + CLIC IZQUIERDO en los iconos de decoración de la ventana %s/%s del editor de casas para abrir una vista previa del modelo al lado."
 L["Decor Icon Size:"] = "Tamaño de iconos de decoración:"
 L["Resize decor item icons"] = "Cambiar el tamaño de los iconos de objetos de decoración"
-L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Una función de Ludius Plus."
-L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "¡No funciona en conjunto con %s!"
+L["by Ludius Plus"] = "por Ludius Plus"
+L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = "¡No funciona en conjunto con %s!"
 L["Reset to default size"] = "Restablecer al tamaño predeterminado"
 
 -- Welcome Message

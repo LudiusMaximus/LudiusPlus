@@ -92,8 +92,10 @@ local CONFIG_DEFAULTS = {
 
   flashlight_enabled                   = false,
 
-  houseEditorEnhancer_enabled          = false,
-  houseEditorEnhancer_itemSize         = 1.0,
+  houseEditorEnhancer_iconResizer      = false,
+  houseEditorEnhancer_iconResizerSize  = 1.0,
+  houseEditorEnhancer_preview          = false,
+  houseEditorEnhancer_previewWidth     = 540,
 
 }
 
@@ -371,7 +373,7 @@ local persistentCompanionDesc = L["Automatically resummon your last active pet c
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
 local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
-local houseEditorEnhancerDesc = L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"]
+local houseEditorEnhancerDesc = L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB)
 
 
 -- Module order (from most to least demanded)
@@ -1464,7 +1466,7 @@ local optionsTable = {
 
     houseEditorEnhancerGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_enabled) end,
+      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizer or config.houseEditorEnhancer_preview) end,
       desc = houseEditorEnhancerDesc,
       order = houseEditorEnhancerOrder,
       args = {
@@ -1481,13 +1483,27 @@ local optionsTable = {
         houseEditorEnhancerEnabled = {
           order = 1,
           type = "toggle",
-          name = L["Enable"],
-          desc = L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."],
+          name = L["Icon size slider"],
+          desc = L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
           width = "full",
-          get = function() return config.houseEditorEnhancer_enabled end,
+          get = function() return config.houseEditorEnhancer_iconResizer end,
           set =
             function(_, newValue)
-              config.houseEditorEnhancer_enabled = newValue
+              config.houseEditorEnhancer_iconResizer = newValue
+              addon.SetupOrTeardownHouseEditorEnhancer()
+            end,
+        },
+
+        houseEditorEnhancerPreviewEnabled = {
+          order = 2,
+          type = "toggle",
+          name = L["Decor preview for %s/%s frame"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          desc = L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          width = "full",
+          get = function() return config.houseEditorEnhancer_preview end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_preview = newValue
               addon.SetupOrTeardownHouseEditorEnhancer()
             end,
         },
@@ -1511,7 +1527,8 @@ local function AreAllModulesDisabled()
     config.muteSounds_enabled or
     config.vendorItemOverlay_enabled or
     config.flashlight_enabled or
-    config.houseEditorEnhancer_enabled
+    config.houseEditorEnhancer_iconResizer or
+    config.houseEditorEnhancer_preview
   )
 end
 
@@ -1520,6 +1537,16 @@ function addon:OnInitialize()
   LP_config = LP_config or {}
   -- For easier access.
   config = LP_config
+
+  -- Migrate renamed keys from previous versions.
+  if config.houseEditorEnhancer_enabled ~= nil then
+    config.houseEditorEnhancer_iconResizer = config.houseEditorEnhancer_enabled
+    config.houseEditorEnhancer_enabled = nil
+  end
+  if config.houseEditorEnhancer_itemSize ~= nil then
+    config.houseEditorEnhancer_iconResizerSize = config.houseEditorEnhancer_itemSize
+    config.houseEditorEnhancer_itemSize = nil
+  end
 
   -- Remove keys from previous versions.
   for k, v in pairs(config) do

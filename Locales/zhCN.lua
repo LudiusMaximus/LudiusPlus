@@ -114,12 +114,15 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "增强型房屋编辑器"
-L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "房屋编辑器中的装饰品预览图标可能太小，无法清晰辨认。增强型房屋编辑器允许您直接在房屋编辑器窗口中使用滑块更改图标的大小。"
-L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "启用增强型房屋编辑器，在房屋编辑器顶部显示装饰图标大小滑块。"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "房屋编辑器的 %s 和 %s 窗口中的装饰品预览图标可能太小，无法清晰辨认。Ludius Plus 的增强型房屋编辑器添加了调整图标大小的滑块和预览侧栏（通过 CTRL + 左键点击打开）等功能。"
+L["Icon size slider"] = "图标大小滑块"
+L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "启用后，房屋编辑器的 %s/%s 窗口将添加一个滑块，用于自定义装饰图标的大小。"
+L["Decor preview for %s/%s frame"] = "%s/%s 窗口的装饰预览"
+L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "启用后，您可以 CTRL + 左键点击房屋编辑器 %s/%s 窗口中的装饰图标，在旁边打开模型预览。"
 L["Decor Icon Size:"] = "装饰图标大小："
 L["Resize decor item icons"] = "调整装饰品图标大小"
-L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Ludius Plus 的一项功能。"
-L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "无法与 %s 配合使用！"
+L["by Ludius Plus"] = "作者：Ludius Plus"
+L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = "无法与 %s 配合使用！"
 L["Reset to default size"] = "恢复默认大小"
 
 -- Welcome Message

@@ -114,12 +114,15 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Editor della casa migliorato"
-L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "Le icone di anteprima degli oggetti decorativi nell'editor della casa potrebbero essere troppo piccole per essere viste chiaramente. L'editor della casa migliorato consente di modificare le dimensioni delle icone con un cursore direttamente nella finestra dell'editor della casa."
-L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "Attiva l'editor della casa migliorato per visualizzare un cursore per la dimensione delle icone decorative nella parte superiore dell'editor della casa."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Le icone di anteprima degli oggetti decorativi nelle finestre %s e %s dell'editor della casa potrebbero essere troppo piccole per essere viste chiaramente. L'editor della casa migliorato di Ludius Plus aggiunge, tra le altre cose, un cursore per modificare le dimensioni delle icone e un pannello laterale di anteprima (aperto con CTRL + CLIC SINISTRO)."
+L["Icon size slider"] = "Cursore dimensione icone"
+L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Se abilitato, un cursore viene aggiunto alla finestra %s/%s dell'editor della casa per personalizzare la dimensione delle icone delle decorazioni."
+L["Decor preview for %s/%s frame"] = "Anteprima decorazioni per la finestra %s/%s"
+L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Se abilitato, puoi fare CTRL + CLIC SINISTRO sulle icone delle decorazioni nella finestra %s/%s dell'editor della casa per aprire un'anteprima del modello accanto ad essa."
 L["Decor Icon Size:"] = "Dimensione icone decorazioni:"
 L["Resize decor item icons"] = "Modifica la dimensione delle icone degli oggetti decorativi"
-L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Una funzione di Ludius Plus."
-L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "Non funziona in combinazione con %s!"
+L["by Ludius Plus"] = "di Ludius Plus"
+L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = "Non funziona in combinazione con %s!"
 L["Reset to default size"] = "Ripristina dimensioni predefinite"
 
 -- Welcome Message
