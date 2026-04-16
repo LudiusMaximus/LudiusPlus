@@ -15,7 +15,7 @@ Enhance vendor browsing with additional item information overlays.
 * **Already known items:** Greys out and marks items you already know (Toys, Mounts, Pets, Transmog, Recipes) with a checkmark, so you can see at a glance what you have already collected.
 
 ### 🏠 House Editor Enhancer
-Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the "Technically Advanced Editor" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!
+Not being able to properly inspect the decor items in the small icons of the House Editor's Storage and Catalog frames is a s#!tshow obviously. Ludius Plus's "Technically Advanced Editor" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!
 
 ### 🔄 Spell Icon Overlay
 Display an icon overlay on spells in your spellbook or action bars that are included in the single-button combat rotation. This visual indicator helps you identify at a glance which abilities are automated, so you can see which ones you still need to press manually while using the single-button assistant, or even which ones you want to keep off your action bars as they are automated.

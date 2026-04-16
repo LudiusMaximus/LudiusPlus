@@ -1,24 +1,46 @@
-local folderName, addon = ...
+local _, addon = ...
 
 local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 
--- Improves the House Editor's decor storage panel by adding a slider that
--- lets the player resize the catalog entry boxes.
+-- The Enhanced House Editor module bundles two independent features:
 --
--- The catalog entries are laid out by a ScrollBoxListSequenceView inside
--- HouseEditorFrame.StoragePanel.OptionsContainer. The view asks an
--- ElementSizeCalculator for each element's (width, height). We wrap that
--- calculator to return scaled (width, height) for decor/room/bundle entries.
--- The view's ResizeFrame path then physically sizes each acquired frame via
--- :SetSize, which makes the background/icon grow. The inner ModelScene has
--- a fixed 80x80 size anchored CENTER, so we scale it directly.
+-- 1. ICON SIZE SLIDER (toggle: houseEditorEnhancer_iconResizer)
+--    Adds a slider above the storage panel that lets the player resize
+--    catalog entry tiles. The catalog is laid out by a
+--    ScrollBoxListSequenceView inside HouseEditorFrame.StoragePanel.
+--    OptionsContainer. The view asks an ElementSizeCalculator for each
+--    element's (w, h); we wrap it to return scaled dimensions for
+--    decor entries. The view's ResizeFrame path then physically sizes
+--    each acquired frame via :SetSize, growing the background/icon.
+--    The inner ModelScene has a fixed 80x80 size anchored CENTER, so we
+--    scale it directly.
+--
+-- 2. CTRL+CLICK PREVIEW (toggle: houseEditorEnhancer_preview)
+--    Ctrl+LeftClick on a tile opens a model preview anchored to the
+--    right of the editor. Blizzard only provides such a preview in the
+--    HousingDashboardFrame's catalog; the HouseEditor has none. We
+--    reuse Blizzard's HousingModelPreviewTemplate so it looks identical.
+--    To keep Ctrl+LeftClick from also starting decor placement, we wrap
+--    each catalog entry frame's OnInteract method as it's acquired by
+--    the ScrollBox and skip the original when our modifier conditions
+--    match. Wrapping the shared mixin (HousingCatalogEntryMixin) would
+--    not work: XML-level Mixin copies methods onto each frame instance
+--    at creation time, so frames already own their own function
+--    reference and bypass any later mixin-table edits.
+--
+-- The module is set up if either option is enabled, torn down only when
+-- both are off. Each feature's hooks are idempotent and gated by their
+-- own option, so they coexist cleanly.
+
+
+-- ===== Slider: constants =====
 
 local MIN_SCALE = 0.55
 local MAX_SCALE = 3.65
 local STEP = 0.01
 
--- Default SearchBox anchor y-offset in Blizzard's XML is -20. We shift it
--- upwards to make vertical room for the slider row underneath.
+-- Default SearchBox anchor y-offset in Blizzard's XML is -20. We shift
+-- it upwards to make vertical room for the slider row underneath.
 local SEARCH_BOX_DEFAULT_Y = -20
 local SEARCH_BOX_SHIFTED_Y = -13
 
@@ -39,17 +61,42 @@ local SCALEABLE_TEMPLATE_KEYS = {
   CATALOG_ENTRY_BUNDLE = true,
 }
 
-
 local DEFAULT_SCALE = 1.0
 -- Reset button texture matches DynamicCam's reset buttons.
 local RESET_TEXTURE = "Interface\\Transmogrify\\Transmogrify"
 local RESET_TEXCOORDS = {0.58203125, 0.64453125, 0.30078125, 0.36328125}
 
+
+-- ===== Preview: constants =====
+
+local MIN_PREVIEW_WIDTH = 300
+local MAX_PREVIEW_WIDTH = 1200
+local DEFAULT_PREVIEW_WIDTH = 540
+-- Gap between StoragePanel's right edge and preview's left edge. Used
+-- both when anchoring and when computing how wide the preview can grow
+-- before it'd hit the screen's right edge.
+local PANEL_GAP = 8
+
+
+-- ===== Module state =====
+
+-- Slider:
 local slider = nil
 local sliderLabel = nil
 local resetButton = nil
-local hooked = false
+local viewHooked = false  -- ElementSizeCalculator + ApplyModelSceneScale
 
+-- Preview:
+local previewFrame = nil
+local scrollBoxHooked = false  -- per-frame OnInteract + OnEnter/OnLeave wrap
+local hoveredFrame = nil
+local inspectCursorActive = false
+
+local lastPreviewEntryInfo = nil
+local previewWasShownBeforeCollapse = false
+
+
+-- ===== Slider: helpers =====
 
 -- The "Featured" category in the Catalog tab shows bundle/advertisement
 -- tiles of non-standard sizes, and the panel forces its own fixed width
@@ -64,13 +111,13 @@ end
 
 
 local function GetScale()
-  if not (LP_config and LP_config.houseEditorEnhancer_enabled) then
+  if not (LP_config and LP_config.houseEditorEnhancer_iconResizer) then
     return 1.0
   end
   if IsFeaturedFocused() then
     return 1.0
   end
-  return LP_config.houseEditorEnhancer_itemSize or 1.0
+  return LP_config.houseEditorEnhancer_iconResizerSize or 1.0
 end
 
 
@@ -106,6 +153,8 @@ end
 -- drag, to avoid jitter under the user's cursor). Mirrors the snap/CVar
 -- bookkeeping in HouseEditorStorageFrameMixin:OnResizeStopped.
 local function SnapPanelWidth()
+  if IsFeaturedFocused() then return end
+
   local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
   if not storagePanel or not storagePanel.OptionsContainer then return end
   local scrollBox = storagePanel.OptionsContainer.ScrollBox
@@ -158,7 +207,7 @@ end
 
 
 local function InstallViewHook(container)
-  if hooked then return true end
+  if viewHooked then return true end
 
   local scrollBox = container.ScrollBox
   local view = scrollBox and scrollBox:GetView()
@@ -183,12 +232,272 @@ local function InstallViewHook(container)
     ApplyModelSceneScale(frame)
   end, scrollBox)
 
-  hooked = true
+  viewHooked = true
   return true
 end
 
 
-local function SetupEnhancer()
+-- ===== Preview: helpers =====
+
+local function IsPreviewEnabled()
+  return LP_config and LP_config.houseEditorEnhancer_preview
+end
+
+
+local function HidePreview()
+  if not previewFrame then return end
+  previewFrame:Hide()
+  previewFrame:ClearPreviewData()
+end
+
+
+-- Show the inspect cursor while Ctrl is held over a previewable tile.
+-- We track inspectCursorActive so ResetCursor only runs if *we* set it -
+-- otherwise we'd clobber cursors set by other systems (drag-and-drop,
+-- spell targeting, etc.).
+local function UpdateInspectCursor()
+  local shouldShow = hoveredFrame
+      and IsPreviewEnabled()
+      and IsControlKeyDown()
+      and hoveredFrame:HasValidData()
+  if shouldShow then
+    if not inspectCursorActive then
+      ShowInspectCursor()
+      inspectCursorActive = true
+    end
+  elseif inspectCursorActive then
+    ResetCursor()
+    inspectCursorActive = false
+  end
+end
+
+
+-- Forward declaration: EnsurePreviewFrame's OnSizeChanged hook captures
+-- this; the actual function body is defined further down so it can also
+-- be called from ShowPreviewForEntry without an extra forward ref.
+local UpdatePreviewLayout
+
+
+local function EnsurePreviewFrame()
+  if not HouseEditorFrame or not HouseEditorFrame.StoragePanel then return end
+
+  if previewFrame then return previewFrame end
+
+  if not C_AddOns.IsAddOnLoaded("Blizzard_HousingModelPreview") then
+    C_AddOns.LoadAddOn("Blizzard_HousingModelPreview")
+  end
+
+  previewFrame = CreateFrame("Frame", "LudiusPlusHouseEditorPreviewFrame", HouseEditorFrame.StoragePanel, "HousingModelPreviewTemplate")
+  local savedWidth = (LP_config and LP_config.houseEditorEnhancer_previewWidth) or DEFAULT_PREVIEW_WIDTH
+  previewFrame:SetWidth(Clamp(savedWidth, MIN_PREVIEW_WIDTH, MAX_PREVIEW_WIDTH))
+  previewFrame:SetPoint("BOTTOMLEFT", HouseEditorFrame.StoragePanel, "BOTTOMRIGHT", PANEL_GAP, 0)
+  -- Ensure the preview frame is behind the StoragePanel's CollapseButton.
+  previewFrame:SetFrameLevel(HouseEditorFrame.StoragePanel.CollapseButton:GetFrameLevel() - 1)
+  -- Deliberately NOT SetClampedToScreen: it would snap our anchor inward
+  -- when the preview's right edge hits the screen, visually detaching us
+  -- from StoragePanel and overlapping it. UpdatePreviewLayout shrinks the
+  -- width instead, keeping the anchor relationship intact.
+  previewFrame:Hide()
+
+  -- Hide only on our instance (each template instantiation gets its own
+  -- texture children), so the HousingDashboardFrame's preview is untouched.
+  if previewFrame.PreviewCornerLeft then previewFrame.PreviewCornerLeft:Hide() end
+  if previewFrame.PreviewCornerRight then previewFrame.PreviewCornerRight:Hide() end
+
+  -- Border-only variant of the tooltip backdrop (backdropColorAlpha=0):
+  -- TooltipBorderedFrameTemplate would draw an 0.8-alpha dark Center over
+  -- the model scene and visibly dim it.
+  local border = CreateFrame("Frame", nil, previewFrame, "TooltipBorderBackdropTemplate")
+  -- Extend the border beyond the preview frame a few pixels so the
+  -- backdrop doesn't show through around the edge.
+  border:SetPoint("TOPLEFT", previewFrame, "TOPLEFT", -2, 2)
+  border:SetPoint("BOTTOMRIGHT", previewFrame, "BOTTOMRIGHT", 2, -2)
+
+  -- Invisible frame behind previewFrame to catch clicks and prevent click-through.
+  -- (Setting previewFrame:EnableMouse(true) prevented the mouse from interacting with the 3d model.)
+  local clickBlocker = CreateFrame("Frame", nil, HouseEditorFrame.StoragePanel)
+  clickBlocker:SetPoint("TOPLEFT", previewFrame, "TOPLEFT")
+  clickBlocker:SetPoint("BOTTOMRIGHT", previewFrame, "BOTTOMRIGHT")
+  clickBlocker:EnableMouse(true)
+  clickBlocker:SetFrameLevel(previewFrame:GetFrameLevel() - 1)
+
+  local close = CreateFrame("Button", nil, previewFrame, "UIPanelCloseButton")
+  close:SetPoint("TOPRIGHT", previewFrame, "TOPRIGHT", 2, 2)
+  close:SetScript("OnClick", function()
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
+    HidePreview()
+    previewWasShownBeforeCollapse = false
+  end)
+
+  -- Width-only resize handle. Uses PanelResizeButtonTemplate for the
+  -- chat-style grabber visuals to match Blizzard's StoragePanel resize
+  -- button, but overrides every script: PanelResizeButtonMixin would
+  -- StartSizing on a BOTTOMRIGHT corner (resizing both width AND height),
+  -- and our height is driven by UpdatePreviewLayout, not by the user.
+  local resize = CreateFrame("Button", nil, previewFrame, "PanelResizeButtonTemplate")
+  resize:SetPoint("BOTTOMRIGHT", previewFrame, "BOTTOMRIGHT", -2, 2)
+  local dragStartCursorX, dragStartWidth
+  resize:SetScript("OnMouseDown", function(self)
+    dragStartCursorX = (GetCursorPosition()) / UIParent:GetEffectiveScale()
+    dragStartWidth = previewFrame:GetWidth()
+    self:SetScript("OnUpdate", function()
+      local cursorX = (GetCursorPosition()) / UIParent:GetEffectiveScale()
+      -- Cap by available space to the screen's right edge so the preview
+      -- can't be dragged off-screen. Compute desired-left from the panel
+      -- (not previewFrame:GetLeft()), to match UpdatePreviewLayout's logic.
+      local panel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+      local panelRight = panel and panel:GetRight()
+      local maxByScreen = panelRight and (UIParent:GetRight() - (panelRight + PANEL_GAP)) or MAX_PREVIEW_WIDTH
+      local maxWidth = math.min(MAX_PREVIEW_WIDTH, maxByScreen)
+      local newWidth = Clamp(dragStartWidth + (cursorX - dragStartCursorX), MIN_PREVIEW_WIDTH, maxWidth)
+      previewFrame:SetWidth(newWidth)
+    end)
+  end)
+  resize:SetScript("OnMouseUp", function(self)
+    self:SetScript("OnUpdate", nil)
+    if LP_config then
+      LP_config.houseEditorEnhancer_previewWidth = previewFrame:GetWidth()
+    end
+  end)
+  resize:SetScript("OnEnter", function() SetCursor("UI_RESIZE_CURSOR") end)
+  resize:SetScript("OnLeave", function() SetCursor(nil) end)
+
+  -- Sounds are intentionally not wired to OnShow/OnHide. The preview is
+  -- parented to the editor, so OnShow/OnHide also fire on cascaded
+  -- effective-visibility changes (e.g. StoragePanel hides during decor
+  -- placement) - we'd play extra sounds in those cases. Instead, the
+  -- open/select/close sounds are played inline at the actual user-driven
+  -- actions: click to preview (ShowPreviewForEntry) and the close button.
+
+  HouseEditorFrame:HookScript("OnHide", HidePreview)
+
+  -- Re-fit on StoragePanel resize: panel resizing changes both the
+  -- available vertical room (panel bottom moves) and our left edge
+  -- (panel right moves), so width may need to shrink to stay on-screen.
+  HouseEditorFrame.StoragePanel:HookScript("OnSizeChanged", UpdatePreviewLayout)
+
+  return previewFrame
+end
+
+
+-- Recompute the preview's height and width.
+--
+-- Height: fill the vertical gap between StoragePanel's bottom and
+-- HouseEditorButton's bottom, so the preview never covers the button.
+-- WoW's anchor system can't express this with two anchors (left X comes
+-- from StoragePanel, top Y from HouseEditorButton at a different X), so
+-- we compute height explicitly.
+--
+-- Width: clamp to the available space between our left edge (which
+-- equals panel:GetRight() + PANEL_GAP via our anchor) and the screen's
+-- right edge so a wider StoragePanel can't push the preview off-screen.
+-- We restore from LP_config rather than just shrinking the current
+-- width, so a later StoragePanel-shrink expands the preview back to the
+-- user's saved preference.
+--
+-- Important: we read panel:GetRight() rather than previewFrame:GetLeft()
+-- because anchors-with-clamping can lie - if SetClampedToScreen were on,
+-- GetLeft would return the post-clamp position, hiding the overflow.
+function UpdatePreviewLayout()
+  local panel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  local btn = HousingControlsFrame
+    and HousingControlsFrame.OwnerControlFrame
+    and HousingControlsFrame.OwnerControlFrame.HouseEditorButton
+  if not previewFrame or not panel or not btn then return end
+
+  local btnBottom = btn:GetBottom()
+  local panelBottom = panel:GetBottom()
+  if btnBottom and panelBottom then
+    local height = btnBottom - panelBottom
+    if height > 0 then
+      previewFrame:SetHeight(height)
+    end
+  end
+
+  local panelRight = panel:GetRight()
+  if panelRight then
+    local maxByScreen = UIParent:GetRight() - (panelRight + PANEL_GAP)
+    local saved = (LP_config and LP_config.houseEditorEnhancer_previewWidth) or DEFAULT_PREVIEW_WIDTH
+    local target = Clamp(saved, MIN_PREVIEW_WIDTH, math.min(MAX_PREVIEW_WIDTH, maxByScreen))
+    previewFrame:SetWidth(target)
+  end
+end
+
+
+local function ShowPreviewForEntry(entry)
+  local pf = EnsurePreviewFrame()
+  if not pf then return end
+  -- First open plays the open sound; subsequent entry swaps play the
+  -- dashboard's select sound. Only one or the other, never both.
+  if pf:IsShown() then
+    PlaySound(SOUNDKIT.HOUSING_CATALOG_ENTRY_SELECT)
+  else
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
+  end
+  pf:PreviewCatalogEntryInfo(entry.entryInfo)
+  pf.lastEntryInfo = entry.entryInfo
+  previewWasShownBeforeCollapse = true
+  UpdatePreviewLayout()
+  pf:Show()
+end
+
+
+local function HookCatalogEntry(frame)
+  if not frame or frame._lpHooked then return end
+  if type(frame.OnInteract) ~= "function" then return end
+
+  local original = frame.OnInteract
+  frame.OnInteract = function(self, button, isDrag)
+    if not isDrag and button == "LeftButton" and IsControlKeyDown()
+        and IsPreviewEnabled() and self:HasValidData() then
+      ShowPreviewForEntry(self)
+      return
+    end
+    return original(self, button, isDrag)
+  end
+
+  -- Track hover so MODIFIER_STATE_CHANGED can flip the cursor while the
+  -- mouse stays still. OnEnter/OnLeave alone wouldn't catch the case of
+  -- the user pressing Ctrl after hovering.
+  frame:HookScript("OnEnter", function(self)
+    hoveredFrame = self
+    UpdateInspectCursor()
+  end)
+  frame:HookScript("OnLeave", function(self)
+    if hoveredFrame == self then
+      hoveredFrame = nil
+    end
+    UpdateInspectCursor()
+  end)
+
+  frame._lpHooked = true
+end
+
+
+local function InstallScrollBoxHook()
+  if scrollBoxHooked then return end
+  local scrollBox = HouseEditorFrame
+    and HouseEditorFrame.StoragePanel
+    and HouseEditorFrame.StoragePanel.OptionsContainer
+    and HouseEditorFrame.StoragePanel.OptionsContainer.ScrollBox
+  if not scrollBox then return end
+
+  scrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, function(_, frame)
+    HookCatalogEntry(frame)
+  end, "LudiusPlus_HouseEditorEnhancer_Preview")
+
+  -- Hook any frames already acquired before we installed the callback.
+  for _, frame in scrollBox:EnumerateFrames() do
+    HookCatalogEntry(frame)
+  end
+
+  scrollBoxHooked = true
+end
+
+
+-- ===== Slider: setup / teardown =====
+
+local function SetupSlider()
   local container = GetContainer()
   if not container then return end
 
@@ -228,6 +537,14 @@ local function SetupEnhancer()
         end
         if slider and slider._lpUpdateControlStates then
           slider._lpUpdateControlStates()
+        end
+        -- Hide ResizeButton when Featured is focused, show it otherwise.
+        if storagePanel.ResizeButton then
+          if IsFeaturedFocused() then
+            storagePanel.ResizeButton:Hide()
+          else
+            storagePanel.ResizeButton:Show()
+          end
         end
       end)
     end)
@@ -288,7 +605,7 @@ local function SetupEnhancer()
     slider:SetScript("OnValueChanged", function(_, value)
       value = math.floor(value / STEP + 0.5) * STEP
       if LP_config then
-        LP_config.houseEditorEnhancer_itemSize = value
+        LP_config.houseEditorEnhancer_iconResizerSize = value
       end
       UpdateControlStates()
       RefreshCatalog()
@@ -296,9 +613,9 @@ local function SetupEnhancer()
     slider:SetScript("OnEnter", function(self)
       GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
       GameTooltip:SetText(L["Resize decor item icons"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1, true)
-      GameTooltip:AddLine(L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."], TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b, 1, true)
+      GameTooltip:AddLine(L["by Ludius Plus"], TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b, 1, true)
       if IsFeaturedFocused() then
-        GameTooltip_AddErrorLine(GameTooltip, L["Not working in the \"Featured\" category. TAE wants no part of %s!"]:format(HOUSING_MARKET_HEARTHSTEEL_TOOLTIP))
+        GameTooltip_AddErrorLine(GameTooltip, L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s!"]:format(HOUSING_MARKET_HEARTHSTEEL_TOOLTIP))
       end
       GameTooltip:Show()
     end)
@@ -342,14 +659,14 @@ local function SetupEnhancer()
   slider:Show()
   resetButton:Show()
 
-  slider:SetValue(LP_config and LP_config.houseEditorEnhancer_itemSize or DEFAULT_SCALE)
+  slider:SetValue(LP_config and LP_config.houseEditorEnhancer_iconResizerSize or DEFAULT_SCALE)
   if slider._lpUpdateControlStates then slider._lpUpdateControlStates() end
 
   RefreshCatalog()
 end
 
 
-local function TeardownEnhancer()
+local function TeardownSlider()
   if slider then slider:Hide() end
   if sliderLabel then sliderLabel:Hide() end
   if resetButton then resetButton:Hide() end
@@ -368,27 +685,87 @@ local function TeardownEnhancer()
 end
 
 
+-- ===== Public API =====
+
 function addon.SetupOrTeardownHouseEditorEnhancer()
-  if LP_config and LP_config.houseEditorEnhancer_enabled then
-    if HouseEditorFrame then
-      SetupEnhancer()
+  -- HouseEditor is LoadOnDemand; the ADDON_LOADED handler below re-runs
+  -- this once it's loaded.
+  if not HouseEditorFrame then return end
+
+
+  -- Hook to prevent error when productInfo is nil
+  if not CatalogShopDefaultProductCardMixin._originalLayout then
+    CatalogShopDefaultProductCardMixin._originalLayout = CatalogShopDefaultProductCardMixin.Layout
+    CatalogShopDefaultProductCardMixin.Layout = function(self)
+      if not self.productInfo then return end
+      return CatalogShopDefaultProductCardMixin._originalLayout(self)
     end
-    -- Otherwise the ADDON_LOADED handler below sets up when the house
-    -- editor (load-on-demand) loads.
+  end
+  if _G.FormatPriceStrings and not _G._originalFormatPriceStrings then
+    _G._originalFormatPriceStrings = _G.FormatPriceStrings
+    _G.FormatPriceStrings = function(productInfo)
+      if not productInfo then return "", "" end
+      return _G._originalFormatPriceStrings(productInfo)
+    end
+  end
+
+
+  if LP_config and LP_config.houseEditorEnhancer_iconResizer then
+    SetupSlider()
   else
-    if HouseEditorFrame then
-      TeardownEnhancer()
-    end
+    TeardownSlider()
+  end
+
+  -- Preview frame itself is created lazily by EnsurePreviewFrame on the
+  -- first Ctrl+Click, but the per-frame OnInteract wrap (and the OnEnter/
+  -- OnLeave hover tracking for the inspect cursor) must be installed up
+  -- front so the click is intercepted before Blizzard's placement logic
+  -- runs.
+  if IsPreviewEnabled() then
+    InstallScrollBoxHook()
+  else
+    HidePreview()
   end
 end
 
 
+-- ===== Events =====
+
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:SetScript("OnEvent", function(self, event, addonName)
-  if addonName == "Blizzard_HouseEditor" then
-    if LP_config and LP_config.houseEditorEnhancer_enabled then
-      SetupEnhancer()
+eventFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+eventFrame:SetScript("OnEvent", function(_, event, arg1)
+  if event == "ADDON_LOADED" then
+    if arg1 == "Blizzard_HouseEditor" then
+      addon.SetupOrTeardownHouseEditorEnhancer()
+      -- Hook the collapse and expand buttons for preview management.
+      if HouseEditorFrame and HouseEditorFrame.StoragePanel and HouseEditorFrame.StoragePanel.CollapseButton then
+        HouseEditorFrame.StoragePanel.CollapseButton:HookScript("OnClick", function()
+          if previewFrame and previewFrame:IsShown() then
+            previewWasShownBeforeCollapse = true
+            lastPreviewEntryInfo = previewFrame.lastEntryInfo
+            HidePreview()
+          else
+            previewWasShownBeforeCollapse = false
+          end
+        end)
+      end
+      if HouseEditorFrame and HouseEditorFrame.StorageButton then
+        HouseEditorFrame.StorageButton:HookScript("OnClick", function()
+          if previewWasShownBeforeCollapse and lastPreviewEntryInfo then
+            local pf = EnsurePreviewFrame()
+            if pf then
+              pf:PreviewCatalogEntryInfo(lastPreviewEntryInfo)
+              UpdatePreviewLayout()
+              pf:Show()
+            end
+          end
+        end)
+      end
+    end
+  elseif event == "MODIFIER_STATE_CHANGED" then
+    if arg1 == "LCTRL" or arg1 == "RCTRL" then
+      UpdateInspectCursor()
     end
   end
 end)

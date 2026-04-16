@@ -114,12 +114,15 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "향상된 하우스 편집기"
-L["Not being able to properly see the previews of decor items in the House Editor is a s#!tshow obviously. This is why we implemented the \"Technically Advanced Editor\" (TAE). It allows you to change the size of decor icons with a slider directly in the House Editor frame. Enabling the TAE gives you a better knowledge of what decor items look like before selecting them for placement. And knowledge is power!"] = "하우스 편집기의 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. 향상된 하우스 편집기를 사용하면 하우스 편집기 창에서 슬라이더를 통해 아이콘 크기를 직접 변경할 수 있습니다."
-L["Activate the TAE to display a slider for decor icon size on top of the House Editor's storage and catalog view."] = "향상된 하우스 편집기를 활성화하여 하우스 편집기 상단에 장식 아이콘 크기 조절 슬라이더를 표시합니다."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "하우스 편집기의 %s 및 %s 창에 있는 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. Ludius Plus의 향상된 하우스 편집기는 아이콘 크기를 조절하는 슬라이더와 미리보기 측면 패널(CTRL + 왼쪽 클릭으로 열기) 등의 기능을 추가합니다."
+L["Icon size slider"] = "아이콘 크기 슬라이더"
+L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "활성화하면 하우스 편집기의 %s/%s 창에 장식 아이콘 크기를 조절할 수 있는 슬라이더가 추가됩니다."
+L["Decor preview for %s/%s frame"] = "%s/%s 창용 장식 미리보기"
+L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "활성화하면 하우스 편집기의 %s/%s 창에서 장식 아이콘을 CTRL + 왼쪽 클릭하여 옆에 모델 미리보기를 열 수 있습니다."
 L["Decor Icon Size:"] = "장식 아이콘 크기:"
 L["Resize decor item icons"] = "장식 아이템 아이콘 크기 조절"
-L["A feature of Ludius Plus's\n\"Technically Advanced Editor\" (TAE)."] = "Ludius Plus의 기능입니다."
-L["Not working in the \"Featured\" category. TAE wants no part of %s!"] = "%s와(과) 연동하여 작동하지 않습니다!"
+L["by Ludius Plus"] = "제작: Ludius Plus"
+L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = "%s와(과) 연동하여 작동하지 않습니다!"
 L["Reset to default size"] = "기본 크기로 초기화"
 
 -- Welcome Message
