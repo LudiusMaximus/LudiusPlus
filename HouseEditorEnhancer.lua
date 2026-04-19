@@ -911,3 +911,19 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
     end
   end
 end)
+
+
+
+-- There is no in-game string to directly use for "House Editor".
+-- To get the translations right, let the translators extract the string to use from these:
+-- EN: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Enter/Exit House Editor"
+-- DE: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Hauseditor öffnen/verlassen"
+-- FR: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Ouvrir/quitter l’éditeur de maison"
+-- IT: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Entra/Esci dall'Editor della Casa"
+-- ES: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Abrir/cerrar el editor de casas"
+-- MX: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Entrar/Salir del Editor de casas"
+-- BR: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Entrar/Sair do editor da casa"
+-- RU: BINDING_NAME_HOUSING_TOGGLEEDITOR = "Переключить редактор дома"
+-- KR: BINDING_NAME_HOUSING_TOGGLEEDITOR = "집 편집기 들어가기/나가기"
+-- TW: BINDING_NAME_HOUSING_TOGGLEEDITOR = "進入/退出房屋編輯器"
+-- CN: BINDING_NAME_HOUSING_TOGGLEEDITOR = "进入/退出住宅编辑器"
