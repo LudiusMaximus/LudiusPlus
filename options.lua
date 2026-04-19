@@ -96,6 +96,7 @@ local CONFIG_DEFAULTS = {
   houseEditorEnhancer_iconResizerSize  = 1.0,
   houseEditorEnhancer_preview          = false,
   houseEditorEnhancer_previewWidth     = 540,
+  houseEditorEnhancer_featuredLast     = false,
 
 }
 
@@ -1497,13 +1498,27 @@ local optionsTable = {
         houseEditorEnhancerPreviewEnabled = {
           order = 2,
           type = "toggle",
-          name = L["Decor preview for %s/%s frame"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          name = L["Decor preview"],
           desc = L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
           width = "full",
           get = function() return config.houseEditorEnhancer_preview end,
           set =
             function(_, newValue)
               config.houseEditorEnhancer_preview = newValue
+              addon.SetupOrTeardownHouseEditorEnhancer()
+            end,
+        },
+
+        houseEditorEnhancerFeaturedLast = {
+          order = 3,
+          type = "toggle",
+          name = L["Down with %s!"]:format(HOUSING_MARKET_HEARTHSTEEL_TOOLTIP),
+          desc = L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."]:format(C_HousingCatalog.GetCatalogCategoryInfo(Constants.HousingCatalogConsts.HOUSING_CATALOG_FEATURED_CATEGORY_ID).name or HOUSING_MARKET_HEARTHSTEEL_TOOLTIP, HOUSING_MARKET_HEARTHSTEEL_TOOLTIP, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          width = "full",
+          get = function() return config.houseEditorEnhancer_featuredLast end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_featuredLast = newValue
               addon.SetupOrTeardownHouseEditorEnhancer()
             end,
         },

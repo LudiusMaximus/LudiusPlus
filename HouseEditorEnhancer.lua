@@ -2,7 +2,11 @@ local _, addon = ...
 
 local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 
--- The Enhanced House Editor module bundles two independent features:
+-- The Enhanced House Editor module bundles three independent features,
+-- each with its own Setup/Teardown pair. SetupOrTeardownHouseEditorEnhancer
+-- is a thin dispatcher that toggles each feature based on its config flag.
+-- No hook, event, or frame is installed until its feature is first
+-- enabled - a cold /reload with all flags off leaves zero footprint.
 --
 -- 1. ICON SIZE SLIDER (toggle: houseEditorEnhancer_iconResizer)
 --    Adds a slider above the storage panel that lets the player resize
@@ -28,9 +32,16 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 --    at creation time, so frames already own their own function
 --    reference and bypass any later mixin-table edits.
 --
--- The module is set up if either option is enabled, torn down only when
--- both are off. Each feature's hooks are idempotent and gated by their
--- own option, so they coexist cleanly.
+-- 3. FEATURED LAST (toggle: houseEditorEnhancer_featuredLast)
+--    Moves the "Featured" category to the bottom of the Market tab's
+--    category list and defaults to "All" whenever the user switches to
+--    the Market tab.
+--
+-- Hooks installed via hooksecurefunc can't be removed; where we use
+-- them, Setup installs once per session and the hook body runtime-gates
+-- on its config flag so in-session disable is instant. Teardown removes
+-- whatever it can (callbacks, events, frames) and leaves the idempotent
+-- residue inert.
 
 
 -- ===== Slider: constants =====
@@ -84,16 +95,24 @@ local PANEL_GAP = 8
 local slider = nil
 local sliderLabel = nil
 local resetButton = nil
-local viewHooked = false  -- ElementSizeCalculator + ApplyModelSceneScale
+local viewHooked = false           -- ElementSizeCalculator + ApplyModelSceneScale
+local guardLayoutInstalled = false -- CatalogShop product card Layout guards
+local categoriesFocusHooked = false
+local resizeButtonSnapHooked = false
+local updateControlStates = nil    -- assigned on first slider creation
 
 -- Preview:
 local previewFrame = nil
-local scrollBoxHooked = false  -- per-frame OnInteract + OnEnter/OnLeave wrap
+local scrollBoxHooked = false      -- per-frame OnInteract + OnEnter/OnLeave wrap
+local previewButtonsHooked = false -- CollapseButton + StorageButton OnClick
 local hoveredFrame = nil
 local inspectCursorActive = false
 
 local lastPreviewEntryInfo = nil
 local previewWasShownBeforeCollapse = false
+
+-- Featured last:
+local featuredLastHooked = false
 
 
 -- ===== Slider: helpers =====
@@ -111,7 +130,7 @@ end
 
 
 local function GetScale()
-  if not (LP_config and LP_config.houseEditorEnhancer_iconResizer) then
+  if not LP_config.houseEditorEnhancer_iconResizer then
     return 1.0
   end
   if IsFeaturedFocused() then
@@ -206,43 +225,7 @@ local function RefreshCatalog()
 end
 
 
-local function InstallViewHook(container)
-  if viewHooked then return true end
-
-  local scrollBox = container.ScrollBox
-  local view = scrollBox and scrollBox:GetView()
-  if not view or not view.GetElementSizeCalculator then return false end
-
-  local originalCalculator = view:GetElementSizeCalculator()
-  if not originalCalculator then return false end
-
-  view:SetElementSizeCalculator(function(dataIndex, elementData)
-    local w, h = originalCalculator(dataIndex, elementData)
-    if elementData and SCALEABLE_TEMPLATE_KEYS[elementData.templateKey] and w and h then
-      local s = GetScale()
-      return w * s, h * s
-    end
-    return w, h
-  end)
-
-  -- Every time a frame is acquired (new or from the pool), make sure its
-  -- ModelScene is scaled to match. This also covers the ResizeButton case,
-  -- where resizing the panel re-acquires frames from the pool.
-  scrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, function(_, frame)
-    ApplyModelSceneScale(frame)
-  end, scrollBox)
-
-  viewHooked = true
-  return true
-end
-
-
 -- ===== Preview: helpers =====
-
-local function IsPreviewEnabled()
-  return LP_config and LP_config.houseEditorEnhancer_preview
-end
-
 
 local function HidePreview()
   if not previewFrame then return end
@@ -257,7 +240,7 @@ end
 -- spell targeting, etc.).
 local function UpdateInspectCursor()
   local shouldShow = hoveredFrame
-      and IsPreviewEnabled()
+      and LP_config.houseEditorEnhancer_preview
       and IsControlKeyDown()
       and hoveredFrame:HasValidData()
   if shouldShow then
@@ -288,7 +271,7 @@ local function EnsurePreviewFrame()
   end
 
   previewFrame = CreateFrame("Frame", "LudiusPlusHouseEditorPreviewFrame", HouseEditorFrame.StoragePanel, "HousingModelPreviewTemplate")
-  local savedWidth = (LP_config and LP_config.houseEditorEnhancer_previewWidth) or DEFAULT_PREVIEW_WIDTH
+  local savedWidth = LP_config.houseEditorEnhancer_previewWidth or DEFAULT_PREVIEW_WIDTH
   previewFrame:SetWidth(Clamp(savedWidth, MIN_PREVIEW_WIDTH, MAX_PREVIEW_WIDTH))
   previewFrame:SetPoint("BOTTOMLEFT", HouseEditorFrame.StoragePanel, "BOTTOMRIGHT", PANEL_GAP, 0)
   -- Ensure the preview frame is behind the StoragePanel's CollapseButton.
@@ -315,11 +298,22 @@ local function EnsurePreviewFrame()
 
   -- Invisible frame behind previewFrame to catch clicks and prevent click-through.
   -- (Setting previewFrame:EnableMouse(true) prevented the mouse from interacting with the 3d model.)
+  -- Parented to StoragePanel (not previewFrame) so its frame level can sit
+  -- one below previewFrame's - a child would always render above its
+  -- parent. Visibility is therefore independent, so we sync it with
+  -- previewFrame via OnShow/OnHide.
   local clickBlocker = CreateFrame("Frame", nil, HouseEditorFrame.StoragePanel)
   clickBlocker:SetPoint("TOPLEFT", previewFrame, "TOPLEFT")
   clickBlocker:SetPoint("BOTTOMRIGHT", previewFrame, "BOTTOMRIGHT")
   clickBlocker:EnableMouse(true)
   clickBlocker:SetFrameLevel(previewFrame:GetFrameLevel() - 1)
+  clickBlocker:Hide()
+  previewFrame:HookScript("OnShow", function() clickBlocker:Show() end)
+  previewFrame:HookScript("OnHide", function() clickBlocker:Hide() end)
+
+  local credit = previewFrame:CreateFontString(nil, "OVERLAY", "GameFontDisableTiny")
+  credit:SetText(L["by Ludius Plus"])
+  credit:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOMLEFT", 6, 4)
 
   local close = CreateFrame("Button", nil, previewFrame, "UIPanelCloseButton")
   close:SetPoint("TOPRIGHT", previewFrame, "TOPRIGHT", 2, 2)
@@ -355,9 +349,7 @@ local function EnsurePreviewFrame()
   end)
   resize:SetScript("OnMouseUp", function(self)
     self:SetScript("OnUpdate", nil)
-    if LP_config then
-      LP_config.houseEditorEnhancer_previewWidth = previewFrame:GetWidth()
-    end
+    LP_config.houseEditorEnhancer_previewWidth = previewFrame:GetWidth()
   end)
   resize:SetScript("OnEnter", function() SetCursor("UI_RESIZE_CURSOR") end)
   resize:SetScript("OnLeave", function() SetCursor(nil) end)
@@ -417,7 +409,7 @@ function UpdatePreviewLayout()
   local panelRight = panel:GetRight()
   if panelRight then
     local maxByScreen = UIParent:GetRight() - (panelRight + PANEL_GAP)
-    local saved = (LP_config and LP_config.houseEditorEnhancer_previewWidth) or DEFAULT_PREVIEW_WIDTH
+    local saved = LP_config.houseEditorEnhancer_previewWidth or DEFAULT_PREVIEW_WIDTH
     local target = Clamp(saved, MIN_PREVIEW_WIDTH, math.min(MAX_PREVIEW_WIDTH, maxByScreen))
     previewFrame:SetWidth(target)
   end
@@ -449,7 +441,7 @@ local function HookCatalogEntry(frame)
   local original = frame.OnInteract
   frame.OnInteract = function(self, button, isDrag)
     if not isDrag and button == "LeftButton" and IsControlKeyDown()
-        and IsPreviewEnabled() and self:HasValidData() then
+        and LP_config.houseEditorEnhancer_preview and self:HasValidData() then
       ShowPreviewForEntry(self)
       return
     end
@@ -474,42 +466,78 @@ local function HookCatalogEntry(frame)
 end
 
 
-local function InstallScrollBoxHook()
-  if scrollBoxHooked then return end
-  local scrollBox = HouseEditorFrame
-    and HouseEditorFrame.StoragePanel
-    and HouseEditorFrame.StoragePanel.OptionsContainer
-    and HouseEditorFrame.StoragePanel.OptionsContainer.ScrollBox
-  if not scrollBox then return end
+-- ===== Events =====
 
-  scrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, function(_, frame)
-    HookCatalogEntry(frame)
-  end, "LudiusPlus_HouseEditorEnhancer_Preview")
-
-  -- Hook any frames already acquired before we installed the callback.
-  for _, frame in scrollBox:EnumerateFrames() do
-    HookCatalogEntry(frame)
-  end
-
-  scrollBoxHooked = true
-end
+-- Single eventFrame used both as the ADDON_LOADED trigger and as the
+-- carrier for MODIFIER_STATE_CHANGED (registered only while preview is
+-- active). OnEvent is installed unconditionally because ADDON_LOADED has
+-- to land somewhere; the per-event bodies are self-gated.
+local eventFrame = CreateFrame("Frame")
 
 
--- ===== Slider: setup / teardown =====
+-- ===== Icon resizer: setup / teardown =====
 
-local function SetupSlider()
+local function SetupIconResizer()
   local container = GetContainer()
   if not container then return end
 
-  if not InstallViewHook(container) then return end
+  -- Guard CatalogShop product card Layout methods against nil productInfo.
+  -- Our RefreshCatalog calls scrollBox:Rebuild which re-initializes frames
+  -- whose productInfo hasn't been populated yet. The base Layout and its
+  -- subclass overrides (Wide, Small) all access self.productInfo directly.
+  if not guardLayoutInstalled then
+    local function GuardLayout(mixin)
+      if not mixin or mixin._lpOriginalLayout then return end
+      mixin._lpOriginalLayout = mixin.Layout
+      mixin.Layout = function(self)
+        if not self.productInfo then return end
+        return mixin._lpOriginalLayout(self)
+      end
+    end
+    GuardLayout(CatalogShopDefaultProductCardMixin)
+    GuardLayout(WideCatalogShopProductCardMixin)
+    GuardLayout(SmallCatalogShopProductCardMixin)
+    guardLayoutInstalled = true
+  end
+
+  -- Install the calculator wrapper that scales decor/room/bundle tiles,
+  -- plus an OnAcquiredFrame callback that re-scales each tile's ModelScene.
+  -- The latter also covers panel-resize re-acquisitions from the frame pool.
+  if not viewHooked then
+    local scrollBox = container.ScrollBox
+    local view = scrollBox and scrollBox:GetView()
+    if not view or not view.GetElementSizeCalculator then return end
+
+    local originalCalculator = view:GetElementSizeCalculator()
+    if not originalCalculator then return end
+
+    view:SetElementSizeCalculator(function(dataIndex, elementData)
+      local w, h = originalCalculator(dataIndex, elementData)
+      if elementData and SCALEABLE_TEMPLATE_KEYS[elementData.templateKey] and w and h then
+        local s = GetScale()
+        return w * s, h * s
+      end
+      return w, h
+    end)
+
+    scrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, function(_, frame)
+      ApplyModelSceneScale(frame)
+    end, scrollBox)
+
+    viewHooked = true
+  end
 
   local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
   if not storagePanel or not storagePanel.SearchBox then return end
 
   -- Snap to >=1 column when the user releases the panel's ResizeButton.
-  if storagePanel.ResizeButton and not storagePanel.ResizeButton._lpSnapHooked then
-    storagePanel.ResizeButton:HookScript("OnMouseUp", function() SnapPanelWidth() end)
-    storagePanel.ResizeButton._lpSnapHooked = true
+  if storagePanel.ResizeButton and not resizeButtonSnapHooked then
+    storagePanel.ResizeButton:HookScript("OnMouseUp", function()
+      if LP_config.houseEditorEnhancer_iconResizer then
+        SnapPanelWidth()
+      end
+    end)
+    resizeButtonSnapHooked = true
   end
 
   -- Re-scale whenever the user switches category: leaving "Featured"
@@ -518,7 +546,7 @@ local function SetupSlider()
   -- panel's OnCategoryFocusChanged because Categories:Initialize captures
   -- the callback via GenerateClosure - hooking OnCategoryFocusChanged on
   -- the panel would be bypassed. SetFocus is the universal entry point.
-  if storagePanel.Categories and not storagePanel.Categories._lpFocusHooked then
+  if storagePanel.Categories and not categoriesFocusHooked then
     -- Defer the refresh by one frame: SetFocus runs mid-transition, before
     -- the new data provider is fully populated. Calling Rebuild inline
     -- here re-invokes element initializers on half-initialized entries
@@ -531,12 +559,14 @@ local function SetupSlider()
     -- Our scale is forced to 1.0 in Featured (see GetScale), so no refresh
     -- is needed there anyway - Blizzard's own SetDataProvider does it.
     hooksecurefunc(storagePanel.Categories, "SetFocus", function()
+      if not LP_config.houseEditorEnhancer_iconResizer then return end
       C_Timer.After(0, function()
+        if not LP_config.houseEditorEnhancer_iconResizer then return end
         if not IsFeaturedFocused() then
           RefreshCatalog()
         end
-        if slider and slider._lpUpdateControlStates then
-          slider._lpUpdateControlStates()
+        if updateControlStates then
+          updateControlStates()
         end
         -- Hide ResizeButton when Featured is focused, show it otherwise.
         if storagePanel.ResizeButton then
@@ -548,7 +578,7 @@ local function SetupSlider()
         end
       end)
     end)
-    storagePanel.Categories._lpFocusHooked = true
+    categoriesFocusHooked = true
   end
 
   -- Shift the SearchBox (and the Filters frame anchored to it) up to make
@@ -581,7 +611,7 @@ local function SetupSlider()
     -- slider/reset controls are greyed out and non-interactive while it
     -- is focused - otherwise the UI implies the controls affect tiles
     -- that they don't.
-    local function UpdateControlStates()
+    updateControlStates = function()
       local featured = IsFeaturedFocused()
       if featured then
         slider:Disable()
@@ -604,18 +634,16 @@ local function SetupSlider()
 
     slider:SetScript("OnValueChanged", function(_, value)
       value = math.floor(value / STEP + 0.5) * STEP
-      if LP_config then
-        LP_config.houseEditorEnhancer_iconResizerSize = value
-      end
-      UpdateControlStates()
+      LP_config.houseEditorEnhancer_iconResizerSize = value
+      updateControlStates()
       RefreshCatalog()
     end)
     slider:SetScript("OnEnter", function(self)
       GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
       GameTooltip:SetText(L["Resize decor item icons"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1, true)
-      GameTooltip:AddLine(L["by Ludius Plus"], TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b, 1, true)
+      GameTooltip:AddLine(L["by Ludius Plus"], DISABLED_FONT_COLOR.r, DISABLED_FONT_COLOR.g, DISABLED_FONT_COLOR.b, 1, true)
       if IsFeaturedFocused() then
-        GameTooltip_AddErrorLine(GameTooltip, L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s!"]:format(HOUSING_MARKET_HEARTHSTEEL_TOOLTIP))
+        GameTooltip_AddErrorLine(GameTooltip, L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"]:format(C_HousingCatalog.GetCatalogCategoryInfo(Constants.HousingCatalogConsts.HOUSING_CATALOG_FEATURED_CATEGORY_ID).name, HOUSING_MARKET_HEARTHSTEEL_TOOLTIP))
       end
       GameTooltip:Show()
     end)
@@ -636,7 +664,6 @@ local function SetupSlider()
     end)
     resetButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-    slider._lpUpdateControlStates = UpdateControlStates
   end
 
   -- Anchor layout: label at left under SearchBox, reset button pinned to
@@ -659,15 +686,20 @@ local function SetupSlider()
   slider:Show()
   resetButton:Show()
 
-  slider:SetValue(LP_config and LP_config.houseEditorEnhancer_iconResizerSize or DEFAULT_SCALE)
-  if slider._lpUpdateControlStates then slider._lpUpdateControlStates() end
+  slider:SetValue(LP_config.houseEditorEnhancer_iconResizerSize or DEFAULT_SCALE)
+  if updateControlStates then updateControlStates() end
 
   RefreshCatalog()
 end
 
 
-local function TeardownSlider()
-  if slider then slider:Hide() end
+local function TeardownIconResizer()
+  -- If the slider has never been set up in this session, there is nothing
+  -- to revert: the view hook was never installed, GetScale returns 1.0,
+  -- and the SearchBox still has its original anchor.
+  if not slider then return end
+
+  slider:Hide()
   if sliderLabel then sliderLabel:Hide() end
   if resetButton then resetButton:Hide() end
 
@@ -685,6 +717,155 @@ local function TeardownSlider()
 end
 
 
+-- ===== Preview: setup / teardown =====
+
+local function SetupPreview()
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  if not storagePanel then return end
+
+  local scrollBox = storagePanel.OptionsContainer and storagePanel.OptionsContainer.ScrollBox
+  if not scrollBox then return end
+
+  -- Register the OnAcquiredFrame callback. Keyed by an owner string so
+  -- Teardown can unregister it specifically without touching other
+  -- callbacks on the ScrollBox (e.g. the icon-resizer's ModelScene hook).
+  if not scrollBoxHooked then
+    scrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, function(_, frame)
+      HookCatalogEntry(frame)
+    end, "LudiusPlus_HouseEditorEnhancer_Preview")
+    scrollBoxHooked = true
+  end
+
+  -- Hook any frames already acquired before we registered the callback,
+  -- or acquired while the preview was disabled in-session.
+  for _, frame in scrollBox:EnumerateFrames() do
+    HookCatalogEntry(frame)
+  end
+
+  -- Remember-and-restore behavior around the StoragePanel collapse/expand:
+  -- when the panel is collapsed we hide the preview (and stash what was
+  -- showing), and when the panel is expanded again we bring it back.
+  if not previewButtonsHooked then
+    if storagePanel.CollapseButton then
+      storagePanel.CollapseButton:HookScript("OnClick", function()
+        if not LP_config.houseEditorEnhancer_preview then return end
+        if previewFrame and previewFrame:IsShown() then
+          previewWasShownBeforeCollapse = true
+          lastPreviewEntryInfo = previewFrame.lastEntryInfo
+          HidePreview()
+        else
+          previewWasShownBeforeCollapse = false
+        end
+      end)
+    end
+    if HouseEditorFrame.StorageButton then
+      HouseEditorFrame.StorageButton:HookScript("OnClick", function()
+        if not LP_config.houseEditorEnhancer_preview then return end
+        if previewWasShownBeforeCollapse and lastPreviewEntryInfo then
+          local pf = EnsurePreviewFrame()
+          if pf then
+            pf:PreviewCatalogEntryInfo(lastPreviewEntryInfo)
+            UpdatePreviewLayout()
+            pf:Show()
+          end
+        end
+      end)
+    end
+    previewButtonsHooked = true
+  end
+
+  eventFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+end
+
+
+local function TeardownPreview()
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  local scrollBox = storagePanel
+    and storagePanel.OptionsContainer
+    and storagePanel.OptionsContainer.ScrollBox
+  if scrollBox and scrollBoxHooked then
+    scrollBox:UnregisterCallback(ScrollBoxListMixin.Event.OnAcquiredFrame, "LudiusPlus_HouseEditorEnhancer_Preview")
+    scrollBoxHooked = false
+  end
+
+  HidePreview()
+  previewWasShownBeforeCollapse = false
+  lastPreviewEntryInfo = nil
+
+  eventFrame:UnregisterEvent("MODIFIER_STATE_CHANGED")
+
+  if inspectCursorActive then
+    ResetCursor()
+    inspectCursorActive = false
+  end
+  hoveredFrame = nil
+end
+
+
+-- ===== Featured last: setup / teardown =====
+
+-- Move Featured to the end of the layout by mutating layoutIndex on the
+-- existing category frames. Idempotent: repeat calls without an
+-- intervening Blizzard DisplayTopLevelCategories leave the ordering
+-- stable (important for in-session toggle-on-twice). No-op if categories
+-- haven't been populated yet - on cold /reload, SetupFeaturedLast can
+-- run before Blizzard's first DisplayTopLevelCategories, and the hook
+-- will pick up the work on that first natural call.
+local function ApplyFeaturedLastOrdering(categories)
+  if not categories or not categories.categoryFramesByID then return end
+
+  local featuredFrame = categories.categoryFramesByID[Constants.HousingCatalogConsts.HOUSING_CATALOG_FEATURED_CATEGORY_ID]
+  if not featuredFrame or not featuredFrame.layoutIndex then return end
+
+  local featuredIndex = featuredFrame.layoutIndex
+  local maxOther = 0
+  for _, frame in pairs(categories.categoryFramesByID) do
+    if frame ~= featuredFrame and frame.layoutIndex then
+      if frame.layoutIndex > featuredIndex then
+        frame.layoutIndex = frame.layoutIndex - 1
+      end
+      if frame.layoutIndex > maxOther then
+        maxOther = frame.layoutIndex
+      end
+    end
+  end
+  featuredFrame.layoutIndex = maxOther + 1
+
+  if categories.Layout then
+    categories:Layout()
+  end
+end
+
+
+local function SetupFeaturedLast()
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  if not storagePanel or not storagePanel.Categories then return end
+
+  if not featuredLastHooked then
+    hooksecurefunc(storagePanel.Categories, "DisplayTopLevelCategories", function(self)
+      if not LP_config.houseEditorEnhancer_featuredLast then return end
+      ApplyFeaturedLastOrdering(self)
+    end)
+
+    hooksecurefunc(storagePanel, "OnMarketTabSelected", function(self, isUserAction)
+      if not LP_config.houseEditorEnhancer_featuredLast then return end
+      if isUserAction then
+        self.Categories:SetFocus(Constants.HousingCatalogConsts.HOUSING_CATALOG_ALL_CATEGORY_ID)
+        self:UpdateCategoryText()
+      end
+    end)
+
+    featuredLastHooked = true
+  end
+
+  -- Apply immediately if categories are already populated. On cold
+  -- /reload this is a no-op because Blizzard hasn't populated the
+  -- category frames yet; our DisplayTopLevelCategories post-hook picks
+  -- up the reorder on Blizzard's first natural call.
+  ApplyFeaturedLastOrdering(storagePanel.Categories)
+end
+
+
 -- ===== Public API =====
 
 function addon.SetupOrTeardownHouseEditorEnhancer()
@@ -692,76 +873,37 @@ function addon.SetupOrTeardownHouseEditorEnhancer()
   -- this once it's loaded.
   if not HouseEditorFrame then return end
 
-
-  -- Hook to prevent error when productInfo is nil
-  if not CatalogShopDefaultProductCardMixin._originalLayout then
-    CatalogShopDefaultProductCardMixin._originalLayout = CatalogShopDefaultProductCardMixin.Layout
-    CatalogShopDefaultProductCardMixin.Layout = function(self)
-      if not self.productInfo then return end
-      return CatalogShopDefaultProductCardMixin._originalLayout(self)
-    end
-  end
-  if _G.FormatPriceStrings and not _G._originalFormatPriceStrings then
-    _G._originalFormatPriceStrings = _G.FormatPriceStrings
-    _G.FormatPriceStrings = function(productInfo)
-      if not productInfo then return "", "" end
-      return _G._originalFormatPriceStrings(productInfo)
-    end
-  end
-
-
-  if LP_config and LP_config.houseEditorEnhancer_iconResizer then
-    SetupSlider()
+  if LP_config.houseEditorEnhancer_iconResizer then
+    SetupIconResizer()
   else
-    TeardownSlider()
+    TeardownIconResizer()
   end
 
-  -- Preview frame itself is created lazily by EnsurePreviewFrame on the
-  -- first Ctrl+Click, but the per-frame OnInteract wrap (and the OnEnter/
-  -- OnLeave hover tracking for the inspect cursor) must be installed up
-  -- front so the click is intercepted before Blizzard's placement logic
-  -- runs.
-  if IsPreviewEnabled() then
-    InstallScrollBoxHook()
+  if LP_config.houseEditorEnhancer_preview then
+    SetupPreview()
   else
-    HidePreview()
+    TeardownPreview()
   end
+
+  if LP_config.houseEditorEnhancer_featuredLast then
+    SetupFeaturedLast()
+  end
+  -- No TeardownFeaturedLast: the featuredLast hooks can't be removed
+  -- (hooksecurefunc) and we can't safely re-invoke DisplayTopLevelCategories
+  -- ourselves (it needs a categoriesToShow argument). The hook bodies
+  -- runtime-gate on LP_config.houseEditorEnhancer_featuredLast, so once
+  -- the flag flips off they become inert; Blizzard's next natural
+  -- DisplayTopLevelCategories call restores the default ordering.
 end
 
 
--- ===== Events =====
+-- ===== Event dispatch =====
 
-local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
   if event == "ADDON_LOADED" then
     if arg1 == "Blizzard_HouseEditor" then
       addon.SetupOrTeardownHouseEditorEnhancer()
-      -- Hook the collapse and expand buttons for preview management.
-      if HouseEditorFrame and HouseEditorFrame.StoragePanel and HouseEditorFrame.StoragePanel.CollapseButton then
-        HouseEditorFrame.StoragePanel.CollapseButton:HookScript("OnClick", function()
-          if previewFrame and previewFrame:IsShown() then
-            previewWasShownBeforeCollapse = true
-            lastPreviewEntryInfo = previewFrame.lastEntryInfo
-            HidePreview()
-          else
-            previewWasShownBeforeCollapse = false
-          end
-        end)
-      end
-      if HouseEditorFrame and HouseEditorFrame.StorageButton then
-        HouseEditorFrame.StorageButton:HookScript("OnClick", function()
-          if previewWasShownBeforeCollapse and lastPreviewEntryInfo then
-            local pf = EnsurePreviewFrame()
-            if pf then
-              pf:PreviewCatalogEntryInfo(lastPreviewEntryInfo)
-              UpdatePreviewLayout()
-              pf:Show()
-            end
-          end
-        end)
-      end
     end
   elseif event == "MODIFIER_STATE_CHANGED" then
     if arg1 == "LCTRL" or arg1 == "RCTRL" then

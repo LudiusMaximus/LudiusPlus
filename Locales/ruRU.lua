@@ -114,15 +114,17 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Улучшенный редактор дома"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Значки предпросмотра предметов декора в окнах «%s» и «%s» редактора дома могут быть слишком мелкими, чтобы их можно было четко рассмотреть. Улучшенный редактор дома от Ludius Plus добавляет, помимо прочего, ползунок для изменения размера значков и боковую панель предварительного просмотра (открывается с помощью CTRL + ЛЕВАЯ КНОПКА МЫШИ)."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Значки предпросмотра предметов декора в окнах %s и %s редактора дома могут быть слишком мелкими, чтобы их можно было четко рассмотреть. Улучшенный редактор дома от Ludius Plus добавляет — помимо прочего — ползунок для изменения размера значков и боковую панель предварительного просмотра (открывается с помощью CTRL + ЛЕВАЯ КНОПКА МЫШИ)."
 L["Icon size slider"] = "Ползунок размера значков"
-L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Если включено, в окно «%s/%s» редактора дома добавляется ползунок для настройки размера значков декора."
-L["Decor preview for %s/%s frame"] = "Предпросмотр декора для окна «%s/%s»"
-L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Если включено, вы можете нажать CTRL + ЛЕВАЯ КНОПКА МЫШИ на значке декора в окне «%s/%s» редактора дома, чтобы открыть рядом окно предпросмотра модели."
+L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Если включено, в окно %s/%s редактора дома добавляется ползунок для настройки размера значков декора."
+L["Decor preview"] = "Предпросмотр декора"
+L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Если включено, вы можете нажать CTRL + ЛЕВАЯ КНОПКА МЫШИ на значке декора в окне %s/%s редактора дома, чтобы открыть рядом окно предпросмотра модели."
+L["Down with %s!"] = "%s — на дно!"
+L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = "Сделать категорию «%1$s» (т. е. магазин %2$s) последней в списке категорий окна %3$s редактора дома, чтобы она больше не была категорией по умолчанию при открытии."
 L["Decor Icon Size:"] = "Размер значков декора:"
 L["Resize decor item icons"] = "Изменить размер значков предметов декора"
 L["by Ludius Plus"] = "от Ludius Plus"
-L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = "Не работает в сочетании с %s!"
+L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = "Недоступно в категории «%1$s»."
 L["Reset to default size"] = "Сбросить до стандартного размера"
 
 -- Welcome Message

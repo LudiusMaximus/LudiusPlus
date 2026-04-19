@@ -14,7 +14,7 @@ Enhance vendor browsing with additional item information overlays.
 * **Ownership for decor items:** Displays ownership details for housing decor items - showing "[in storage]/[total owned]" in the top-right corner of each icon, so you can see at a glance how many you already own.
 * **Already known items:** Greys out and marks items you already know (Toys, Mounts, Pets, Transmog, Recipes) with a checkmark, so you can see at a glance what you have already collected.
 
-### 🏠 House Editor Enhancer
+### 🏠 Enhanced House Editor
 Not being able to properly inspect the decor items in the small icons of the House Editor's Storage and Catalog frames is a s#!tshow obviously. Ludius Plus's "Technically Advanced Editor" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!
 
 ### 🔄 Spell Icon Overlay
