@@ -117,12 +117,14 @@ L["Enhanced House Editor"] = true
 L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = true
 L["Icon size slider"] = true
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = true
-L["Decor preview for %s/%s frame"] = true
+L["Decor preview"] = true
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = true
+L["Down with %s!"] = true
+L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = true
 L["Decor Icon Size:"] = true
 L["Resize decor item icons"] = true
 L["by Ludius Plus"] = true
-L["Not working in the \"Featured\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %s"] = true
+L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = true
 L["Reset to default size"] = true
 
 -- Welcome Message
