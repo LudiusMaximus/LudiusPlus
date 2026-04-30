@@ -180,16 +180,29 @@ local function EventFrameScript(self, event, ...)
     C_Timer_After(0.1, TrackAllPetActionButtons)
 
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-    if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then
-      local unit, _, spellID = ...
-      if unit == "player" and stealthSpells[spellID] then
-        local petGUID = C_PetJournal_GetSummonedPetGUID()
-        if petGUID then
-          -- print("Entering stealth, dismissing pet:", petGUID)
-          C_PetJournal_DismissSummonedPet(petGUID, folderName)
+    local unit, _, spellId = ...
+    if unit == "player" then
+
+      -- Don't resummon desired pet after a children's week orphan has been summoned.
+      if spellId == 23012 or spellId == 23013 then
+        if desiredCompanion then
+          desiredCompanion[playerName] = nil
+        end
+        return
+      end
+
+      if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then
+        if stealthSpells[spellId] then
+          local petGUID = C_PetJournal_GetSummonedPetGUID()
+          if petGUID then
+            -- print("Entering stealth, dismissing pet:", petGUID)
+            C_PetJournal_DismissSummonedPet(petGUID, folderName)
+          end
         end
       end
+
     end
+
   elseif event == "PLAYER_REGEN_DISABLED" then
     if LP_config and LP_config.persistentCompanion_dismissInCombat then
       local petGUID = C_PetJournal_GetSummonedPetGUID()
@@ -198,6 +211,7 @@ local function EventFrameScript(self, event, ...)
         C_PetJournal_DismissSummonedPet(petGUID, folderName)
       end
     end
+
   elseif event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == "LudiusPlus" then
