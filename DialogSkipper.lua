@@ -54,13 +54,25 @@ local function SetupDialogSkipper()
         if type(args) == "string" and polishedPetCharmName and string.find(args, polishedPetCharmName) then
           ok = true
         end
-      elseif which == "CONFIRM_PURCHASE_TOKEN_ITEM" and LP_config.dialogSkipper_skipOrderResources then
-        local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(1220)
-        local orderResourcesName = currencyInfo and currencyInfo.name
-        if type(args) == "string" and orderResourcesName and string.find(args, orderResourcesName) then
-          ok = true
+      elseif which == "CONFIRM_PURCHASE_TOKEN_ITEM" then
+
+        if LP_config.dialogSkipper_skipOrderResources then
+          local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(1220)
+          local currencyName = currencyInfo and currencyInfo.name
+          if type(args) == "string" and currencyName and string.find(args, currencyName) then
+            ok = true
+          end
         end
+        if not ok and LP_config.dialogSkipper_skipOrderResources then
+          local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3363)
+          local currencyName = currencyInfo and currencyInfo.name
+          if type(args) == "string" and currencyName and string.find(args, currencyName) then
+            ok = true
+          end
+        end
+
       end
+
       if not ok then return end
 
       for i = 1, 10 do

@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = "Salta solo se il prezzo è inferiore 
 L["Set the maximum price in gold for automatically confirming auctions."] = "Imposta il prezzo massimo in oro per confermare automaticamente le aste."
 L["Skip Polished Pet Charm purchases"] = "Salta acquisti con Talismani per Mascotte Lucidati"
 L["Skip Order Resources purchases"] = "Salta acquisti con Risorse per l'Enclave"
+L["Skip Community Coupons purchases"] = "Salta acquisti con buoni della comunità"
 L["Skip equip bind confirmations"] = "Salta conferme vincolo all'equipaggiamento"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "Conferma automaticamente i dialoghi \"Vincolato all'Equipaggiamento\" quando equipaggi oggetti da ricompense missioni, venditori o altre fonti."
 

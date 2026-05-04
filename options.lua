@@ -53,6 +53,7 @@ local CONFIG_DEFAULTS = {
   dialogSkipper_auctionPriceLimit      = 10000000,
   dialogSkipper_skipPetCharm           = true,
   dialogSkipper_skipOrderResources     = true,
+  dialogSkipper_skipCommunityCoupons   = true,
   dialogSkipper_skipEquipBind          = true,
 
   dismountToggle_enabled               = false,
@@ -1031,10 +1032,27 @@ local optionsTable = {
             end,
         },
 
-        dialogSkipperGroupBlank55 = {order = 5.5, type = "description", name = " ",},
+        dialogSkipperSkipCommunityCoupons = {
+          order = 6,
+          type = "toggle",
+          name = L["Skip Community Coupons purchases"],
+          width = "full",
+          get = function() return config.dialogSkipper_skipCommunityCoupons end,
+          set =
+            function(_, newValue)
+              config.dialogSkipper_skipCommunityCoupons = newValue
+              addon.SetupOrTeardownDialogSkipper()
+            end,
+          disabled =
+            function()
+              return not config.dialogSkipper_enabled
+            end,
+        },
+
+        dialogSkipperGroupBlank65 = {order = 6.5, type = "description", name = " ",},
 
         dialogSkipperSkipEquipBind = {
-          order = 6,
+          order = 7,
           type = "toggle",
           name = L["Skip equip bind confirmations"],
           desc = L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."],
