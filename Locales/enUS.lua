@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = true
 L["Set the maximum price in gold for automatically confirming auctions."] = true
 L["Skip Polished Pet Charm purchases"] = true
 L["Skip Order Resources purchases"] = true
+L["Skip Community Coupons purchases"] = true
 L["Skip equip bind confirmations"] = true
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = true
 

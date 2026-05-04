@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = "Solo omitir si el precio es inferior 
 L["Set the maximum price in gold for automatically confirming auctions."] = "Establece el precio máximo en oro para confirmar subastas automáticamente."
 L["Skip Polished Pet Charm purchases"] = "Omitir compras con Talismanes de mascotas pulidos"
 L["Skip Order Resources purchases"] = "Omitir compras con Recursos de la sede"
+L["Skip Community Coupons purchases"] = "Omitir compras con cupones de la comunidad"
 L["Skip equip bind confirmations"] = "Omitir confirmaciones de «Se liga al equiparlo»"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "Confirma automáticamente los diálogos de «Se liga al equiparlo» al equipar objetos de recompensas de misión, vendedores u otras fuentes."
 
