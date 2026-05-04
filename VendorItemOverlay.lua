@@ -340,7 +340,7 @@ local function UpdateSingleOverlay(i, index)
           local msg = StripColors(rawMsg)
           if msg then
             -- print(j, msg)
-            if string.find(msg, firstTimePattern) then
+            if string_find(msg, firstTimePattern) then
               firstAcquisitionBonus = true
               break
             end
