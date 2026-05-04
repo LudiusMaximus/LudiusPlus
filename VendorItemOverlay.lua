@@ -53,17 +53,27 @@ local scannerTooltip = CreateFrame("GameTooltip", "LudiusPlusVendorItemOverlaySc
 scannerTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 
--- Convert the format string to a pattern for matching
--- HOUSING_DECOR_OWNED_COUNT_FORMAT = "Owned: |cnHIGHLIGHT_FONT_COLOR:%d (Placed: %d, Storage: %d)|r"
-local formatString = HOUSING_DECOR_OWNED_COUNT_FORMAT
--- Remove color codes
-formatString = string.gsub(formatString, "|c%x%x%x%x%x%x%x%x", "")
-formatString = string.gsub(formatString, "|r", "")
--- Escape all pattern special characters except %
-formatString = string.gsub(formatString, "([%(%)%.%+%-%*%?%[%]%^%$])", "%%%1")
--- Now replace %d with capture pattern - must escape the % first
-formatString = string.gsub(formatString, "%%d", "(%%d+)")
+-- Strips Blizzard's hidden color codes (hex |c and named |cn tags) to ensure reliable tooltip scanning.
+-- Without this cleaning, Lua's string.find fails because these embedded formatting codes interrupt
+-- the character sequence expected by the search pattern. By stripping both the pattern
+-- and the tooltip line, we ensure a consistent "plain text to plain text" comparison.
+local function StripColors(text)
+  if not text then return "" end
+  local clean = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "") -- Strip hex colors
+  clean = string.gsub(clean, "|cn[%a%d_]+:", "")            -- Strip named colors (|cn...)
+  clean = string.gsub(clean, "|r", "")                      -- Strip color terminator
+  return clean
+end
 
+-- Prepare Owned Count Pattern
+local ownedCountPattern = StripColors(HOUSING_DECOR_OWNED_COUNT_FORMAT)
+ownedCountPattern = string.gsub(ownedCountPattern, "([%(%)%.%+%-%*%?%[%]%^%$])", "%%%1")
+ownedCountPattern = string.gsub(ownedCountPattern, "%%d", "(%%d+)")
+
+-- Prepare First Time Bonus Pattern
+local firstTimePattern = StripColors(HOUSING_DECOR_FIRST_ACQUISITION_FORMAT)
+firstTimePattern = string.gsub(firstTimePattern, "([%(%)%.%+%-%*%?%[%]%^%$])", "%%%1")
+firstTimePattern = string.gsub(firstTimePattern, "%%d", "%%d+")
 
 
 -- Check if an item is a housing decor item
@@ -285,7 +295,6 @@ local function UpdateSingleOverlay(i, index)
       local amountInStorage = decorInfo.quantity + decorInfo.remainingRedeemable
       local totalOwned = amountInStorage + decorInfo.numPlaced
 
-  
       -- Probably a bug, when we get all 0, don't trust it but double check the (also not reliable) tooltip.
       if amountInStorage == 0 and totalOwned == 0 then
         scannerTooltip:ClearLines()
@@ -295,11 +304,12 @@ local function UpdateSingleOverlay(i, index)
         for j = 3, scannerTooltip:NumLines(), 1 do
           local line = _G[scannerTooltip:GetName().."TextLeft"..j]
           if line then
-            local msg = line:GetText()
+            local rawMsg = line:GetText()
+            local msg = StripColors(rawMsg)
             if msg then
               -- print(j, msg)
-              if string_find(msg, formatString) then
-                local ttTotalOwned, ttNumPlaced, ttAmountInStorage = string_match(msg, formatString)
+              if string_find(msg, ownedCountPattern) then
+                local ttTotalOwned, ttNumPlaced, ttAmountInStorage = string_match(msg, ownedCountPattern)
                 if ttTotalOwned and ttAmountInStorage then
                   -- print("Matched owned info from tooltip:", ttTotalOwned, ttNumPlaced, ttAmountInStorage)
                   local newAmountInStorage = tonumber(ttAmountInStorage)
@@ -309,17 +319,41 @@ local function UpdateSingleOverlay(i, index)
                     amountInStorage = tonumber(ttAmountInStorage)
                     totalOwned = tonumber(ttTotalOwned)
                   end
-                  break
                 end
+                break
               end
             end
           end
         end
       end
-      
+
+
+      -- Scan the tooltip for the "First-Time Collection Bonus" line,
+      -- because decorInfo.firstAcquisitionBonus returns stale values until reload.
+      local firstAcquisitionBonus = false
+      scannerTooltip:ClearLines()
+      scannerTooltip:SetItemByID(C_Item.GetItemIDForItemInfo(itemLink))
+      for j = 3, scannerTooltip:NumLines(), 1 do
+        local line = _G[scannerTooltip:GetName().."TextLeft"..j]
+        if line then
+          local rawMsg = line:GetText()
+          local msg = StripColors(rawMsg)
+          if msg then
+            -- print(j, msg)
+            if string.find(msg, firstTimePattern) then
+              firstAcquisitionBonus = true
+              break
+            end
+          end
+        end
+      end
+
+
       -- Display as "storage/total"
       overlayFrames[i]:SetText(string_format("%d/%d", amountInStorage, totalOwned))
-      if decorInfo.firstAcquisitionBonus and decorInfo.firstAcquisitionBonus > 0 then
+
+      -- if decorInfo.firstAcquisitionBonus and decorInfo.firstAcquisitionBonus > 0 then
+      if firstAcquisitionBonus then
         overlayFrames[i]:SetTextColor(DARKYELLOW_FONT_COLOR:GetRGB())
       else
         overlayFrames[i]:SetTextColor(1, 1, 1, 1)
