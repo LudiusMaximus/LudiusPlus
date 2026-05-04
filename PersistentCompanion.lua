@@ -169,6 +169,23 @@ local function TrackAllPetActionButtons()
 end
 
 
+-- Some spells summon a pet, after which the addon should not resummon the previous pet.
+local dismissCompanionSpells = {
+    [23012] = true, -- Orc Orphan Grunth (BC, Orgrimmar)
+    [23013] = true, -- Human Orphan Randis (BC, Stormwind)
+    [39478] = true, -- Blood Elf Orphan Salandria (BC, Shattrath)
+    [39479] = true, -- Draenei Orphan Dornaa (BC, Shattrath)
+    [65352] = true, -- Oracle Orphan Roo (Wrath, Dalaran)
+    [65353] = true, -- Wolvar Orphan Kekek (Wrath, Dalaran)
+   [282839] = true, -- Kul Tiran Orphan Liam (BfA, Boralus)
+   [283612] = true, -- Zandalari Orphan Azala (BfA, Dazar'alor)
+  [1228496] = true, -- Kobold Orphan Skibbles (TWW, Dornogal)
+  [1230149] = true, -- Arathi Orphan Destien (TWW, quest line)
+  [1230182] = true, -- Nerubian Orphan Theadis (TWW, quest line)
+  [1230184] = true, -- Goblin Orphan Kitzy (TWW, quest line)
+}
+
+
 local function EventFrameScript(self, event, ...)
 
   if event == "BATTLE_PET_CURSOR_CLEAR"
@@ -183,8 +200,7 @@ local function EventFrameScript(self, event, ...)
     local unit, _, spellId = ...
     if unit == "player" then
 
-      -- Don't resummon desired pet after a children's week orphan has been summoned.
-      if spellId == 23012 or spellId == 23013 then
+      if dismissCompanionSpells[spellId] then
         if desiredCompanion then
           desiredCompanion[playerName] = nil
         end
