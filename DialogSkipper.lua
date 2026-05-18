@@ -49,6 +49,8 @@ local function SetupDialogSkipper()
       local ok = false
       if which == "BUYOUT_AUCTION" and LP_config.dialogSkipper_skipAuction then
         ok = true
+      elseif which == "EQUIP_BIND_REFUNDABLE" and LP_config.dialogSkipper_skipEquipBind then
+        ok = true
       elseif which == "CONFIRM_PURCHASE_NONREFUNDABLE_ITEM" and LP_config.dialogSkipper_skipPetCharm then
         local polishedPetCharmName = GetItemInfo(163036)
         if type(args) == "string" and polishedPetCharmName and string.find(args, polishedPetCharmName) then
