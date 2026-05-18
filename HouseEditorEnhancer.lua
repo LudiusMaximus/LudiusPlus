@@ -1237,9 +1237,8 @@ local function CreateTile()
                     and C_HousingDecor.IsPreviewState()
     if preview then
       local marketInfo
-      if evi.entryType == Enum.HousingCatalogEntryType.Decor
-         and C_HousingCatalog.GetMarketInfoForDecor then
-        marketInfo = C_HousingCatalog.GetMarketInfoForDecor(evi.recordID)
+      if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Decor and C_HousingCatalog.GetMarketInfoForDecor then
+        marketInfo = C_HousingCatalog.GetMarketInfoForDecor(self.entryVariantID.recordID)
       end
       if marketInfo and marketInfo.price
          and Blizzard_HousingCatalogUtil and Blizzard_HousingCatalogUtil.FormatPrice then
