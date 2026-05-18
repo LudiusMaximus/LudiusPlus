@@ -115,17 +115,19 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Éditeur de maison amélioré"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Les icônes d'aperçu des objets de décoration dans les fenêtres %s et %s de l'éditeur de maison peuvent être trop petites pour être vues clairement. L'éditeur de maison amélioré de Ludius Plus ajoute — entre autres — un curseur pour modifier la taille des icônes et un panneau de prévisualisation latéral (ouvert avec CTRL + CLIC GAUCHE)."
-L["Icon size slider"] = "Curseur de taille d'icône"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Les icônes d'aperçu des objets de décoration dans les fenêtres %s et %s de l'éditeur de maison peuvent être trop petites pour être vues clairement. L'éditeur de maison amélioré de Ludius Plus ajoute — entre autres — un curseur pour modifier la taille des icônes et un panneau de prévisualisation latéral (ouvert avec CTRL + CLIC GAUCHE)."
+L["Icon resize with slider"] = "Redimensionner les icônes avec le curseur"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Si activé, un curseur est ajouté à la fenêtre %s/%s de l'éditeur de maison pour personnaliser la taille des icônes de décoration."
+L["Icon resize with CTRL + mouse wheel"] = "Redimensionner les icônes avec CTRL + molette de la souris"
+L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "Si activé, maintenir CTRL enfoncé tout en faisant défiler la molette de la souris sur la fenêtre %s/%s de l'éditeur de maison redimensionne les icônes de décoration."
 L["Decor preview"] = "Aperçu de décoration"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Si activé, vous pouvez faire CTRL + CLIC GAUCHE sur les icônes de décoration dans la fenêtre %s/%s de l'éditeur de maison pour ouvrir un aperçu du modèle à côté."
-L["Down with %s!"] = "À bas %s !"
-L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = "Place la catégorie « %1$s » (c.-à-d. la boutique %2$s) en dernière position de la liste des catégories de la fenêtre %3$s de l'éditeur de maison, afin qu'elle ne soit plus la catégorie par défaut à l'ouverture."
+L["Chain placement when holding SHIFT"] = "Placement en chaîne en maintenant MAJ enfoncé"
+L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "Si activé, maintenir MAJ enfoncé lors de la validation du placement d'un décor lance immédiatement un nouveau placement du même objet (tant qu'il reste des exemplaires en réserve). Un petit icône sur le curseur indique le nombre restant."
 L["Decor Icon Size:"] = "Taille des icônes de décoration :"
 L["Resize decor item icons"] = "Modifier la taille des icônes d'objets de décoration"
 L["by Ludius Plus"] = "par Ludius Plus"
-L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = "Pas disponible dans la catégorie « %1$s »."
+L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "Pas disponible dans la catégorie « %1$s »."
 L["Reset to default size"] = "Réinitialiser à la taille par défaut"
 
 -- Welcome Message

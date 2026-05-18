@@ -115,17 +115,19 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "향상된 집 편집기"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "집 편집기의 %s 및 %s 창에 있는 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. Ludius Plus의 향상된 집 편집기는 아이콘 크기를 조절하는 슬라이더와 미리보기 측면 패널(CTRL + 왼쪽 클릭으로 열기) 등의 기능을 추가합니다."
-L["Icon size slider"] = "아이콘 크기 슬라이더"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "집 편집기의 %s 및 %s 창에 있는 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. Ludius Plus의 향상된 집 편집기는 아이콘 크기를 조절하는 슬라이더와 미리보기 측면 패널(CTRL + 왼쪽 클릭으로 열기) 등의 기능을 추가합니다."
+L["Icon resize with slider"] = "슬라이더로 아이콘 크기 조절"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "활성화하면 집 편집기의 %s/%s 창에 장식 아이콘 크기를 조절할 수 있는 슬라이더가 추가됩니다."
+L["Icon resize with CTRL + mouse wheel"] = "CTRL + 마우스 휠로 아이콘 크기 조절"
+L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "활성화하면 집 편집기의 %s/%s 창 위에서 CTRL 키를 누른 채 마우스 휠을 굴려 장식 아이콘의 크기를 조절할 수 있습니다."
 L["Decor preview"] = "장식 미리보기"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "활성화하면 집 편집기의 %s/%s 창에서 장식 아이콘을 CTRL + 왼쪽 클릭하여 옆에 모델 미리보기를 열 수 있습니다."
-L["Down with %s!"] = "%s은(는) 꼴찌로!"
-L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = "집 편집기의 %3$s 창에 있는 \"%1$s\" 카테고리(즉, %2$s 상점)를 카테고리 목록의 마지막 항목으로 설정하여, 창을 열었을 때 해당 카테고리가 기본으로 선택되지 않도록 합니다."
+L["Chain placement when holding SHIFT"] = "SHIFT 키를 누른 채 연속 배치"
+L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "활성화하면 장식 배치를 확정할 때 SHIFT 키를 누르고 있으면 즉시 동일한 아이템의 새로운 배치가 시작됩니다(보관함에 수량이 남아있는 경우에 한함). 커서에 표시되는 작은 아이콘을 통해 남은 수량을 확인할 수 있습니다."
 L["Decor Icon Size:"] = "장식 아이콘 크기:"
 L["Resize decor item icons"] = "장식 아이템 아이콘 크기 조절"
 L["by Ludius Plus"] = "제작: Ludius Plus"
-L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = "\"%1$s\" 카테고리에서는 사용할 수 없습니다."
+L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "\"%1$s\" 카테고리에서는 사용할 수 없습니다."
 L["Reset to default size"] = "기본 크기로 초기화"
 
 -- Welcome Message
