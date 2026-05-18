@@ -53,6 +53,7 @@ local function ResummonPet()
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
     and not (LP_config.persistentCompanion_dismissWhileStealthed and IsStealthed())  -- Not while stealthed (if option enabled).
+    and not (HouseEditorFrame and HouseEditorFrame.LayoutModeFrame and HouseEditorFrame.LayoutModeFrame:IsShown()) -- While the house layout is shown, the pet gets dismissed and the character is "stunned".
     then
     -- print("Resummoning", desiredCompanion[playerName])
 
