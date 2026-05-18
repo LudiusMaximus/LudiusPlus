@@ -115,17 +115,19 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Verbesserter Hauseditor"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Die Dekor-Icons im %s- und %s-Fenster des Hauseditors können zu klein sein, um sie deutlich zu erkennen. Der verbesserte Hauseditor von Ludius Plus fügt - unter anderem - einen Schieberegler zum Verändern der Dekor-Icon-Größe hinzu und ein Vorschau-Seitenpanel, das durch STRG-LINKSKLICK geöffnet wird."
-L["Icon size slider"] = "Icon-Größen-Slider"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Die Dekor-Icons im %s- und %s-Fenster des Hauseditors können zu klein sein, um sie deutlich zu erkennen. Der verbesserte Hauseditor von Ludius Plus fügt - unter anderem - einen Schieberegler zum Verändern der Dekor-Icon-Größe hinzu und ein Vorschau-Seitenpanel, das durch STRG-LINKSKLICK geöffnet wird."
+L["Icon resize with slider"] = "Icon-Größe mit Schieberegler ändern"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Fügt einen Slider zum %s/%s-Fenster des Hauseditors hinzu, mit dem sich die Größe der Dekor-Icons einstellen lässt."
+L["Icon resize with CTRL + mouse wheel"] = "Icon-Größe mit STRG + Mausrad ändern"
+L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "Wenn aktiviert, ändert das Halten von STRG während des Scrollens mit dem Mausrad über dem %s/%s-Fenster des Hauseditors die Größe der Dekor-Icons."
 L["Decor preview"] = "Dekor-Vorschau"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Ermöglicht das Öffnen eines Vorschau-Fensters durch STRG + LINKSKLICK auf die Dekor-Icons im %s/%s-Fenster des Hauseditors."
-L["Down with %s!"] = "Nieder mit %s!"
-L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = "Verschiebt die Kategorie „%1$s“ (d. h. den %2$s-Shop) an das Ende der Kategorieliste im %3$s-Fenster des Hauseditors, damit sie beim Öffnen nicht mehr die Standardkategorie ist."
+L["Chain placement when holding SHIFT"] = "Kettenplatzierung beim Halten von SIFT"
+L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "Wenn aktiviert, startet das Halten von SHIFT beim Bestätigen einer Dekorplatzierung sofort eine neue Platzierung desselben Gegenstands (solange noch Exemplare im Lager vorhanden sind). Ein kleines Icon am Cursor zeigt die verbleibende Anzahl an."
 L["Decor Icon Size:"] = "Dekor-Icon-Größe"
 L["Resize decor item icons"] = "Verändere die Größe der Dekor-Items"
 L["by Ludius Plus"] = "von Ludius Plus"
-L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = "Nicht möglich in der \"%1$s\"-Kategorie."
+L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "Nicht möglich in der \"%1$s\"-Kategorie."
 L["Reset to default size"] = "Standardgröße wiederherstellen"
 
 -- Welcome Message

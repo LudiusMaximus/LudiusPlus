@@ -93,11 +93,12 @@ local CONFIG_DEFAULTS = {
 
   flashlight_enabled                   = false,
 
-  houseEditorEnhancer_iconResizer      = false,
-  houseEditorEnhancer_iconResizerSize  = 1.0,
-  houseEditorEnhancer_preview          = false,
-  houseEditorEnhancer_previewWidth     = 540,
-  houseEditorEnhancer_featuredLast     = false,
+  houseEditorEnhancer_iconResizerSlider    = false,
+  houseEditorEnhancer_iconResizerCtrlWheel = false,
+  houseEditorEnhancer_iconResizerSize      = 1.0,
+  houseEditorEnhancer_preview              = false,
+  houseEditorEnhancer_previewWidth         = 540,
+  houseEditorEnhancer_chainPlacement       = false,
 
 }
 
@@ -375,7 +376,7 @@ local persistentCompanionDesc = L["Automatically resummon your last active pet c
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
 local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
-local houseEditorEnhancerDesc = L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB)
+local houseEditorEnhancerDesc = L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB)
 
 
 -- Module order (from most to least demanded)
@@ -938,6 +939,8 @@ local optionsTable = {
             end,
         },
 
+        dialogSkipperGroupBlank15 = {order = 1.5, type = "description", name = " ",},
+
         dialogSkipperSkipAuction = {
           order = 2,
           type = "toggle",
@@ -955,28 +958,8 @@ local optionsTable = {
             end,
         },
 
-        dialogSkipperGroupBlank15 = {order = 1.5, type = "description", name = " ",},
-
-        dialogSkipperAuctionBackButton = {
-          order = 2.5,
-          type = "toggle",
-          name = L["Back to previous item list after buyout"],
-          desc = L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."],
-          width = "full",
-          get = function() return config.dialogSkipper_auctionBackButton end,
-          set =
-            function(_, newValue)
-              config.dialogSkipper_auctionBackButton = newValue
-              addon.SetupOrTeardownDialogSkipper()
-            end,
-          disabled =
-            function()
-              return not config.dialogSkipper_enabled or not config.dialogSkipper_skipAuction
-            end,
-        },
-
         dialogSkipperAuctionPriceLimit = {
-          order = 3,
+          order = 2.5,
           type = "input",
           name = L["Only skip if price is below (gold)"],
           desc = L["Set the maximum price in gold for automatically confirming auctions."],
@@ -989,6 +972,24 @@ local optionsTable = {
                 config.dialogSkipper_auctionPriceLimit = math.floor(num * 10000)
                 addon.SetupOrTeardownDialogSkipper()
               end
+            end,
+          disabled =
+            function()
+              return not config.dialogSkipper_enabled or not config.dialogSkipper_skipAuction
+            end,
+        },
+
+        dialogSkipperAuctionBackButton = {
+          order = 3,
+          type = "toggle",
+          name = L["Back to previous item list after buyout"],
+          desc = L["After buying out an item, the addon automatically returns you to the previous item list overview. This is useful when you typically purchase one listing of an item and then want to go back to browse other items."],
+          width = "full",
+          get = function() return config.dialogSkipper_auctionBackButton end,
+          set =
+            function(_, newValue)
+              config.dialogSkipper_auctionBackButton = newValue
+              addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
             function()
@@ -1485,7 +1486,7 @@ local optionsTable = {
 
     houseEditorEnhancerGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizer or config.houseEditorEnhancer_preview) end,
+      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement) end,
       desc = houseEditorEnhancerDesc,
       order = houseEditorEnhancerOrder,
       args = {
@@ -1502,19 +1503,35 @@ local optionsTable = {
         houseEditorEnhancerEnabled = {
           order = 1,
           type = "toggle",
-          name = L["Icon size slider"],
+          name = L["Icon resize with slider"],
           desc = L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
           width = "full",
-          get = function() return config.houseEditorEnhancer_iconResizer end,
+          get = function() return config.houseEditorEnhancer_iconResizerSlider end,
           set =
             function(_, newValue)
-              config.houseEditorEnhancer_iconResizer = newValue
+              config.houseEditorEnhancer_iconResizerSlider = newValue
               addon.SetupOrTeardownHouseEditorEnhancer()
             end,
         },
 
-        houseEditorEnhancerPreviewEnabled = {
+        houseEditorEnhancerCtrlWheel = {
           order = 2,
+          type = "toggle",
+          name = L["Icon resize with CTRL + mouse wheel"],
+          desc = L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          width = "full",
+          get = function() return config.houseEditorEnhancer_iconResizerCtrlWheel end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_iconResizerCtrlWheel = newValue
+              addon.SetupOrTeardownHouseEditorEnhancer()
+            end,
+        },
+
+        houseEditorEnhancerGroupBlank25 = {order = 2.5, type = "description", name = " ",},
+
+        houseEditorEnhancerPreviewEnabled = {
+          order = 3,
           type = "toggle",
           name = L["Decor preview"],
           desc = L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB),
@@ -1527,16 +1544,18 @@ local optionsTable = {
             end,
         },
 
-        houseEditorEnhancerFeaturedLast = {
-          order = 3,
+        houseEditorEnhancerGroupBlank35 = {order = 3.5, type = "description", name = " ",},
+
+        houseEditorEnhancerChainPlacement = {
+          order = 4,
           type = "toggle",
-          name = L["Down with %s!"]:format(HOUSING_MARKET_HEARTHSTEEL_TOOLTIP),
-          desc = L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."]:format(C_HousingCatalog.GetCatalogCategoryInfo(Constants.HousingCatalogConsts.HOUSING_CATALOG_FEATURED_CATEGORY_ID).name or HOUSING_MARKET_HEARTHSTEEL_TOOLTIP, HOUSING_MARKET_HEARTHSTEEL_TOOLTIP, HOUSE_EDITOR_CATALOG_MARKET_TAB),
+          name = L["Chain placement"],
+          desc = L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."],
           width = "full",
-          get = function() return config.houseEditorEnhancer_featuredLast end,
+          get = function() return config.houseEditorEnhancer_chainPlacement end,
           set =
             function(_, newValue)
-              config.houseEditorEnhancer_featuredLast = newValue
+              config.houseEditorEnhancer_chainPlacement = newValue
               addon.SetupOrTeardownHouseEditorEnhancer()
             end,
         },
@@ -1560,8 +1579,10 @@ local function AreAllModulesDisabled()
     config.muteSounds_enabled or
     config.vendorItemOverlay_enabled or
     config.flashlight_enabled or
-    config.houseEditorEnhancer_iconResizer or
-    config.houseEditorEnhancer_preview
+    config.houseEditorEnhancer_iconResizerSlider or
+    config.houseEditorEnhancer_iconResizerCtrlWheel or
+    config.houseEditorEnhancer_preview or
+    config.houseEditorEnhancer_chainPlacement
   )
 end
 
@@ -1570,16 +1591,6 @@ function addon:OnInitialize()
   LP_config = LP_config or {}
   -- For easier access.
   config = LP_config
-
-  -- Migrate renamed keys from previous versions.
-  if config.houseEditorEnhancer_enabled ~= nil then
-    config.houseEditorEnhancer_iconResizer = config.houseEditorEnhancer_enabled
-    config.houseEditorEnhancer_enabled = nil
-  end
-  if config.houseEditorEnhancer_itemSize ~= nil then
-    config.houseEditorEnhancer_iconResizerSize = config.houseEditorEnhancer_itemSize
-    config.houseEditorEnhancer_itemSize = nil
-  end
 
   -- Remove keys from previous versions.
   for k, v in pairs(config) do

@@ -115,17 +115,19 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "增強型房屋編輯器"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Technically Advanced Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "房屋編輯器的 %s 和 %s 視窗中的裝飾品預覽圖示可能太小，無法清晰辨認。Ludius Plus 的增強型房屋編輯器添加了調整圖示大小的滑塊和預覽側欄（透過 CTRL + 左鍵點擊打開）等功能。"
-L["Icon size slider"] = "圖示大小滑塊"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "房屋編輯器的 %s 和 %s 視窗中的裝飾品預覽圖示可能太小，無法清晰辨認。Ludius Plus 的增強型房屋編輯器添加了調整圖示大小的滑塊和預覽側欄（透過 CTRL + 左鍵點擊打開）等功能。"
+L["Icon resize with slider"] = "使用滑塊調整圖示大小"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "啟用後，房屋編輯器的 %s/%s 視窗將添加一個滑塊，用於自訂裝飾圖示的大小。"
+L["Icon resize with CTRL + mouse wheel"] = "使用 CTRL + 點擊滑鼠滾輪調整圖示大小"
+L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "啟用後，在房屋編輯器的 %s/%s 視窗上滾動滑鼠滾輪時按住 CTRL 鍵可調整裝飾圖示的大小。"
 L["Decor preview"] = "裝飾預覽"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "啟用後，您可以在房屋編輯器 %s/%s 視窗中的裝飾圖示上按 CTRL + 左鍵，在旁邊打開模型預覽。"
-L["Down with %s!"] = "讓 %s 墊底！"
-L["Make the \"%1$s\" category (i.e., the %2$s shop) the last entry in the category list of the House Editor's %3$s frame, so it is no longer the default category upon opening."] = "將房屋編輯器 %3$s 視窗中的「%1$s」分類（即 %2$s 商店）設為分類清單中的最後一項，使其在開啟時不再是預設分類。"
+L["Chain placement when holding SHIFT"] = "按住 SHIFT 鍵進行連續放置"
+L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "啟用後，在確認放置裝飾時按住 SHIFT 鍵將立即開始重新放置相同的物品（只要庫存中還有剩餘）。游標處的小圖示會顯示剩餘數量。"
 L["Decor Icon Size:"] = "裝飾圖示大小："
 L["Resize decor item icons"] = "調整裝飾品圖示大小"
 L["by Ludius Plus"] = "作者：Ludius Plus"
-L["Not working in the \"%1$s\" category. The \"Technically Advanced Editor\" (TAE) wants no part of %2$s!"] = "在「%1$s」分類中不可用。"
+L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "在「%1$s」分類中不可用。"
 L["Reset to default size"] = "恢復預設大小"
 
 -- Welcome Message
