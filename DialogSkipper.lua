@@ -16,6 +16,13 @@ local function EventFrameScript(self, event, ...)
       EquipPendingItem(slot)
     end
 
+  -- Note: USE_BIND cannot be auto-skipped. Its OnAccept calls the protected
+  -- function C_Item.ConfirmBindOnUse(), which requires a genuine hardware event
+  -- with no addon code in the call stack. Any addon-initiated call (via the
+  -- USE_BIND_CONFIRM event handler or a programmatic Button1:Click()) triggers
+  -- ADDON_ACTION_FORBIDDEN. Unlike EQUIP_BIND, which uses the unprotected
+  -- EquipPendingItem(), there is no addon-accessible way to confirm use-bind.
+
   elseif event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == "LudiusPlus" then
