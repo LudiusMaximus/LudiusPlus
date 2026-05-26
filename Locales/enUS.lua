@@ -129,6 +129,10 @@ L["Resize decor item icons"] = true
 L["by Ludius Plus"] = true
 L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = true
 L["Reset to default size"] = true
+L["Recent"] = true
+L["\"Recent\" category"] = true
+L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = true
+L["Remove from history"] = true
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = true

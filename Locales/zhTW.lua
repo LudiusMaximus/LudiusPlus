@@ -129,6 +129,10 @@ L["Resize decor item icons"] = "調整裝飾品圖示大小"
 L["by Ludius Plus"] = "作者：Ludius Plus"
 L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "在「%1$s」分類中不可用。"
 L["Reset to default size"] = "恢復預設大小"
+L["Recent"] = "最近使用"
+L["\"Recent\" category"] = "「最近使用」分類"
+L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "啟用後，房屋編輯器的儲藏分頁中會新增一個自訂的「最近使用」分類。它會列出您最近修改過的裝飾物品，最新的排在最前面——按每棟房屋以及室內/室外分別保存。將游標懸停在圖示上並點擊紅色 X 即可將其從歷史記錄中移除。停用此選項將清除已儲存的歷史記錄。"
+L["Remove from history"] = "從歷史記錄中移除"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "歡迎使用 LudiusPlus！輸入 /ldp 選擇要啟用的模組。"

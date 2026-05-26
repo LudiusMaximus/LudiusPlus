@@ -129,6 +129,10 @@ L["Resize decor item icons"] = "장식 아이템 아이콘 크기 조절"
 L["by Ludius Plus"] = "제작: Ludius Plus"
 L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "\"%1$s\" 카테고리에서는 사용할 수 없습니다."
 L["Reset to default size"] = "기본 크기로 초기화"
+L["Recent"] = "최근 사용"
+L["\"Recent\" category"] = "\"최근 사용\" 카테고리"
+L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "활성화하면 집 편집기의 보관함 탭에 사용자 지정 \"최근 사용\" 카테고리가 추가됩니다. 최근에 수정한 장식 아이템이 최신순으로 나열되며, 집마다 그리고 실내/야외마다 별도로 유지됩니다. 타일 위에 마우스를 올리고 빨간색 X를 클릭하면 기록에서 삭제됩니다. 이 옵션을 비활성화하면 저장된 기록이 삭제됩니다."
+L["Remove from history"] = "기록에서 삭제"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."

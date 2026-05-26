@@ -129,6 +129,10 @@ L["Resize decor item icons"] = "Modifier la taille des icônes d'objets de déco
 L["by Ludius Plus"] = "par Ludius Plus"
 L["Not working in the \"%1$s\" category. The \"Thoughtfully Augmented Editor\" (TAE) wants no part of %2$s!"] = "Pas disponible dans la catégorie « %1$s »."
 L["Reset to default size"] = "Réinitialiser à la taille par défaut"
+L["Recent"] = "Récents"
+L["\"Recent\" category"] = "Catégorie « Récents »"
+L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Si activé, une catégorie personnalisée « Récents » est ajoutée à l'onglet Stockage de l'éditeur de maison. Elle liste les objets de décoration que vous avez récemment modifiés, du plus récent au plus ancien - conservés séparément par maison et par intérieur/extérieur. Survolez une case et cliquez sur le X rouge pour la retirer de l'historique. La désactivation de cette option efface l'historique enregistré."
+L["Remove from history"] = "Retirer de l'historique"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bienvenue dans LudiusPlus ! Tapez /ldp pour choisir les modules à activer."
