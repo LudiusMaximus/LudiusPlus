@@ -5,7 +5,7 @@
 ## Author: LudiusMaximus
 ## Notes: A collection of little WoW tweaks by Ludius.
 
-## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_config
+## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_houseEditorRecent, LP_config
 
 ## X-Curse-Project-ID: 1405431
 ## X-WoWI-ID: 27000

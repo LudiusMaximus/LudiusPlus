@@ -99,6 +99,7 @@ local CONFIG_DEFAULTS = {
   houseEditorEnhancer_preview              = false,
   houseEditorEnhancer_previewWidth         = 540,
   houseEditorEnhancer_chainPlacement       = false,
+  houseEditorEnhancer_recent               = false,
 
 }
 
@@ -1486,7 +1487,7 @@ local optionsTable = {
 
     houseEditorEnhancerGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement) end,
+      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement or config.houseEditorEnhancer_recent) end,
       desc = houseEditorEnhancerDesc,
       order = houseEditorEnhancerOrder,
       args = {
@@ -1560,6 +1561,22 @@ local optionsTable = {
             end,
         },
 
+        houseEditorEnhancerGroupBlank45 = {order = 4.5, type = "description", name = " ",},
+
+        houseEditorEnhancerRecent = {
+          order = 5,
+          type = "toggle",
+          name = L["\"Recent\" category"],
+          desc = L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."],
+          width = "full",
+          get = function() return config.houseEditorEnhancer_recent end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_recent = newValue
+              addon.SetupOrTeardownHouseEditorEnhancer()
+            end,
+        },
+
       },
     },
 
@@ -1582,7 +1599,8 @@ local function AreAllModulesDisabled()
     config.houseEditorEnhancer_iconResizerSlider or
     config.houseEditorEnhancer_iconResizerCtrlWheel or
     config.houseEditorEnhancer_preview or
-    config.houseEditorEnhancer_chainPlacement
+    config.houseEditorEnhancer_chainPlacement or
+    config.houseEditorEnhancer_recent
   )
 end
 
