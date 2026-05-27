@@ -101,6 +101,11 @@ local CONFIG_DEFAULTS = {
   houseEditorEnhancer_chainPlacement       = false,
   houseEditorEnhancer_recent               = false,
 
+  -- Saved-variable migration bookkeeping (not a user-facing setting): the config
+  -- version this user has been migrated up to (see ApplyConfigMigrations). Kept
+  -- in CONFIG_DEFAULTS so it survives the unknown-key cleanup in OnInitialize.
+  migrationVersion                         = 0,
+
 }
 
 
@@ -1604,6 +1609,37 @@ local function AreAllModulesDisabled()
   )
 end
 
+-- ===== Saved-variable migrations =====
+-- One-time upgrades to a user's saved LP_config across addon versions, for
+-- changes a plain default can't express (e.g. flipping an existing user's
+-- setting based on their OTHER settings). config.migrationVersion records the
+-- version this config has been brought up to. To add a change: bump
+-- CONFIG_VERSION and add a matching "if version < N" block below. Each block
+-- must be safe to run on ANY config - it should naturally no-op on fresh/default
+-- data by gating on existing state (e.g. v1 below changes nothing for a
+-- brand-new user, who has no features enabled), so we needn't special-case them.
+local CONFIG_VERSION = 1
+
+local function ApplyConfigMigrations()
+  local version = config.migrationVersion or 0
+  if version >= CONFIG_VERSION then return end  -- already up to date
+
+  -- v1: enable the new "Recent" category for users who already use any other
+  -- Enhanced House Editor feature, so existing users get it without having to
+  -- find and turn it on themselves.
+  if version < 1 then
+    if config.houseEditorEnhancer_iconResizerSlider
+       or config.houseEditorEnhancer_iconResizerCtrlWheel
+       or config.houseEditorEnhancer_preview
+       or config.houseEditorEnhancer_chainPlacement then
+      config.houseEditorEnhancer_recent = true
+    end
+  end
+
+  config.migrationVersion = CONFIG_VERSION
+end
+
+
 function addon:OnInitialize()
 
   LP_config = LP_config or {}
@@ -1627,6 +1663,9 @@ function addon:OnInitialize()
       config[k] = v
     end
   end
+
+  -- Apply any pending saved-variable migrations now that defaults exist.
+  ApplyConfigMigrations()
 
   -- Print welcome message if all modules are disabled
   if AreAllModulesDisabled() then
