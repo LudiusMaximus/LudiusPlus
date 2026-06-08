@@ -133,6 +133,7 @@ L["Recent"] = "Recenti"
 L["\"Recent\" category"] = "Categoria \"Recenti\""
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Se abilitato, una categoria personalizzata \"Recenti\" viene aggiunta alla scheda Deposito dell'Editor della Casa. Elenca gli oggetti decorativi che hai modificato di recente, partendo dai più nuovi - mantenuti separatamente per ogni casa e per interni/esterni. Passa il mouse su un riquadro e fai clic sulla X rossa per rimuoverlo dalla cronologia. Disabilitando questa opzione, la cronologia salvata verrà cancellata."
 L["Remove from history"] = "Rimuovi dalla cronologia"
+L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Per acquistarlo, vai nella categoria \"%2$s\" del %1$s!"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Benvenuto in LudiusPlus! Digita /ldp per scegliere i moduli da abilitare."

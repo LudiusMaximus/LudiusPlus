@@ -74,6 +74,13 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- whatever it can (callbacks, events, frames) and leaves the idempotent
 -- residue inert.
 --
+-- NOTE: the "parallel catalog" that features 1 and 4 stand on is not just a
+-- scaling/scrolling shell - it is a hand-rebuilt 1:1 copy of Blizzard's catalog
+-- tiles and category pane, so it ALSO reproduces decor/room placement, the tile
+-- tooltip, the shift-click chat link, and the refund/destroy right-click menu.
+-- That copied surface has to be re-checked against Blizzard's source every patch:
+-- see the BLIZZARD SOURCE PROVENANCE section below for the map and the routine.
+--
 --
 -- ============================================================================
 -- TAINT LESSONS LEARNED (file these in your head before touching this code)
@@ -157,14 +164,87 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- callback reference) can't be hooked at the instance level after the
 -- fact either - the view still calls the captured original reference.
 -- For those, RegisterCallback is unfortunately the only option.
-
-
+--
+--
+-- ============================================================================
+-- BLIZZARD SOURCE PROVENANCE - AND HOW TO RE-CHECK IT EACH PATCH (READ THIS!)
+-- ============================================================================
+--
+-- Large parts of this module are a hand-rebuilt 1:1 copy of Blizzard's house
+-- editor catalog (our "parallel catalog" replaces their ScrollBox to dodge the
+-- taint trap above; our tiles, tooltips, context menu, room placement, and
+-- category pane reproduce theirs). That means Blizzard can ADD or CHANGE catalog
+-- behavior in a patch and our copy will silently fall behind - exactly how we
+-- first shipped without room placement and without the shop right-click menu,
+-- because we hadn't noticed Blizzard had them.
+--
+-- ROUTINE FOR EVERY MAJOR PATCH (do this before adjusting anything else):
+--   1. Update the local wow-ui-source checkout to the new build.
+--   2. `git diff` (or your viewer of choice) the files in the PROVENANCE MAP
+--      below between the old and new build. Those are the only Blizzard files
+--      we mirror; a diff with no changes there means our copy is still current.
+--   3. For each Blizzard change, find the matching mirror in THIS file. Every
+--      mirror is tagged with a comment of the form
+--          "Mirrors <Mixin>:<Method> (<File>.lua:<lines>)"
+--      so you can grep this file for the Blizzard symbol that changed (e.g.
+--      grep "UpdateTypeSpecificVisuals") and land on the code to update.
+--   4. Decide per change: ADOPT it (port into our mirror), or DELIBERATELY SKIP
+--      it (and say why in the mirror's comment, so the next check doesn't keep
+--      re-flagging it). Line numbers in the tags drift between builds - trust
+--      the Mixin:Method NAME, not the number, and refresh the number when you
+--      touch a mirror.
+--   5. Watch especially for NEW protected (C_CatalogShop / store) calls on any
+--      path our tiles or category clicks can reach - those are the ones that
+--      turn into ADDON_ACTION_FORBIDDEN. See the TAINT LESSONS above.
+--
+-- PROVENANCE MAP - Blizzard files we mirror, and what we took from each:
+--   * Blizzard_HousingTemplates/Blizzard_HousingCatalogEntry.lua (+ .xml)
+--       The per-tile mixins. Source for our CreateTile / UpdateTileVisuals /
+--       OnEnter tooltip / OnClick+OnDrag placement / HandleTileRightClick:
+--         - HousingCatalogEntryMixin (UpdateEntryData, UpdateVisuals, OnInteract,
+--           HasValidData, UpdateBackground, OnMouseDown/Up)
+--         - HousingCatalogDecorEntryMixin (TypeSpecificOnInteract, ShowContextMenu,
+--           AddTooltipTitle/AddTooltipLines, UpdateTypeSpecificVisuals)
+--         - HousingCatalogRoomEntryMixin (TypeSpecificOnInteract, AddTooltip*)
+--         - BaseHousingCatalogEntryTemplate / DecorEntryTemplate /
+--           HousingCatalogRoomEntryTemplate (frame layout, atlases, hover bg)
+--   * Blizzard_HousingTemplates/Blizzard_HousingCatalogUtil.lua
+--       Stateless helpers we call directly (NOT reimplemented): GetEntryQuantity,
+--       GetEntryNumStored, GetEntryTotalOwned, FormatPrice, FormatRefundTime.
+--       If a signature changes, our call sites change with it.
+--   * Blizzard_HousingTemplates/Blizzard_HousingCatalogCategories.lua (+ .xml)
+--       The category pane. Source for our Recent button styling, the room-category
+--       and "unselected" fakes, and the SetFocus choke-point hook. Key symbols:
+--       SetFocus, GetFocusedCategoryString, IsFeaturedCategoryFocused,
+--       IsAllCategoryFocused, BaseHousingCatalogCategoryMixin, SelectedBackground.
+--   * Blizzard_HousingTemplates/Blizzard_HousingCatalogTemplates.lua (+ .xml)
+--       The scroll container/box: SetScrollBoxTopOffset (header offset we mirror),
+--       widthSnapMultiplier (resize snap we neutralize), the MinimalScrollBar we
+--       clone for our parallel scroll bar, and the template chooser (Decor/Room).
+--   * Blizzard_HouseEditor/Blizzard_HouseEditorStorageFrame.lua
+--       The storage/market panel that owns it all: OnTabChanged,
+--       OnEntryResultsUpdated, OnCatalogEntryUpdated, OnCategoryFocusChanged,
+--       UpdateCategoryText/Total, UpdateLoadingSpinner, RefreshMarketData,
+--       Check{Start,Close}MarketInteraction, and the OnResizeStopped snap. We hook
+--       several of these; we also work around two of its bugs (Featured->All label,
+--       and the unhandled CATALOG_SHOP_FETCH_FAILURE - see MinimalWorkingExample).
+--   * Blizzard_SharedXML/Shared/Scroll/* (ScrollBox.lua, ScrollBar.lua,
+--       ScrollBoxViewUtil.lua, MinimalScrollBar.*)
+--       Read-only reference for how the real scroll box/bar behave (edge fade math,
+--       ScrollBarMixin:Update show/hide rules, dataIndex range calc). We don't
+--       mirror these, but our parallel scroll math has to stay compatible.
+--   * Blizzard_HousingModelPreview (LoadOnDemand)
+--       Reused AS-IS for the CTRL+click preview (HousingModelPreviewTemplate); we
+--       only load + drive it, so changes there rarely affect us.
+--
+-- IMPROVEMENTS OVER BLIZZARD (intentional divergences - keep them on re-check):
+--   * Layout mode fake-selects the lone "Rooms" category and labels the header
+--     "Rooms" (Blizzard leaves it unselected showing "All"). See UpdateRoomCategoryFake.
+--   * Catalog "Featured"->"All" repaints the header to "All" (Blizzard leaves it
+--     stuck on "Featured"). See FixFeaturedToAllCategoryText.
 
 
 local math_log = _G.math.log
-
-
-
 
 
 
@@ -212,51 +292,89 @@ local scrollBoxHooked = false      -- per-frame OnInteract + OnEnter/OnLeave wra
 local previewButtonsHooked = false -- CollapseButton + StorageButton OnClick
 local hoveredFrame = nil
 local inspectCursorActive = false
+-- True while UpdateTileVisuals re-fires a hovered tile's OnEnter to refresh its
+-- tooltip in place. Suppresses the hover sound, since a re-render (e.g. on scroll)
+-- is not a fresh hover.
+local refreshingTooltipInPlace = false
+-- Our OWN GameTooltip frame for the Market right-click "go buy it in Featured"
+-- hint. Separate from the global GameTooltip so the tile's item tooltip stays
+-- visible alongside it; hidden by the tile's HideHover on leave.
+local featuredHintTooltip = nil
 
 local lastPreviewEntryInfo = nil
 local previewWasShownBeforeCollapse = false
 
-
--- Parallel Catalog (Storage tab + non-Featured Market replacement):
+-- Parallel Catalog:
 local parallelFrame = nil
 local parallelChild = nil
 local parallelScrollBar = nil
 local parallelTabHooked = false
 local parallelResultsHooked = false
 local parallelCategoryHooked = false
-local scrollBoxOriginalAnchors = nil  -- captured once on first move
-local scrollBarOriginalAnchors = nil  -- ditto for the (Minimal)ScrollBar sibling
+-- Re-renders room tiles on layout changes (budget/door) for live grey-out.
+local parallelLayoutEventFrame = nil
+local parallelLayoutEventsHooked = false
+-- Captured once on first ShowParallelCatalog call; restored on deactivate.
+local scrollBoxOriginalAnchors = nil
+local scrollBarOriginalAnchors = nil
+-- Blizzard's storage-panel resize column-snap multiplier (px), captured before we
+-- neutralize it while our grid is active, and restored on deactivate (see
+-- ShowParallelCatalog). nil until first captured.
+local origWidthSnapMultiplier = nil
 -- Forward-declared: WireParallelScroll is defined later (it needs RefreshTileGrid
 -- in scope) but called from ShowParallelCatalog, which is defined earlier.
 local WireParallelScroll
 
--- Recent: a custom "Recent" category for the Storage tab that lists decor the
--- user has recently placed, most-recent-first. Persisted per house and per
--- indoor/outdoor area (see SyncRecentList) - the "Recent" section near the
--- parallel catalog has the full rationale.
-local RECENT_MAX = 200             -- cap on the tracked history length (per list)
-local recentEntries = {}           -- POINTER to the current house+area saved list (LP_houseEditorRecent[key]); re-pointed by SyncRecentList. Empty default until first sync.
-local recentMode = false           -- true while the Recent view is showing
-local recentExitPending = false    -- true while a deferred Recent exit is waiting for the new category's results (see BeginRecentExit)
-local recentButton = nil           -- our side-pane toggle (addon-owned frame)
-local recentSelectionMask = nil    -- click-through overlay hiding the active category/subcategory's selected look while in Recent
-local recentRecordHooked = false   -- StartPlacingNewDecor stash hook + PLACE_SUCCESS event installed
-local recentExitHooked = false     -- OnCategoryClicked / OnSearchTextUpdated "exit Recent" hooks installed
-local recentPlaceEventFrame = nil  -- listens for HOUSING_DECOR_PLACE_SUCCESS
-local pendingPlaceVariant = nil    -- exact entryVariantID of the in-progress fresh placement
+-- Recent:
+-- Cap on the tracked history length (per list).
+local RECENT_MAX = 200
+-- POINTER to the current house+area saved list (LP_houseEditorRecent[key]);
+-- re-pointed by SyncRecentList. Empty default until first sync.
+local recentEntries = {}
+-- True while the Recent view is showing.
+local recentMode = false
+-- True while a deferred Recent exit is waiting for the new category's results (see BeginRecentExit).
+local recentExitPending = false
+-- Recent was showing when Layout mode began; restore it on leaving Layout (see the UpdateEditorMode hook in SetupRecent).
+local recentWasActiveBeforeLayout = false
+-- Our side-pane toggle button (addon-owned frame).
+local recentButton = nil
+-- Click-through overlay making the unselected Rooms category button look
+-- selected in Layout mode - a taint-free stand-in for the SetFocus we mustn't call.
+local roomsCategoryFake = nil
+-- Click-through overlay hiding the selected look of whichever pane button is
+-- currently active (top-level category, subcategory, or "All subcategories"
+-- standin) while the Recent view is showing. Adapts per-button by drawing that
+-- button's own GetDefaultTexture(). Inverse counterpart of roomsCategoryFake.
+local unselectedCategoryFake = nil
+-- Guards preventing double-installation of hooks.
+local recentRecordHooked = false
+-- OnCategoryClicked / OnSearchTextUpdated "exit Recent" hooks installed.
+local recentExitHooked = false
+-- Listens for HOUSING_DECOR_PLACE_SUCCESS.
+local recentPlaceEventFrame = nil
+-- Exact entryVariantID of the in-progress fresh placement (stashed by StartPlacingNewDecor hook).
+local pendingPlaceVariant = nil
+
 -- These are defined down in the "Recent" section but called from earlier
 -- sections (the parallel-catalog renderer + tile code), so they're forward-
 -- declared here, with the rest of the Recent state:
-local SyncRecentList                -- re-point recentEntries to the current house+area list (RefreshParallelCatalog)
-local LeaveRecentMode               -- exit Recent + restore Blizzard's header (RefreshParallelCatalog / exit hooks)
-local UpdateRecentButtonVisibility  -- show/hide the side-pane toggle (RefreshParallelCatalog)
-local RemoveRecentEntry             -- drop one entry (a tile's hover delete button, in CreateTile)
-local VariantStoredCount            -- per-variant storage count (UpdateTileVisuals)
-local variantStoredCache = {}       -- per-RefreshTileGrid-pass memo for VariantStoredCount (wiped there)
+-- Re-point recentEntries to the current house+area list (RefreshParallelCatalog).
+local SyncRecentList
+-- Exit Recent + restore Blizzard's header (RefreshParallelCatalog / exit hooks).
+local LeaveRecentMode
+-- Show/hide the side-pane toggle (RefreshParallelCatalog).
+local UpdateRecentButtonVisibility
+-- Drop one entry from history (called from a tile's hover delete button, in CreateTile).
+local RemoveRecentEntry
+-- Per-variant storage count (UpdateTileVisuals).
+local VariantStoredCount
+-- Per-RefreshTileGrid-pass memo for VariantStoredCount (wiped at start of each pass).
+local variantStoredCache = {}
 
--- Tile grid constants. Declared up here (rather than near RefreshTileGrid)
--- so they're in scope for EnsureParallelFrame and CreateTile, which are
--- defined earlier in the file.
+-- Tile grid:
+-- Hoisted here (rather than near RefreshTileGrid) so they're in scope for
+-- EnsureParallelFrame and CreateTile, which are defined earlier in the file.
 local TILE_WIDTH = 97
 local TILE_HEIGHT = 97
 local TILE_SPACING = 5
@@ -270,7 +388,10 @@ local EDGE_FADE_LENGTH = 75  -- matches Blizzard housing catalog edge fade
 local tilePool = {}
 local activeTiles = {}
 
+
+
 -- ===== Feature-state predicates =====
+
 -- True if any of the icon-resizing features is enabled. The slider UI and
 -- the CTRL+wheel handler are two independent ways to drive the same
 -- resize state, so the parallel catalog and the scaling hooks must
@@ -332,8 +453,10 @@ end
 -- visually smaller or larger without touching elementSizeCalculator or
 -- calling Rebuild (both would taint scroll-view Lua fields that Blizzard's
 -- Update reads, causing ADDON_ACTION_FORBIDDEN via GetProductInfo).
--- Column count is unaffected; Blizzard's widthSnapMultiplier (102 px) still
--- controls column snapping on panel resize.
+-- Column count is unaffected. Blizzard's OnResizeStopped snaps the panel width to
+-- whole default-icon columns (widthSnapMultiplier = 102px), which fights our custom
+-- icon sizes; while our grid is active we set that multiplier to 1 so the snap is a
+-- no-op and resizing stays seamless (see the snap note in ShowParallelCatalog).
 local function RefreshCatalog()
   local container = GetContainer()
   if not container or not container.ScrollBox then return end
@@ -364,14 +487,25 @@ end
 local function IsHoveredFramePreviewable()
   local f = hoveredFrame
   if not f then return false end
+
+  -- Rooms (Layout mode) aren't previewable - the preview frame is decor-only,
+  -- so CTRL must NOT flip to the inspect cursor over them. Both our tiles and
+  -- Blizzard's native room tiles expose entryVariantID and report
+  -- HasValidData()==true, so without this they'd wrongly read as previewable.
+  if f.entryVariantID and f.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then
+    return false
+  end
+
   if type(f.HasValidData) == "function" then
     return f:HasValidData()
   end
+
   if f.elementData and f.elementData.canPreview
      and f.elementData.entryVariantID
      and f.elementData.entryVariantID.entryType == Enum.HousingCatalogEntryType.Decor then
     return true
   end
+
   return false
 end
 
@@ -1104,6 +1238,178 @@ local function StartPlacingForEntry(entryVariantID)
 end
 
 
+-- A room's placement-invalid reason (or nil if placeable), mirroring the room-
+-- specific GetTypeSpecificIsValid: at the room-placement cap, or no valid
+-- connection to the currently selected door. Shared by the click handler
+-- (PlaceRoomFromEntry, shown via UIErrorsFrame) and the hover tooltip (shown as
+-- an error line, like Blizzard's AddInvalidTooltipLine).
+local function GetRoomInvalidReason(recordID)
+  if not C_HousingLayout then return nil end
+  if C_HousingLayout.HasRoomPlacementBudget and C_HousingLayout.HasRoomPlacementBudget()
+     and C_HousingLayout.GetSpentPlacementBudget() >= C_HousingLayout.GetRoomPlacementBudget() then
+    return ERR_PLACED_ROOM_LIMIT_REACHED
+  end
+  local doorComponentID, roomGUID = C_HousingLayout.GetSelectedDoor()
+  if doorComponentID and roomGUID
+     and not C_HousingLayout.HasValidConnection(roomGUID, doorComponentID, recordID) then
+    return HOUSING_LAYOUT_CANT_PLACE_ROOM_TOOLTIP
+  end
+  return nil
+end
+
+
+-- Room placement. In Layout mode the catalog lists rooms (entryType == Room)
+-- instead of decor, and Blizzard places them by a completely different path than
+-- decor: CLICK ONLY (no drag), and instead of cursor-attached StartPlacingNewDecor
+-- it toggles a "selected floorplan" (C_HousingLayout.SelectFloorplan) that the
+-- user then drops into a door slot. Mirrors HousingCatalogRoomEntryMixin:
+-- TypeSpecificOnInteract (Blizzard_HousingCatalogEntry.lua:891-932), including
+-- its room-specific validity (placement budget + a valid connection to the
+-- currently selected door) so the same errors surface. Runs synchronously like
+-- Blizzard's (no GLOBAL_MOUSE_UP auto-commit to dodge, unlike decor).
+local function PlaceRoomFromEntry(entryVariantID)
+  if not (C_HouseEditor and C_HouseEditor.IsHouseEditorActive
+          and C_HouseEditor.IsHouseEditorActive()) then return end
+  if not (C_HousingLayout and C_HousingLayout.SelectFloorplan) then return end
+
+  -- Validity (mirrors GetTypeSpecificIsValid): surface the error and bail.
+  local invalidReason = GetRoomInvalidReason(entryVariantID.recordID)
+  if invalidReason then
+    UIErrorsFrame:AddMessage(invalidReason, RED_FONT_COLOR:GetRGBA())
+    return
+  end
+
+  local roomId = entryVariantID.recordID
+  PlaySound(SOUNDKIT.HOUSING_SELECT_ROOM_FROM_MENU)
+
+  -- Not in Layout mode yet (we normally are - that's when rooms show): switch to
+  -- it, then select next frame (the mode change needs a frame to take effect).
+  if not C_HouseEditor.IsHouseEditorModeActive(Enum.HouseEditorMode.Layout) then
+    C_HouseEditor.ActivateHouseEditorMode(Enum.HouseEditorMode.Layout)
+    RunNextFrame(function() C_HousingLayout.SelectFloorplan(roomId) end)
+    return
+  end
+
+  -- Toggle: re-clicking the selected room deselects it; clicking a different one
+  -- (or none selected) selects this room's floorplan.
+  local selected = C_HousingLayout.GetSelectedFloorplan()
+  if selected then C_HousingLayout.DeselectFloorplan() end
+  if not selected or selected ~= roomId then
+    C_HousingLayout.SelectFloorplan(roomId)
+  end
+end
+
+
+-- Right-click handler for a decor tile, mirroring HousingCatalogDecorEntryMixin:
+-- ShowContextMenu (Blizzard_HousingCatalogEntry.lua:707-794) where we're able to.
+-- Decor only; rooms have no right-click action (their mixin keeps the no-op base).
+-- Blizzard branches Storage-vs-Market off displayContext, which our tiles don't
+-- carry, so we key off the tab:
+--   Storage -> a context menu: Refund (the refund flow is documented safe for
+--     tainted callers) + Destroy / Destroy(5) (DestroyEntry is AllowedWhenUntainted),
+--     reusing Blizzard's CONFIRM_DESTROY_DECOR popup. The destroy owner is a
+--     captured table (NOT the pooled tile, which can be recycled to another entry
+--     while the popup is open) so it can't misfire onto the wrong item.
+--   Market -> a cursor-anchored tooltip pointing to the Featured category, shown
+--     only for PURCHASABLE items (those with a Hearthsteel price). Blizzard's
+--     market actions (add-to-cart, view-in-shop) are PROTECTED store calls we
+--     can't make, and programmatically focusing the Featured category breaks
+--     Blizzard's featured product cards (productInfo nil without a real shop
+--     interaction -> errors on hover), so we can't act or navigate - only hint.
+local function HandleTileRightClick(tile)
+  local evi = tile.entryVariantID
+  local info = tile.entryInfo
+  if not (evi and info and evi.entryType == Enum.HousingCatalogEntryType.Decor) then return end
+  -- A Recent tile with none of this variant left in storage (the dim-red "0":
+  -- a color fully placed, or the undyed base after placing all of it) has nothing
+  -- to act on. Same gate the click/drag placement uses, and it also avoids
+  -- destroying the wrong copy of an uncatalogued (variantIdentifier-less) Recent
+  -- variant, which only happens in this 0-in-storage state.
+  if tile.recentStored ~= nil and tile.recentStored <= 0 then return end
+  local recordID = evi.recordID
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+
+  -- Market tab: a hint for PURCHASABLE items only - those with a Hearthsteel price
+  -- (the same GetMarketInfoForDecor().price > 0 test that drives the tile's lower-
+  -- right infoText). Non-purchasable market items get nothing, and the Storage menu
+  -- below never applies in the Market tab. The hint is on its OWN GameTooltip frame
+  -- (not the shared one) so the tile's item tooltip stays visible alongside it. The
+  -- crucial detail: parent it to HouseEditorFrame, NOT UIParent - UIParent is HIDDEN
+  -- while House Editor mode is active, so a UIParent-parented tooltip never draws
+  -- (it still reports IsShown()==true with real size/content - a confusing red
+  -- herring). Fill it (ClearLines + GameTooltip_AddNormalLine) and position it at
+  -- the cursor manually (SetOwner's anchor isn't the cursor; a custom tooltip has
+  -- no cursor-follow). Hidden again by the tile's HideHover on leave.
+  if storagePanel and storagePanel.IsInMarketTab and storagePanel:IsInMarketTab() then
+    local marketInfo = C_HousingCatalog.GetMarketInfoForDecor
+      and C_HousingCatalog.GetMarketInfoForDecor(recordID)
+    if marketInfo and marketInfo.price and marketInfo.price > 0 then
+      if not featuredHintTooltip then
+        featuredHintTooltip = CreateFrame("GameTooltip", "LudiusPlusFeaturedHintTooltip", HouseEditorFrame, "GameTooltipTemplate")
+        featuredHintTooltip:SetFrameStrata("TOOLTIP")
+      end
+      featuredHintTooltip:SetOwner(tile)
+      featuredHintTooltip:ClearLines()
+      GameTooltip_AddNormalLine(featuredHintTooltip, L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"]:format(HOUSE_EDITOR_CATALOG_MARKET_TAB, C_HousingCatalog.GetCatalogCategoryInfo(Constants.HousingCatalogConsts.HOUSING_CATALOG_FEATURED_CATEGORY_ID).name))
+      featuredHintTooltip:Show()
+      local s = featuredHintTooltip:GetEffectiveScale()
+      local cx, cy = GetCursorPosition()
+      featuredHintTooltip:ClearAllPoints()
+      featuredHintTooltip:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", cx / s, cy / s)
+    end
+    return
+  end
+
+  -- Storage: context menu (refund + destroy).
+  if not MenuUtil then return end
+  local destroyOwner = {
+    entryVariantID = { entryType = evi.entryType, recordID = recordID, variantIdentifier = evi.variantIdentifier },
+    OnDestroyConfirmed = function(self, destroyAll)
+      if C_HousingCatalog.DestroyEntry then C_HousingCatalog.DestroyEntry(self.entryVariantID, destroyAll) end
+    end,
+  }
+
+  MenuUtil.CreateContextMenu(tile, function(_owner, rootDescription)
+    rootDescription:SetTag("MENU_HOUSING_CATALOG_ENTRY")
+
+    -- Refund, when the entry is still within its refund window.
+    local timeStamp = C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID
+      and C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID(Enum.HousingCatalogEntryType.Decor, recordID)
+    if timeStamp and CatalogShopRefundFlowInboundInterface then
+      rootDescription:CreateButton(HOUSING_DECOR_STORAGE_ITEM_REFUND, function()
+        CatalogShopRefundFlowInboundInterface.SetShown(true)
+      end)
+    end
+
+    -- Destroy single / bulk, reusing Blizzard's CONFIRM_DESTROY_DECOR popup
+    -- (registered globally by Blizzard_HousingCatalogEntry). Disabled with an
+    -- explanatory tooltip when nothing is destroyable.
+    local count = info.destroyableInstanceCount or 0
+    local destroyBtn = rootDescription:CreateButton(HOUSING_DECOR_STORAGE_ITEM_DESTROY, function()
+      StaticPopup_Show("CONFIRM_DESTROY_DECOR",
+        string.format(HOUSING_DECOR_STORAGE_ITEM_CONFIRM_DESTROY, info.name, HOUSING_DECOR_STORAGE_ITEM_DESTROY_CONFIRMATION_STRING),
+        nil,
+        { destroyAll = false, owner = destroyOwner, confirmationString = HOUSING_DECOR_STORAGE_ITEM_DESTROY_CONFIRMATION_STRING })
+    end)
+    destroyBtn:SetEnabled(count > 0)
+    if count <= 0 then
+      destroyBtn:SetTooltip(function(tooltip)
+        GameTooltip_SetTitle(tooltip, HOUSING_DECOR_STORAGE_ITEM_CANNOT_DESTROY)
+      end)
+    end
+    local bulkDestroyAmount = 5
+    if count >= bulkDestroyAmount then
+      rootDescription:CreateButton(HOUSING_DECOR_STORAGE_ITEM_DESTROY.." ("..bulkDestroyAmount..")", function()
+        StaticPopup_Show("CONFIRM_DESTROY_DECOR",
+          string.format(HOUSING_DECOR_STORAGE_ITEM_CONFIRM_DESTROY_ALL, bulkDestroyAmount, info.name, HOUSING_DECOR_STORAGE_ITEM_DESTROY_CONFIRMATION_STRING),
+          nil,
+          { destroyAll = true, owner = destroyOwner, confirmationString = HOUSING_DECOR_STORAGE_ITEM_DESTROY_CONFIRMATION_STRING })
+      end)
+    end
+  end)
+end
+
+
 -- Tile factory + pool. Tile structure matches Blizzard's
 -- BaseHousingCatalogEntryTemplate (Blizzard_HousingCatalogEntry.xml:38-103):
 --   tile: 97x97 Button
@@ -1116,6 +1422,12 @@ end
 local function CreateTile()
   local tile = CreateFrame("Button", nil, parallelChild)
   tile:SetSize(97, 97)
+  -- Keep OnEnter/OnLeave firing even when the button is disabled, so a greyed-out
+  -- (unplaceable) room tile still shows its tooltip - matches Blizzard's
+  -- BaseHousingCatalogEntryTemplate motionScriptsWhileDisabled="true"
+  -- (Blizzard_HousingCatalogEntry.xml:38). Without it, UpdateTileVisuals'
+  -- SetEnabled(false) on invalid rooms would suppress the hover tooltip.
+  tile:SetMotionScriptsWhileDisabled(true)
 
   tile.bg = tile:CreateTexture(nil, "BACKGROUND")
   tile.bg:SetAllPoints()
@@ -1175,6 +1487,21 @@ local function CreateTile()
     tile.dyeIcons[i] = dye
   end
 
+  -- SpecialRoomFrame + SpecialRoomIcon (Layout mode, prefab/"artisanal" rooms
+  -- only): a decorative border filling the tile plus a small corner badge.
+  -- Mirrors HousingCatalogRoomEntryTemplate (Blizzard_HousingCatalogEntry.xml:
+  -- 114-131); UpdateTileVisuals shows them when the entry is a prefab room.
+  tile.specialRoomFrame = tile:CreateTexture(nil, "OVERLAY", nil, 1)
+  tile.specialRoomFrame:SetAllPoints()
+  tile.specialRoomFrame:SetAtlas("house-chest-list-item-room-frame")
+  tile.specialRoomFrame:Hide()
+
+  tile.specialRoomIcon = tile:CreateTexture(nil, "OVERLAY", nil, 2)
+  tile.specialRoomIcon:SetAtlas("house-chest-room-artisanal-icon")
+  tile.specialRoomIcon:SetSize(14, 14)
+  tile.specialRoomIcon:SetPoint("TOPRIGHT", tile, "TOPRIGHT", -8, -6)
+  tile.specialRoomIcon:Hide()
+
   -- Delete-from-history button (Recent view only). Borrows the look of
   -- UIResetButtonTemplate / FilterButton.ResetButton (the world-map filter's
   -- red X): the auctionhouse-ui-filter-redx atlas as the normal texture plus
@@ -1203,6 +1530,7 @@ local function CreateTile()
     tile.hoverBg:Hide()
     tile.deleteBtn:Hide()
     GameTooltip:Hide()
+    if featuredHintTooltip then featuredHintTooltip:Hide() end  -- our separate Market right-click hint
     if hoveredFrame == tile then hoveredFrame = nil end
     UpdateInspectCursor()
   end
@@ -1213,11 +1541,40 @@ local function CreateTile()
   -- Our tiles only render when we have full entryInfo, so this is enough.
   tile.HasValidData = function(self) return self.entryInfo ~= nil end
 
-  tile:RegisterForClicks("LeftButtonUp")
+  tile:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   tile:RegisterForDrag("LeftButton")
   tile:SetScript("OnClick", function(self, button)
-    if button ~= "LeftButton" then return end
     if not self.entryVariantID or not self.entryVariantID.entryType or not self.entryVariantID.recordID then return end
+    -- Shift-click: insert the decor hyperlink into chat (NO placement). Mirrors
+    -- HousingCatalogEntryMixin:OnInteract's CHATLINK branch. GetDecorHyperlink
+    -- returns nil for non-decor (rooms), so those just do nothing - which also
+    -- matches Blizzard (the CHATLINK branch short-circuits placement either way).
+    if IsModifiedClick("CHATLINK") then
+      local link = C_HousingDecor and C_HousingDecor.GetDecorHyperlink
+                   and C_HousingDecor.GetDecorHyperlink(self.entryVariantID.recordID)
+      if link and ChatFrameUtil and ChatFrameUtil.InsertLink then
+        ChatFrameUtil.InsertLink(link)
+      end
+      return
+    end
+    -- Right-click: decor context menu (Storage) or a Featured-category hint
+    -- tooltip (Market) - see HandleTileRightClick.
+    if button == "RightButton" then
+      HandleTileRightClick(self)
+      return
+    end
+    if button ~= "LeftButton" then return end
+    -- Rooms (catalog lists them in Layout mode): click-only floorplan
+    -- select/deselect via PlaceRoomFromEntry, NOT the decor placement flow.
+    -- Checked before the CTRL+preview branch: rooms aren't previewable (the
+    -- preview frame is decor-only), so CTRL+click on a room places it like a
+    -- plain click. It also runs its own room-specific checks, so we skip the
+    -- decor stock/CanStartPlacing gate below (storage-quantity logic that
+    -- doesn't apply to rooms).
+    if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then
+      PlaceRoomFromEntry(self.entryVariantID)
+      return
+    end
     -- CTRL+click: show the LudiusPlus preview frame instead of starting
     -- placement, when the preview feature is enabled. Mirrors the
     -- equivalent CTRL+click branch added by HookCatalogEntry to Blizzard's
@@ -1248,6 +1605,8 @@ local function CreateTile()
   end)
   tile:SetScript("OnDragStart", function(self)
     if not self.entryVariantID or not self.entryVariantID.entryType or not self.entryVariantID.recordID then return end
+    -- Rooms place by click only - no drag (matches Blizzard's room tiles).
+    if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then return end
     -- See OnClick: a Recent tile with 0 of this variant in storage isn't placeable.
     if self.recentStored ~= nil and self.recentStored <= 0 then return end
     if not CanStartPlacing(self.entryInfo) then return end
@@ -1259,6 +1618,25 @@ local function CreateTile()
     -- WoW button input is click-or-drag (mutually exclusive), so OnClick
     -- won't fire for the same gesture, no race with the deferred path.
     StartPlacingForEntry(self.entryVariantID)
+  end)
+
+  -- Pressed-down feedback: swap to the "pressed" background while the mouse is
+  -- held, restoring the resting atlas (default, or "active" for a selected room -
+  -- stashed by UpdateTileVisuals) on release. Mirrors HousingCatalogEntryMixin's
+  -- OnMouseDown/OnMouseUp -> UpdateBackground (Blizzard_HousingCatalogEntry.lua:
+  -- 302-385). Gated on IsEnabled so greyed-out (unplaceable) rooms don't react.
+  tile:SetScript("OnMouseDown", function(self)
+    if self:IsEnabled() then
+      self.bg:SetAtlas("house-chest-list-item-pressed")
+      self.hoverBg:SetAtlas("house-chest-list-item-pressed")
+    end
+  end)
+  tile:SetScript("OnMouseUp", function(self)
+    if self:IsEnabled() then
+      local atlas = self.restingBgAtlas or "house-chest-list-item-default"
+      self.bg:SetAtlas(atlas)
+      self.hoverBg:SetAtlas(atlas)
+    end
   end)
 
   tile:SetScript("OnEnter", function(self)
@@ -1276,6 +1654,27 @@ local function CreateTile()
     if not info or not info.name then return end
 
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+
+    -- Rooms (Layout mode) build a completely different tooltip than decor:
+    -- name + room-cost format, an optional prefab line, and the placement-
+    -- invalid error line - no owned-count / market lines. Mirrors
+    -- HousingCatalogRoomEntryMixin:AddTooltipTitle/AddTooltipLines
+    -- (Blizzard_HousingCatalogEntry.lua:876-889).
+    if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then
+      local qualityColor = ColorManager.GetColorDataForItemQuality(info.quality or Enum.ItemQuality.Common).color
+      local cost = info.placementCost
+        and HOUSING_ROOM_PLACEMENT_COST_FORMAT:format(info.placementCost) or ""
+      GameTooltip_AddColoredDoubleLine(GameTooltip, info.name, cost,
+                                        qualityColor, HIGHLIGHT_FONT_COLOR, false)
+      if info.isPrefab then
+        GameTooltip_AddHighlightLine(GameTooltip, HOUSING_LAYOUT_PREFAB_ROOM_TOOLTIP)
+      end
+      local invalidReason = GetRoomInvalidReason(self.entryVariantID.recordID)
+      if invalidReason then GameTooltip_AddErrorLine(GameTooltip, invalidReason) end
+      GameTooltip:Show()
+      if not refreshingTooltipInPlace then PlaySound(SOUNDKIT.HOUSING_ITEM_HOVER) end
+      return
+    end
 
     -- Title line: name (in item-quality color) on the left, placement
     -- cost on the right. Mirrors HousingCatalogDecorEntryMixin:AddTooltipTitle
@@ -1341,8 +1740,27 @@ local function CreateTile()
       GameTooltip_AddInstructionLine(GameTooltip, HOUSING_BUNDLE_CLICK_TO_PLACE_DECOR)
     end
 
+    -- Dye channel names ("Dyes: X, Y"). Mirrors HousingCatalogDecorEntryMixin:
+    -- AddTooltipLines (HousingCatalogEntry.lua:532-536).
+    if dyeNames and #dyeNames > 0 and HOUSING_DECOR_DYE_LIST then
+      GameTooltip_AddNormalLine(GameTooltip, HOUSING_DECOR_DYE_LIST:format(table.concat(dyeNames, ", ")))
+    end
+
+    -- Refund window + "right-click to refund" instruction (HousingCatalogEntry.lua:
+    -- 538-544). The right-click then opens our context menu's Refund entry.
+    local refundTs = C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID
+      and C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID(Enum.HousingCatalogEntryType.Decor, self.entryVariantID.recordID)
+    if refundTs then
+      if Blizzard_HousingCatalogUtil and Blizzard_HousingCatalogUtil.FormatRefundTime then
+        GameTooltip_AddNormalLine(GameTooltip, Blizzard_HousingCatalogUtil.FormatRefundTime(refundTs))
+      end
+      if HOUSING_DECOR_REFUND_RIGHT_CLICK_INSTRUCTION then
+        GameTooltip_AddInstructionLine(GameTooltip, HOUSING_DECOR_REFUND_RIGHT_CLICK_INSTRUCTION)
+      end
+    end
+
     GameTooltip:Show()
-    PlaySound(SOUNDKIT.HOUSING_ITEM_HOVER)
+    if not refreshingTooltipInPlace then PlaySound(SOUNDKIT.HOUSING_ITEM_HOVER) end
   end)
 
   tile:SetScript("OnLeave", HideHover)
@@ -1550,21 +1968,77 @@ local function UpdateTileVisuals(tile, entryVariantID, info)
   tile.customizeIcon:ClearAllPoints()
   tile.customizeIcon:SetPoint("BOTTOMLEFT", tile, "BOTTOMLEFT", 12 +xOffset, 6 +yOffset)
   tile.customizeIcon:SetShown(info.canCustomize and not anyDyes)
+
+  -- Rooms (Layout mode): grey out + disable tiles that can't be placed right now
+  -- - placement budget reached, or no valid connection to the selected door -
+  -- mirroring Blizzard's UpdateVisuals (HousingCatalogEntry.lua:222-236) off
+  -- GetTypeSpecificIsValid (== our GetRoomInvalidReason). Also show the prefab
+  -- "special room" frame + corner badge. All of this is reset for valid /
+  -- non-room tiles too, since tiles are pooled and reused.
+  local isRoomTile = entryVariantID.entryType == Enum.HousingCatalogEntryType.Room
+  local roomInvalid = isRoomTile and GetRoomInvalidReason(entryVariantID.recordID) ~= nil
+  tile.icon:SetDesaturated(roomInvalid)
+  tile.icon:SetAlpha(roomInvalid and 0.5 or 1)
+  tile.bg:SetDesaturated(roomInvalid)
+  tile.customizeIcon:SetDesaturated(roomInvalid)
+  tile:SetEnabled(not roomInvalid)
+  tile.specialRoomFrame:SetShown(isRoomTile and info.isPrefab)
+  tile.specialRoomIcon:SetScale(s)
+  tile.specialRoomIcon:SetShown(isRoomTile and info.isPrefab)
+
+  -- Selected-floorplan highlight: while a room is picked for placement (the layout
+  -- editor highlighting the door pins it could attach to), Blizzard swaps the tile
+  -- to the "active" background atlas (UpdateBackground, driven by
+  -- UpdateTypeSpecificData / FLOORPLAN_SELECTION_CHANGED). Mirror it on both the
+  -- base and hover backgrounds; default atlas otherwise (and for non-room/pooled
+  -- tiles). Re-rendered live via the parallelLayoutEventFrame hook above.
+  local selected = isRoomTile
+    and C_HouseEditor and C_HouseEditor.IsHouseEditorModeActive
+    and C_HouseEditor.IsHouseEditorModeActive(Enum.HouseEditorMode.Layout)
+    and C_HousingLayout and C_HousingLayout.GetSelectedFloorplan
+    and C_HousingLayout.GetSelectedFloorplan() == entryVariantID.recordID
+  local bgAtlas = selected and "house-chest-list-item-active" or "house-chest-list-item-default"
+  tile.bg:SetAtlas(bgAtlas)
+  tile.hoverBg:SetAtlas(bgAtlas)
+  tile.restingBgAtlas = bgAtlas  -- OnMouseUp restores to this after a press
+
+  -- If this tile is re-rendered while the cursor is over it, refresh its tooltip
+  -- so live changes show immediately (e.g. a room's grey-out reason updating as
+  -- the budget/door selection changes). Mirrors UpdateVisuals' trailing
+  -- IsMouseMotionFocus -> OnEnter (HousingCatalogEntry.lua:297-299).
+  if tile:IsMouseMotionFocus() then
+    local onEnter = tile:GetScript("OnEnter")
+    if onEnter then
+      refreshingTooltipInPlace = true
+      onEnter(tile)
+      refreshingTooltipInPlace = false
+    end
+  end
 end
 
 
 -- Visibility toggle. show=true on Storage tab and non-Featured Market
--- categories: move Blizzard's ScrollBox (and its sibling ScrollBar)
--- off-screen and show our parallel frame in its original place.
--- show=false on Featured Market and when the feature is disabled:
--- restore Blizzard's anchors (only if we previously captured them).
+-- categories: hide Blizzard's ScrollBox (moved off-screen AND alpha 0) and park
+-- its sibling ScrollBar off-screen, then show our parallel frame in the box's
+-- spot. show=false on Featured Market and when the feature is disabled: un-hide
+-- the box and restore the bar (only if we previously captured anchors).
 --
--- Why not :Hide()? Because :Hide() on the ScrollBox taints internal state
--- (bisected: causes GetProductInfo FORBIDDEN after resize -> Featured).
--- ClearAllPoints + SetPoint to off-screen coordinates is safe in practice
--- and is the approach we've been running with successfully.
+-- Why not :Hide() the box? :Hide() on the ScrollBox taints internal state
+-- (bisected: causes GetProductInfo FORBIDDEN after resize -> Featured), so we hide
+-- the BOX by alpha ONLY and leave it in place at full size. We deliberately do NOT
+-- MoveOffScreen the box: ClearAllPoints collapses its width to 0, and Blizzard's
+-- scroll math then caches a bad extent for the Featured category (its fixed-size
+-- bundle cards), so its tiles don't render until a scroll forces a recalculation -
+-- and an over-long scroll range hits a nil dataIndexBegin in ValidateDataRange. The
+-- box is sized correctly the whole time, so Blizzard lays Featured out properly in
+-- its own clean pass, and we never need to re-layout it (we couldn't anyway -
+-- ScrollBox:FullUpdate would re-run the cards' protected GetProductInfo).
+-- The BAR is different: it IS moved off-screen (see the show branch) because it sits
+-- where our parallelScrollBar goes and nothing re-anchors it back.
 
--- Helpers: capture and apply anchors for the relocate-off-screen trick.
+-- Anchor helpers: snapshot a frame's anchors once (so we can later place our
+-- parallelFrame in the box's spot and restore the bar), park a frame far off-screen,
+-- and replay a snapshot.
 local function CaptureAnchorsOnce(frame, storage)
   if storage[1] then return storage end  -- already captured
   for i = 1, frame:GetNumPoints() do
@@ -1599,19 +2073,22 @@ local function ShowParallelCatalog(show)
   if show then
     if not EnsureParallelFrame() then return end
     WireParallelScroll()
-    -- One-time capture of original anchors. The ScrollBar has to move
-    -- too because its anchors were geometrically tied to the ScrollBox
-    -- area; with the ScrollBox relocated, the bar stretches weirdly to
-    -- fill the container.
+    -- One-time capture of the box's original anchors (used to place our parallel
+    -- frame in its spot, and as a "have we activated yet" flag) and the bar's (so
+    -- we can restore it after parking it off-screen below - the bar, unlike the
+    -- box, IS moved, because it sits where our parallelScrollBar goes).
     scrollBoxOriginalAnchors = scrollBoxOriginalAnchors or {}
     CaptureAnchorsOnce(scrollBox, scrollBoxOriginalAnchors)
     if bar then
       scrollBarOriginalAnchors = scrollBarOriginalAnchors or {}
       CaptureAnchorsOnce(bar, scrollBarOriginalAnchors)
     end
-    -- Apply the ScrollBox's captured anchors to our parallel frame so it
-    -- visually occupies the same spot the grid did, then override TOPLEFT
-    -- with the dynamic offset (see comment below in the else branch).
+    -- Apply the ScrollBox's captured anchors to our parallel frame so it visually
+    -- occupies the same spot the grid did, then override TOPLEFT with the same
+    -- dynamic offset Blizzard uses (0 with no focused category, -28 with one, to
+    -- clear room for the CategoryText label - see SetScrollBoxTopOffset /
+    -- UpdateCategoryText). The captured anchors snapshot whatever offset was current
+    -- at capture time, which may be the wrong one for the current focus, so recompute.
     RestoreAnchors(parallelFrame, scrollBoxOriginalAnchors)
     local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
     if storagePanel and storagePanel.Categories
@@ -1620,37 +2097,37 @@ local function ShowParallelCatalog(show)
       local topOffset = (categoryString and not storagePanel.customCatalogData) and -28 or 0
       parallelFrame:SetPoint("TOPLEFT", 0, topOffset)
     end
-    -- Both of the following run EVERY time the grid is shown, in EVERY scenario
-    -- (icon-resizing and Recent alike) - there is no per-mode branching here.
-    -- Each closes a different gap, and neither alone covers everything:
-    --
-    --  * MoveOffScreen parks Blizzard's ScrollBox AND its ScrollBar off-screen
-    --    (ClearAllPoints + one far-off point). For the BAR this is the real fix:
-    --    it severs the bar's LEFT->ScrollBox.RIGHT anchor (which would otherwise
-    --    stretch it across the panel) and parks it clear of our parallelScrollBar's
-    --    mouse area. Crucially, nothing re-anchors the bar afterwards -
-    --    SetScrollBoxTopOffset (see below) only ever re-points the ScrollBox -
-    --    so the bar STAYS off-screen for the whole session and can't misbehave.
-    --
-    --  * SetAlpha(0) is the reliable VISUAL hide for the BOX, which - unlike the
-    --    bar - DOES come back: Blizzard re-anchors the ScrollBox's TOPLEFT
-    --    on-screen via SetScrollBoxTopOffset (on category focus /
-    --    UpdateCategoryText), undoing our move. In icon-resizing mode the frequent
-    --    RefreshParallelCatalog churn keeps re-moving it off, and its tiles sit
-    --    behind our identical ones so a peek is invisible anyway; but in a
-    --    Recent-only session there's no such churn and our tiles differ, so the
-    --    re-anchored box would show its tiles through the gaps between ours.
-    --    Alpha 0 hides it wherever it lands (its mouse is swallowed by
-    --    parallelFrame on top). SetAlpha is taint-safe: cosmetic, no layout, and
-    --    the catalog's Update never reads alpha.
-    --
-    -- So strictly only the BOX needs the alpha; the bar's SetAlpha just below is
-    -- redundant (it's already parked off-screen), kept only for symmetry and as
-    -- cheap insurance should a future patch ever start re-anchoring the bar.
-    MoveOffScreen(scrollBox, container)
-    if bar then MoveOffScreen(bar, container) end
+    -- Hide the BOX by ALPHA ONLY, left in place at full size (see the header note:
+    -- moving it breaks Featured's layout). Park the BAR off-screen, though: it sits
+    -- where our parallelScrollBar goes, and MoveOffScreen severs its
+    -- LEFT->ScrollBox.RIGHT anchor (which would otherwise stretch it across the
+    -- panel) and clears its mouse area. Nothing re-anchors the bar, so it stays put.
     scrollBox:SetAlpha(0)
+    -- The box stays in place at full size, so make it non-interactive while hidden
+    -- or it steals input from our parallelFrame. Most visibly the mouse WHEEL: its
+    -- handler lives on the box FRAME, which sits above parallelFrame for wheel
+    -- purposes (our tiles still win clicks/hover by frame level), so without this,
+    -- scroll and CTRL-scroll-to-resize stop working.
+    scrollBox:EnableMouse(false)
+    scrollBox:EnableMouseWheel(false)
+    if bar then MoveOffScreen(bar, container) end
     if bar then bar:SetAlpha(0) end
+    -- Neutralize Blizzard's resize column-snap while our grid is active. On mouse-up
+    -- after a drag, HouseEditorStorageFrameMixin:OnResizeStopped snaps the panel
+    -- width to whole default-icon columns via RoundToNearestMultiple(optionsWidth,
+    -- widthSnapMultiplier=102), which fights our custom icon sizes and makes the
+    -- panel jump. Setting the multiplier to 1 turns that into RoundToNearestMultiple(
+    -- w, 1) = Round(w) - sub-pixel only, no visible jump - so Blizzard's own
+    -- ApproximatelyEqual check then skips the corrective SetWidth entirely: the snap
+    -- is gone at the SOURCE, nothing to fight or undo. Taint-safe: widthSnapMultiplier
+    -- is read ONLY inside OnResizeStopped, whose only writes are SetWidth/SetCVar and
+    -- a no-op UpdateLayout (BaseHousingCatalogMixin) - no protected path. Restored to
+    -- the original on deactivate.
+    local storagePanelForSnap = HouseEditorFrame and HouseEditorFrame.StoragePanel
+    if storagePanelForSnap and storagePanelForSnap.widthSnapMultiplier ~= 1 then
+      origWidthSnapMultiplier = origWidthSnapMultiplier or storagePanelForSnap.widthSnapMultiplier
+      storagePanelForSnap.widthSnapMultiplier = 1
+    end
     parallelFrame:Show()
     -- parallelScrollBar is parented to container (not parallelFrame) so
     -- we have to show/hide it manually. (RefreshTileGrid may still
@@ -1669,25 +2146,26 @@ local function ShowParallelCatalog(show)
     if not scrollBoxOriginalAnchors or not scrollBoxOriginalAnchors[1] then
       return
     end
-    -- Undo the alpha-0 hide from the show branch (anchors captured => we'd hidden it).
+    -- Un-hide the box. It was hidden by alpha ONLY (never moved - see the show
+    -- branch), so its anchors and size are exactly as Blizzard left them: just clear
+    -- the alpha and re-enable the input we suppressed. Because it stayed correctly
+    -- sized and positioned the whole time, Blizzard's own SetCatalogData (e.g. the
+    -- Featured switch that triggers this deactivate) already laid its content out
+    -- properly - no anchor restore or offset recompute needed (and re-layout isn't
+    -- even possible for Featured - see the header note).
     scrollBox:SetAlpha(1)
-    if bar then bar:SetAlpha(1) end
-    RestoreAnchors(scrollBox, scrollBoxOriginalAnchors)
-    -- Blizzard's UpdateCategoryText dynamically sets the ScrollBox's
-    -- TOPLEFT offset (0 when no focused category, -28 when there is one)
-    -- via SetScrollBoxTopOffset at HousingCatalogTemplates.lua:221. Our
-    -- captured anchors snapshot whatever offset was current at capture
-    -- time (usually 0 from OnLoad before any category was focused), so
-    -- restoring them on tab change overrides the value Blizzard just set.
-    -- Recompute and override.
-    local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
-    if storagePanel and storagePanel.Categories
-       and storagePanel.Categories.GetFocusedCategoryString then
-      local categoryString = storagePanel.Categories:GetFocusedCategoryString()
-      local topOffset = (categoryString and not storagePanel.customCatalogData) and -28 or 0
-      scrollBox:SetPoint("TOPLEFT", 0, topOffset)
+    scrollBox:EnableMouse(true)
+    scrollBox:EnableMouseWheel(true)
+    -- Restore Blizzard's resize column-snap (we set the multiplier to 1 while active).
+    local storagePanelForSnap = HouseEditorFrame and HouseEditorFrame.StoragePanel
+    if storagePanelForSnap and origWidthSnapMultiplier then
+      storagePanelForSnap.widthSnapMultiplier = origWidthSnapMultiplier
     end
-    if bar then RestoreAnchors(bar, scrollBarOriginalAnchors) end
+    -- The bar WAS parked off-screen, so restore it.
+    if bar then
+      bar:SetAlpha(1)
+      RestoreAnchors(bar, scrollBarOriginalAnchors)
+    end
   end
 end
 
@@ -1709,31 +2187,90 @@ end
 local refreshing = false
 
 
-local function RefreshTileGrid()
+-- The render-ready entry list, rebuilt only on a data refresh and reused across
+-- scroll/resize re-renders (see RefreshTileGrid). Both sources are arrays of
+-- entryVariantID, so the render loop is identical for either.
+local renderEntries = {}
+local renderEntriesBuilt = false
+
+-- Rebuild renderEntries from the active data source - our Recent history, or
+-- Blizzard's catalog search results - dropping Storage-tab decor that has hit 0
+-- in storage.
+--
+-- WHY DROP THEM: the Storage search normally lists only owned variants, but when
+-- a refund or a Destroy merely DECREMENTS a count (rather than removing the entry
+-- outright) Blizzard takes its lightweight OnCatalogEntryUpdated -> UpdateEntryData
+-- path and does NOT re-run the search, so the now-empty variant lingers in the
+-- cached results and would render as a dim-red 0. Blizzard's own list never shows
+-- a 0-stock storage item; a fresh search (e.g. on a category switch) drops it. We
+-- can't re-run that search ourselves without risking taint - RunSearch from our
+-- (addon) call stack can leave the shared scroll box sticky-tainted, and Featured's
+-- protected GetProductInfo then breaks - so we replicate its visible result by
+-- filtering here, a pure read that writes no Blizzard state. Gated to the Storage
+-- tab: Recent KEEPS its 0-stock history (the dim-red 0 is intentional there) and
+-- the Market tab lists unowned items by design. The quantity test mirrors exactly
+-- what UpdateTileVisuals would display, so "filtered" == "would have shown 0".
+local function BuildRenderEntries()
+  wipe(renderEntries)
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  local source
+  if recentMode then
+    source = recentEntries
+  elseif storagePanel and storagePanel.catalogSearcher then
+    source = storagePanel.catalogSearcher:GetCatalogSearchResults()
+  end
+  if not source then return end
+
+  local filterZeroStock = not recentMode
+    and not (storagePanel.IsInMarketTab and storagePanel:IsInMarketTab())
+  for _, evi in ipairs(source) do
+    local keep = true
+    if filterZeroStock and type(evi) == "table"
+       and evi.entryType == Enum.HousingCatalogEntryType.Decor then
+      local info = C_HousingCatalog.GetCatalogEntryInfo(evi)
+      if info and Blizzard_HousingCatalogUtil and Blizzard_HousingCatalogUtil.GetEntryQuantity then
+        local variantInfo = evi.variantIdentifier
+          and C_HousingCatalog.GetCatalogEntryVariantInfo
+          and C_HousingCatalog.GetCatalogEntryVariantInfo(evi)
+        if Blizzard_HousingCatalogUtil.GetEntryQuantity(info, variantInfo) <= 0 then
+          keep = false
+        end
+      end
+    end
+    if keep then tinsert(renderEntries, evi) end
+  end
+end
+
+
+local function RefreshTileGrid(rebuild)
   if refreshing then return end
   if not parallelChild or not parallelFrame then return end
+  -- Only render while the grid is actually active (shown). parallelFrame's
+  -- OnSizeChanged calls us, and that fires while we're INACTIVE too - e.g. when
+  -- ShowParallelCatalog(false) hides parallelFrame on switching to Featured, or
+  -- when Blizzard relayouts the panel there. Without this guard we'd fall through
+  -- to the scroll-bar block below and Show() our parallelScrollBar (with a stale
+  -- thumb) on top of Blizzard's own Featured bar - the "second knob". Hide it here
+  -- so any such stray pass also undoes a previous show. (It's parented to the
+  -- container, not parallelFrame, so parallelFrame:Hide() alone doesn't hide it.)
+  if not parallelFrame:IsShown() then
+    if parallelScrollBar then parallelScrollBar:Hide() end
+    return
+  end
   refreshing = true
 
-  -- Per-pass memo for VariantStoredCount; wiped each refresh so per-variant
-  -- counts stay live as storage changes.
-  wipe(variantStoredCache)
-
-  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
-  -- Recent mode renders our own tracked history; everything else renders
-  -- Blizzard's catalog search results. Both are arrays of entryVariantID,
-  -- so the rendering loop below is identical for either source.
-  local entries
-  if recentMode then
-    entries = recentEntries
-  else
-    if not storagePanel or not storagePanel.catalogSearcher then
-      ReleaseAllTiles()
-      refreshing = false
-      return
-    end
-    entries = storagePanel.catalogSearcher:GetCatalogSearchResults()
+  -- Rebuild the render list only on a data refresh (the RefreshParallelCatalog
+  -- path passes rebuild=true). Scroll/resize re-renders reuse the cached list,
+  -- keeping them O(visible) rather than O(all entries). The per-variant count
+  -- memo (VariantStoredCount) is tied to the same data, so wipe it together so
+  -- counts stay live as storage changes, yet are reused across a scroll pass.
+  if rebuild or not renderEntriesBuilt then
+    wipe(variantStoredCache)
+    BuildRenderEntries()
+    renderEntriesBuilt = true
   end
-  local count = entries and #entries or 0
+  local entries = renderEntries
+  local count = #entries
 
   local viewportWidth = parallelFrame:GetWidth() or 0
   local viewportHeight = parallelFrame:GetHeight() or 0
@@ -1796,6 +2333,13 @@ local function RefreshTileGrid()
           elseif info.iconAtlas then
             tile.icon:SetAtlas(info.iconAtlas)
           end
+          -- HEADS-UP: Blizzard's UpdateVisuals (HousingCatalogEntry.lua:239-261)
+          -- has two more fallbacks we don't replicate: entries with no icon but an
+          -- `info.asset` model id render a 3D ModelScene, and entries with neither
+          -- show a question-mark icon. We only do the flat icon, so such an entry
+          -- would render blank. Not observed in practice (owned decor all has
+          -- icons). If blank tiles ever appear, add a ModelScene to the tile +
+          -- a QuestionMarkIconFileDataID fallback here.
           tile.entryVariantID = entryVariantID
           tile.entryInfo = info  -- read by ShowPreviewForEntry + HasValidData
           UpdateTileVisuals(tile, entryVariantID, info)
@@ -1919,6 +2463,88 @@ WireParallelScroll = function()
 end
 
 
+-- Both category-selection fakes (roomsCategoryFake, unselectedCategoryFake)
+-- are the same kind of object: a click-through frame in the Categories pane
+-- carrying one ARTWORK texture. Mouse is disabled so clicks + tooltips fall
+-- through to the real button underneath; we only ever READ the buttons (anchor,
+-- atlas), never write Blizzard state. CreateCategoryFake builds one;
+-- PositionCategoryFake lays it exactly over a real button, two frame levels up,
+-- so its texture covers that button's icon. The caller drives fake.tex's atlas.
+local function CreateCategoryFake(cats)
+  local f = CreateFrame("Frame", nil, cats)
+  f:EnableMouse(false)
+  f.tex = f:CreateTexture(nil, "ARTWORK")
+  f.tex:SetAllPoints(f)
+  return f
+end
+
+local function PositionCategoryFake(fake, button)
+  fake:ClearAllPoints()
+  fake:SetAllPoints(button)
+  fake:SetFrameLevel(button:GetFrameLevel() + 2)
+end
+
+
+-- Taint-free fake selection of the Rooms category in Layout mode. The catalog
+-- lists exactly one top-level category there (Rooms), but Blizzard leaves focus on
+-- the buttonless "All" id, so the real Rooms button reads unselected and the
+-- header shows "All".
+--
+-- NOTE: this is NOT us mimicking Blizzard - the stock UI behaves exactly the same
+-- (it never auto-selects the lone Rooms category on entering Layout, and shows
+-- "All"). We're deliberately making OURS more logical and intuitive than the
+-- original: when only Rooms is available, it should plainly read as the selected
+-- category. So this is an intentional improvement, not a fix for a bug of our own.
+--
+-- We CANNOT do it the "real" way with Categories:SetFocus - calling it from
+-- addon code sticky-taints the catalog focus and later breaks Featured (protected
+-- GetProductInfo). So we fake it without touching focus:
+--   * overlay a click-through texture showing the button's "_active" (selected)
+--     icon on top of the real (unselected) button - top-level categories have no
+--     SelectedBackground glow, so the active atlas is the whole visual cue;
+--   * relabel the header from "All" to the room category's name, in the
+--     focused-category color (NORMAL_FONT_COLOR, matching Blizzard's
+--     UpdateCategoryText for a non-All focus).
+-- Both clear themselves the moment the user really clicks the button: that focuses
+-- the room id for real (Blizzard shows the genuine selection + header), so our
+-- show-condition (focus != room id) goes false. Reads only; never writes Blizzard
+-- catalog state. Driven by RefreshParallelCatalog + a UpdateCategoryText hook.
+local function UpdateRoomCategoryFake()
+  local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  local cats = storagePanel and storagePanel.Categories
+  -- In Layout mode there's a single displayed top-level button (Rooms); grab it.
+  local roomButton, roomID
+  if cats and cats.categoryFramesByID then
+    for id, frame in pairs(cats.categoryFramesByID) do
+      roomButton, roomID = frame, id
+      break
+    end
+  end
+  local inLayout = storagePanel and storagePanel.IsInLayoutMode and storagePanel:IsInLayoutMode()
+  local activeAtlas = roomButton and roomButton.atlasNames and roomButton.atlasNames["_active"]
+  local show = inLayout and roomButton and activeAtlas and cats.focusedCategoryID ~= roomID
+  if not show then
+    if roomsCategoryFake then roomsCategoryFake:Hide() end
+    return
+  end
+
+  if not roomsCategoryFake then
+    roomsCategoryFake = CreateCategoryFake(cats)
+  end
+  PositionCategoryFake(roomsCategoryFake, roomButton)
+  roomsCategoryFake.tex:SetAtlas(activeAtlas)
+  roomsCategoryFake:Show()
+
+  local oc = storagePanel.OptionsContainer
+  local catInfo = cats.categories and cats.categories[roomID]
+  local roomName = catInfo and catInfo.categoryInfo and catInfo.categoryInfo.name
+  if oc and oc.CategoryText and roomName then
+    oc.CategoryText:SetText(roomName)
+    oc.CategoryText:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
+  end
+end
+
+
 local function RefreshParallelCatalog()
   -- Decide whether our parallel grid should be rendering (replacing Blizzard's
   -- catalog) right now. It's active when:
@@ -1951,8 +2577,27 @@ local function RefreshParallelCatalog()
   if recentMode and SyncRecentList then SyncRecentList() end
   local active = (IsAnyIconResizingActive() or recentMode) and renderable
   ShowParallelCatalog(active)
-  if active then RefreshTileGrid() end
+  if active then RefreshTileGrid(true) end  -- data may have changed: rebuild the (filtered) render list
   if UpdateRecentButtonVisibility then UpdateRecentButtonVisibility() end
+  UpdateRoomCategoryFake()  -- fake-select the Rooms category in Layout mode (taint-free)
+end
+
+
+-- Fix a Blizzard bug: switching from "Featured" to "All" in the Catalog tab leaves
+-- the CategoryText header stuck reading "Featured". OnCategoryFocusChanged early-
+-- returns (skipping its own UpdateCategoryText) whenever the searcher's filtered
+-- category already equals the newly focused one - and focusing Featured never sets
+-- the filtered category (it only swaps to bundle data), so it stays "All" from
+-- before. Clicking "All" then matches (All == All) -> early return -> the label is
+-- never refreshed off "Featured". We just re-run UpdateCategoryText ourselves once
+-- we've landed on a non-Featured, non-custom category in the Market tab; it reads
+-- the (correct) focused category for the text, so it repaints "All". Pure UI write
+-- (FontString + top offset), no protected path, idempotent with Blizzard's own.
+local function FixFeaturedToAllCategoryText(storagePanel)
+  if not (storagePanel and storagePanel.IsInMarketTab and storagePanel:IsInMarketTab()) then return end
+  if storagePanel.customCatalogData then return end
+  if IsFeaturedCategoryFocused() then return end
+  if storagePanel.UpdateCategoryText then storagePanel:UpdateCategoryText() end
 end
 
 
@@ -1980,6 +2625,20 @@ local function SetupParallelCatalog()
     -- so category changes within the Market tab toggle our UI in/out as
     -- the user moves between "Featured" and non-"Featured" categories.
     hooksecurefunc(storagePanel, "OnEntryResultsUpdated", function()
+      RefreshParallelCatalog()
+    end)
+    -- OnEntryResultsUpdated only fires when the result SET changes (an entry
+    -- added or removed -> RunSearch -> this callback). A storage change that
+    -- merely alters an existing entry's stored count - e.g. a refund or a
+    -- Destroy(1) that leaves copies behind (HOUSING_STORAGE_ENTRY_UPDATED) -
+    -- takes Blizzard's lightweight OnCatalogEntryUpdated path, which updates
+    -- just that one (now-hidden) Blizzard tile via UpdateEntryData and does NOT
+    -- re-run the search, so OnEntryResultsUpdated never fires. Our grid would
+    -- then show a stale count badge until an unrelated refresh. Hook it too so
+    -- our tiles re-query their live per-variant numStored (VariantStoredCount).
+    -- Mirrors what Blizzard does for its own tile; read-only, same taint profile
+    -- as the hook above. (Full removals are still covered by OnEntryResultsUpdated.)
+    hooksecurefunc(storagePanel, "OnCatalogEntryUpdated", function()
       RefreshParallelCatalog()
     end)
     parallelResultsHooked = true
@@ -2012,9 +2671,39 @@ local function SetupParallelCatalog()
     -- exiting Recent is driven by the user-intent hooks in SetupRecent
     -- (OnCategoryClicked / OnSearchTextUpdated) instead.
     hooksecurefunc(storagePanel.Categories, "SetFocus", function()
+      FixFeaturedToAllCategoryText(storagePanel)
       RefreshParallelCatalog()
     end)
+    -- Blizzard repaints the header (UpdateCategoryText) on category/storage
+    -- refreshes; in Layout mode that paints "All" over our fake "Rooms" label, so
+    -- reassert it afterwards (UpdateRoomCategoryFake re-applies only while the fake
+    -- should show, and is a no-op otherwise). Mirrors the Recent header's reassert.
+    hooksecurefunc(storagePanel, "UpdateCategoryText", function()
+      UpdateRoomCategoryFake()
+    end)
     parallelCategoryHooked = true
+  end
+  -- Room tiles re-render on the same layout events Blizzard's room tiles use
+  -- (HousingCatalogEntry.lua:798-823), so two things track live: the grey-out
+  -- (placement budget + per-room door connection) as the user selects doors and
+  -- places/removes rooms, and the selected-floorplan highlight (FLOORPLAN_-
+  -- SELECTION_CHANGED) when a room is picked for placement. Only has a visible
+  -- effect while our grid is showing rooms (icon resizer in Layout mode);
+  -- RefreshParallelCatalog self-gates on "active", so it's a no-op otherwise.
+  if not parallelLayoutEventsHooked then
+    parallelLayoutEventFrame = CreateFrame("Frame")
+    parallelLayoutEventFrame:SetScript("OnEvent", function() RefreshParallelCatalog() end)
+    for _, ev in ipairs({
+      "HOUSING_LAYOUT_FLOORPLAN_SELECTION_CHANGED",
+      "HOUSING_LAYOUT_DOOR_SELECTED",
+      "HOUSING_LAYOUT_DOOR_SELECTION_CHANGED",
+      "HOUSING_LAYOUT_ROOM_RECEIVED",
+      "HOUSING_LAYOUT_ROOM_REMOVED",
+      "HOUSE_LEVEL_CHANGED",
+    }) do
+      parallelLayoutEventFrame:RegisterEvent(ev)
+    end
+    parallelLayoutEventsHooked = true
   end
   RefreshParallelCatalog()
 end
@@ -2526,32 +3215,28 @@ local function EnsureRecentButton()
     RefreshParallelCatalog()
   end)
 
-  -- Mask that hides the selected look of whichever pane button is currently
-  -- active while Recent is showing - top-level category, subcategory, or the
-  -- "All subcategories" standin - so nothing but Recent reads as selected. A
-  -- plain texture on a mouse-disabled frame layered just above the buttons,
-  -- showing that button's UNSELECTED art (its own GetDefaultTexture). Works for
-  -- any of them because they all share BaseHousingCatalogCategoryMixin.
-  -- Taint-free: textures never capture mouse (clicks pass through to the real
-  -- button), and we only READ the button (anchor + GetDefaultTexture), never
-  -- write to it. UpdateRecentButtonVisibility finds the active one and shows it.
-  recentSelectionMask = CreateFrame("Frame", nil, cats)
-  recentSelectionMask:EnableMouse(false)
-  recentSelectionMask:Hide()
-  local mtex = recentSelectionMask:CreateTexture(nil, "ARTWORK")
-  mtex:SetAllPoints(recentSelectionMask)
-  recentSelectionMask.tex = mtex
+  -- Hides the selected look of whichever pane button is currently active while
+  -- Recent is showing - top-level category, subcategory, or the "All
+  -- subcategories" standin - so nothing but Recent reads as selected. The
+  -- inverse of roomsCategoryFake, built from the same click-through helper,
+  -- but showing the masked button's UNSELECTED art (its own GetDefaultTexture).
+  -- Works for any of them because they all share BaseHousingCatalogCategoryMixin.
+  -- Taint-free: never captures mouse (clicks pass through to the real button),
+  -- and we only READ the button (anchor + GetDefaultTexture), never write to it.
+  -- UpdateRecentButtonVisibility finds the active one and shows it.
+  unselectedCategoryFake = CreateCategoryFake(cats)
+  unselectedCategoryFake:Hide()
 
   -- Hover brightening, mirroring the category HoverIcon (same art, additive).
-  -- Driven by polling the masked button's mouse-over in OnUpdate so the mask
+  -- Driven by polling the masked button's mouse-over in OnUpdate so the fake
   -- can stay mouse-disabled (clicks + tooltip still reach the real button).
-  local mhover = recentSelectionMask:CreateTexture(nil, "OVERLAY")
-  mhover:SetAllPoints(recentSelectionMask)
+  local mhover = unselectedCategoryFake:CreateTexture(nil, "OVERLAY")
+  mhover:SetAllPoints(unselectedCategoryFake)
   mhover:SetBlendMode("ADD")
   mhover:SetAlpha(0.5)  -- matches Blizzard's category HoverIcon alpha
   mhover:Hide()
-  recentSelectionMask.hoverTex = mhover
-  recentSelectionMask:SetScript("OnUpdate", function(self)
+  unselectedCategoryFake.hoverTex = mhover
+  unselectedCategoryFake:SetScript("OnUpdate", function(self)
     local btn = self.maskedButton
     if not btn then return end
     -- Subcategory / "All subcategories" buttons carry an extra pane-wide
@@ -2656,8 +3341,12 @@ UpdateRecentButtonVisibility = function()
     recentButton:SetPoint("BOTTOM", cats, "BOTTOM", 0, inSub and 12 or 8)
   end
 
+  -- Hidden in Layout mode: the catalog lists rooms there, not decor, so Recent
+  -- doesn't apply (entering Layout drops out of it - see the UpdateEditorMode
+  -- hook in SetupRecent).
   local show = IsRecentEnabled()
     and storagePanel and not storagePanel:IsInMarketTab()
+    and not (storagePanel.IsInLayoutMode and storagePanel:IsInLayoutMode())
   recentButton:SetShown(show)
   RefreshRecentButtonTexture()  -- reflect selected (active) vs inactive art + glow
   -- Header text: while in Recent, label it "Recent" (in the "All" color)
@@ -2672,7 +3361,7 @@ UpdateRecentButtonVisibility = function()
   -- Cover whichever pane button is currently selected (category, subcategory,
   -- or "All subcategories" standin) with its unselected art while in Recent
   -- (see EnsureRecentButton). Only READS the button; never writes to it.
-  if recentSelectionMask then
+  if unselectedCategoryFake then
     -- Determine which button to mask right now (nil = none).
     local btn = nil
     if recentMode and show and cats then
@@ -2681,31 +3370,29 @@ UpdateRecentButtonVisibility = function()
         local iconName, isAtlas = candidate:GetDefaultTexture()
         if iconName and isAtlas then
           btn = candidate
-          recentSelectionMask:ClearAllPoints()
-          recentSelectionMask:SetAllPoints(btn)
-          recentSelectionMask:SetFrameLevel(btn:GetFrameLevel() + 2)
+          PositionCategoryFake(unselectedCategoryFake, btn)
           -- inactive (resting) art, and the pressed art the OnUpdate swaps in
           -- while the button is held. hoverTex always uses the inactive art
           -- since the brighten is suppressed during press.
-          recentSelectionMask.inactiveAtlas = iconName
-          recentSelectionMask.pressedAtlas = btn.atlasNames and btn.atlasNames["_pressed"]
-          recentSelectionMask.tex:SetAtlas(iconName)
-          recentSelectionMask.hoverTex:SetAtlas(iconName)
-          recentSelectionMask:Show()
+          unselectedCategoryFake.inactiveAtlas = iconName
+          unselectedCategoryFake.pressedAtlas = btn.atlasNames and btn.atlasNames["_pressed"]
+          unselectedCategoryFake.tex:SetAtlas(iconName)
+          unselectedCategoryFake.hoverTex:SetAtlas(iconName)
+          unselectedCategoryFake:Show()
         end
       end
     end
 
     -- When we stop masking a button (or switch to a different one), restore the
     -- glow our OnUpdate had been hiding (Blizzard won't - see RestoreMaskedGlow).
-    local prev = recentSelectionMask.maskedButton
+    local prev = unselectedCategoryFake.maskedButton
     if prev and prev ~= btn then
       RestoreMaskedGlow(prev)
     end
-    recentSelectionMask.maskedButton = btn  -- OnUpdate polls this for hover + press
+    unselectedCategoryFake.maskedButton = btn  -- OnUpdate polls this for hover + press
 
     if not btn then
-      recentSelectionMask:Hide()
+      unselectedCategoryFake:Hide()
     end
   end
 end
@@ -2818,6 +3505,25 @@ local function SetupRecent()
         self.OptionsContainer.CategoryTotal:Hide()
       end
     end)
+    -- Recent is a decor-only view, so when Layout mode begins we suspend it and
+    -- restore it on leaving Layout. Blizzard restores its OWN focused decor
+    -- category (RestoreFilterAndFocusState via SetFocus, before this post-hook
+    -- runs), so only our overlay needs reinstating. The Recent button's show/hide
+    -- is handled by UpdateRecentButtonVisibility's Layout check. (The Rooms
+    -- category's "selected" look in Layout is faked taint-free by
+    -- UpdateRoomCategoryFake - we must never SetFocus a category from addon code.)
+    hooksecurefunc(storagePanel, "UpdateEditorMode", function(_self, newMode)
+      if newMode == Enum.HouseEditorMode.Layout then
+        if recentMode then
+          recentWasActiveBeforeLayout = true
+          LeaveRecentMode()
+        end
+      elseif recentWasActiveBeforeLayout then
+        recentWasActiveBeforeLayout = false
+        if IsRecentEnabled() then recentMode = true end
+      end
+      RefreshParallelCatalog()
+    end)
     recentExitHooked = true
   end
 
@@ -2840,13 +3546,14 @@ end
 -- stay nil-guarded.
 local function TeardownRecent()
   recentMode = false
+  recentWasActiveBeforeLayout = false
   if recentButton then recentButton:Hide() end
-  if recentSelectionMask then
+  if unselectedCategoryFake then
     -- Restore the glow we were hiding before dropping the mask, in case we're
     -- torn down mid-Recent over a subcategory.
-    RestoreMaskedGlow(recentSelectionMask.maskedButton)
-    recentSelectionMask.maskedButton = nil
-    recentSelectionMask:Hide()
+    RestoreMaskedGlow(unselectedCategoryFake.maskedButton)
+    unselectedCategoryFake.maskedButton = nil
+    unselectedCategoryFake:Hide()
   end
   LP_houseEditorRecent = nil
   recentEntries = {}  -- detached empty default; re-pointed by SyncRecentList
