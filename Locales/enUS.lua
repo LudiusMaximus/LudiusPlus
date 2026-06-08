@@ -133,6 +133,7 @@ L["Recent"] = true
 L["\"Recent\" category"] = true
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = true
 L["Remove from history"] = true
+L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = true
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = true
