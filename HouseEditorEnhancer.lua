@@ -1127,6 +1127,16 @@ local function EnsureParallelFrame()
   parallelFrame = CreateFrame("Frame", "LudiusPlusParallelCatalog", container)
   parallelFrame:EnableMouseWheel(true)
   parallelFrame:EnableMouse(true)         -- swallow clicks
+  -- Sit decisively ABOVE Blizzard's ScrollBox. parallelFrame shares the box's
+  -- parent (container), so by default it inherits the same frame level and the two
+  -- are mouse-priority TIES - the winner then depends on render order, which
+  -- Blizzard reshuffles whenever it relayouts the box (e.g. the Featured category's
+  -- SetWidth(FIXED_BUNDLE_WIDTH)/RestoreWidth). After visiting Featured the box's
+  -- still-mouse-enabled product-card children could end up on top and swallow
+  -- right-clicks meant for our tiles (the "hint stops working after Featured" bug).
+  -- A higher explicit level makes our tiles win clicks unconditionally. +10 leaves
+  -- headroom for our own child frames (tiles, scroll bar) without colliding.
+  parallelFrame:SetFrameLevel((container.ScrollBox:GetFrameLevel() or 0) + 10)
   parallelFrame:SetClipsChildren(true)
   -- Required for SetAlphaGradient to take effect on this frame and its
   -- child frames. https://warcraft.wiki.gg/wiki/API_Frame_SetAlphaGradient
@@ -2104,10 +2114,12 @@ local function ShowParallelCatalog(show)
     -- panel) and clears its mouse area. Nothing re-anchors the bar, so it stays put.
     scrollBox:SetAlpha(0)
     -- The box stays in place at full size, so make it non-interactive while hidden
-    -- or it steals input from our parallelFrame. Most visibly the mouse WHEEL: its
-    -- handler lives on the box FRAME, which sits above parallelFrame for wheel
-    -- purposes (our tiles still win clicks/hover by frame level), so without this,
-    -- scroll and CTRL-scroll-to-resize stop working.
+    -- or it steals input from our parallelFrame. parallelFrame already out-levels
+    -- the box (EnsureParallelFrame raises it +10), but that only governs OUR frame
+    -- vs the box frame - the box's child product-card frames are independent and
+    -- can still grab clicks, and its own frame still owns the mouse WHEEL handler.
+    -- Disabling mouse + wheel on the box neutralizes both so scroll, CTRL-scroll
+    -- resize, and tile right-clicks all reach us.
     scrollBox:EnableMouse(false)
     scrollBox:EnableMouseWheel(false)
     if bar then MoveOffScreen(bar, container) end
