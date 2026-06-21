@@ -170,6 +170,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- BLIZZARD SOURCE PROVENANCE - AND HOW TO RE-CHECK IT EACH PATCH (READ THIS!)
 -- ============================================================================
 --
+-- LAST CHECKED AGAINST: wow-ui-source 12.0.7 (build 68235). When you run the
+-- routine below, diff from this build to the new one and update this line.
+--
 -- Large parts of this module are a hand-rebuilt 1:1 copy of Blizzard's house
 -- editor catalog (our "parallel catalog" replaces their ScrollBox to dodge the
 -- taint trap above; our tiles, tooltips, context menu, room placement, and
@@ -1698,9 +1701,27 @@ local function CreateTile()
     GameTooltip_AddColoredDoubleLine(GameTooltip, name, placementCost,
                                       qualityColor, HIGHLIGHT_FONT_COLOR, false)
 
-    -- Unique trophy line.
+    -- Unique trophy line (in light blue since 12.0.7).
     if info.isUniqueTrophy then
-      GameTooltip_AddHighlightLine(GameTooltip, HOUSING_DECOR_UNIQUE_TROPHY_TOOLTIP)
+      GameTooltip_AddColoredLine(GameTooltip, HOUSING_DECOR_UNIQUE_TROPHY_TOOLTIP, LIGHTBLUE_FONT_COLOR)
+    end
+
+    -- Subcategory lines (one per subcategory the decor belongs to), added in
+    -- 12.0.7. If the subcategory's name already contains the category's full name,
+    -- show just the subcategory; otherwise show "Category - Subcategory". Mirrors
+    -- HousingCatalogDecorEntryMixin:AddTooltipLines (Blizzard_HousingCatalogEntry.lua:
+    -- 498-508). We add the nil-name guard Blizzard omits (the API MayReturnNothing).
+    if info.subcategoryIDs and C_HousingCatalog.GetCatalogCategoryAndSubcategoryNames then
+      for _, subcategoryID in ipairs(info.subcategoryIDs) do
+        local categoryName, subcategoryName = C_HousingCatalog.GetCatalogCategoryAndSubcategoryNames(subcategoryID)
+        if subcategoryName and categoryName then
+          if string.gmatch(subcategoryName, categoryName)() then
+            GameTooltip_AddHighlightLine(GameTooltip, subcategoryName)
+          else
+            GameTooltip_AddHighlightLine(GameTooltip, string.format(HOUSING_DECOR_CATEGORIES_TOOLTIP, categoryName, subcategoryName))
+          end
+        end
+      end
     end
 
     -- Owned count: total / placed / stored.
@@ -1725,7 +1746,7 @@ local function CreateTile()
     -- Market (in the UI called "Catalog") mode additions:
     -- price + "Click or drag to preview" line.
     -- Mirrors HousingCatalogDecorEntryMixin:AddTooltipLines
-    -- (HousingCatalogEntry.lua:518-529). Owned-count above stays as-is:
+    -- (HousingCatalogEntry.lua:530-542). Owned-count above stays as-is:
     -- Blizzard also shows it on Market when total > 0, naturally hidden
     -- when total == 0 (which is the common Market case).
     local preview = C_HousingDecor and C_HousingDecor.IsPreviewState
@@ -1751,13 +1772,13 @@ local function CreateTile()
     end
 
     -- Dye channel names ("Dyes: X, Y"). Mirrors HousingCatalogDecorEntryMixin:
-    -- AddTooltipLines (HousingCatalogEntry.lua:532-536).
+    -- AddTooltipLines (HousingCatalogEntry.lua:544-548).
     if dyeNames and #dyeNames > 0 and HOUSING_DECOR_DYE_LIST then
       GameTooltip_AddNormalLine(GameTooltip, HOUSING_DECOR_DYE_LIST:format(table.concat(dyeNames, ", ")))
     end
 
     -- Refund window + "right-click to refund" instruction (HousingCatalogEntry.lua:
-    -- 538-544). The right-click then opens our context menu's Refund entry.
+    -- 550-556). The right-click then opens our context menu's Refund entry.
     local refundTs = C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID
       and C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID(Enum.HousingCatalogEntryType.Decor, self.entryVariantID.recordID)
     if refundTs then
