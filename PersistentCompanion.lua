@@ -1,6 +1,5 @@
 local folderName, addon = ...
 
-local math_floor                          = _G.math.floor
 local C_PetJournal_DismissSummonedPet     = _G.C_PetJournal.DismissSummonedPet
 local C_PetJournal_GetSummonedPetGUID     = _G.C_PetJournal.GetSummonedPetGUID
 local C_PetJournal_SummonPetByGUID        = _G.C_PetJournal.SummonPetByGUID
@@ -85,46 +84,31 @@ local function CheckPet()
 end
 
 
--- slot / 12 is the button prefix.
--- https://warcraft.wiki.gg/wiki/Action_slot
-local buttonPrefix = {
-   [0] = "ActionButton",               -- Action Bar 1 (page 1)
-  [10] = "ActionButton",               -- Action Bar 1 (page 1, skyriding)
-   [1] = "ActionButton",               -- Action Bar 1 (page 2)
-   [5] = "MultiBarBottomLeftButton",   -- Action Bar 2
-   [4] = "MultiBarBottomRightButton",  -- Action Bar 3
-   [2] = "MultiBarRightButton",        -- Action Bar 4
-   [3] = "MultiBarLeftButton",         -- Action Bar 5
-  [12] = "MultiBar5Button",            -- Action Bar 6
-  [13] = "MultiBar6Button",            -- Action Bar 7
-  [13] = "MultiBar6Button",            -- Action Bar 7
-  [14] = "MultiBar7Button",            -- Action Bar 8
+-- Actual action buttons, per bar addon. Each button object exposes the
+-- action slot it currently displays via a live ".action" field (Blizzard's
+-- own bars update it as pages/stances/vehicle bars change), so buttons are
+-- tracked directly by that field instead of by a slot-to-button formula.
+-- A formula can't work reliably here: a single physical button (e.g.
+-- ActionButton1) represents a different slot on each bar page, so the same
+-- button would need to be resolved from several different slot numbers.
+local actionButtonSets = {
+  { prefix = "ActionButton", count = 12 },              -- Action Bar 1
+  { prefix = "MultiBarBottomLeftButton", count = 12 },  -- Action Bar 2
+  { prefix = "MultiBarBottomRightButton", count = 12 }, -- Action Bar 3
+  { prefix = "MultiBarRightButton", count = 12 },       -- Action Bar 4
+  { prefix = "MultiBarLeftButton", count = 12 },        -- Action Bar 5
+  { prefix = "MultiBar5Button", count = 12 },           -- Action Bar 6
+  { prefix = "MultiBar6Button", count = 12 },           -- Action Bar 7
+  { prefix = "MultiBar7Button", count = 12 },           -- Action Bar 8
+  { prefix = "BT4Button", count = 180, requiresAddOn = "Bartender4" }, -- Bartender4 (15 bars x 12 buttons)
 }
-
-local function SlotToActionButton(actionSlot)
-  local buttonPrefixIndex = math_floor(actionSlot/12)
-  local buttonIndex = actionSlot % 12
-  if buttonIndex == 0 then
-    buttonPrefixIndex = buttonPrefixIndex - 1
-    buttonIndex = 12
-  end
-  if not buttonPrefix[buttonPrefixIndex] then return nil end
-  return buttonPrefix[buttonPrefixIndex] .. buttonIndex
-end
 
 
 local hookedButton = {}
 local hookedButtonScript = {}  -- Store the hooked script reference for verification
 local activeButton = {}
-local function TrackPetActionButton(actionSlot)
 
-  local actionButtonName = SlotToActionButton(actionSlot)
-  local actionButton = _G[actionButtonName]
-  if not actionButton then
-    print(folderName, "error:", actionSlot, "has no action button. Should never happen!")
-    return
-  end
-
+local function TrackPetActionButtonState(actionButton, actionSlot)
   local actionType, id  = GetActionInfo(actionSlot)
   if actionType and actionType == "summonpet" then
     -- print(actionSlot, id, C_PetJournal.GetPetInfoByPetID(id))
@@ -156,16 +140,15 @@ local eventFrame = CreateFrame("Frame")
 
 
 local function TrackAllPetActionButtons()
-  for actionSlot = 1, 72 do
-    TrackPetActionButton(actionSlot)
-  end
-  -- 73 to 120 are class specific.
-  for actionSlot = 121, 132 do
-    TrackPetActionButton(actionSlot)
-  end
-  -- 133 to 144 are unknown.
-  for actionSlot = 145, 180 do
-    TrackPetActionButton(actionSlot)
+  for _, entry in ipairs(actionButtonSets) do
+    if not entry.requiresAddOn or C_AddOns.IsAddOnLoaded(entry.requiresAddOn) then
+      for i = 1, entry.count do
+        local actionButton = _G[entry.prefix .. i]
+        if actionButton and actionButton.action then
+          TrackPetActionButtonState(actionButton, actionButton.action)
+        end
+      end
+    end
   end
 end
 

@@ -33,15 +33,16 @@ local function IsSpellInRotation(spellID)
 end
 
 -- Action Bar Overlay Logic
-local actionBarButtonPrefixes = {
-  "ActionButton",
-  "MultiBarBottomLeftButton",
-  "MultiBarBottomRightButton",
-  "MultiBarRightButton",
-  "MultiBarLeftButton",
-  "MultiBar5Button",
-  "MultiBar6Button",
-  "MultiBar7Button",
+local actionButtonSets = {
+  { prefix = "ActionButton", count = 12 },
+  { prefix = "MultiBarBottomLeftButton", count = 12 },
+  { prefix = "MultiBarBottomRightButton", count = 12 },
+  { prefix = "MultiBarRightButton", count = 12 },
+  { prefix = "MultiBarLeftButton", count = 12 },
+  { prefix = "MultiBar5Button", count = 12 },
+  { prefix = "MultiBar6Button", count = 12 },
+  { prefix = "MultiBar7Button", count = 12 },
+  { prefix = "BT4Button", count = 180, requiresAddOn = "Bartender4" }, -- Bartender4 (15 bars x 12 buttons)
 }
 
 local isActionSpellOnActionBar = false
@@ -84,18 +85,18 @@ local function UpdateActionBarButtonOverlay(button)
   local showOverlay = false
   if LP_config and LP_config.spellIconOverlay_showOnActionBars then
     if not LP_config.spellIconOverlay_onlyWhenAssistUsed or isActionSpellOnActionBar then
-        local action = button.action
-        if action then
-          local type, id = GetActionInfo(action)
-          if type == "spell" and id then
-            -- Check if it is the single button assist spell itself, because we don't want the overlay for that one.
-            if not (button.AssistedCombatRotationFrame and button.AssistedCombatRotationFrame:IsShown()) then
-              if IsSpellInRotation(id) then
-                showOverlay = true
-              end
+      local action = button.action
+      if action then
+        local type, id = GetActionInfo(action)
+        if type == "spell" and id then
+          -- Check if it is the single button assist spell itself, because we don't want the overlay for that one.
+          if not (button.AssistedCombatRotationFrame and button.AssistedCombatRotationFrame:IsShown()) then
+            if IsSpellInRotation(id) then
+              showOverlay = true
             end
           end
         end
+      end
     end
   end
 
@@ -103,28 +104,34 @@ local function UpdateActionBarButtonOverlay(button)
 end
 
 local function CheckIfActionSpellIsOnActionBar()
-    isActionSpellOnActionBar = false
+  isActionSpellOnActionBar = false
 
-    for _, prefix in ipairs(actionBarButtonPrefixes) do
-        for i = 1, 12 do
-            local button = _G[prefix .. i]
-            if button then
-                if button.AssistedCombatRotationFrame and button.AssistedCombatRotationFrame:IsShown() then
-                    isActionSpellOnActionBar = true
-                    return
-                end
-            end
+  -- Only Blizzard's own buttons ever get an AssistedCombatRotationFrame, so
+  -- addon-provided sets (which set requiresAddOn) can be skipped here.
+  for _, entry in ipairs(actionButtonSets) do
+    if not entry.requiresAddOn then
+      for i = 1, entry.count do
+        local button = _G[entry.prefix .. i]
+        if button then
+          if button.AssistedCombatRotationFrame and button.AssistedCombatRotationFrame:IsShown() then
+            isActionSpellOnActionBar = true
+            return
+          end
         end
+      end
     end
+  end
 end
 
 local function UpdateAllActionBarOverlays()
   CheckIfActionSpellIsOnActionBar()
-  for _, prefix in ipairs(actionBarButtonPrefixes) do
-    for i = 1, 12 do
-      local button = _G[prefix .. i]
-      if button then
-        UpdateActionBarButtonOverlay(button)
+  for _, entry in ipairs(actionButtonSets) do
+    if not entry.requiresAddOn or C_AddOns.IsAddOnLoaded(entry.requiresAddOn) then
+      for i = 1, entry.count do
+        local button = _G[entry.prefix .. i]
+        if button then
+          UpdateActionBarButtonOverlay(button)
+        end
       end
     end
   end
@@ -169,14 +176,13 @@ local function UpdateSpellbookOverlay(button)
   local showOverlay = false
   
   if button.spellBookItemInfo then
-      local spellID = button.spellBookItemInfo.spellID
-      if spellID then
-        -- Try API first
-        if IsSpellInRotation(spellID) then
-          showOverlay = true
-        end
+    local spellID = button.spellBookItemInfo.spellID
+    if spellID then
+      if IsSpellInRotation(spellID) then
+        showOverlay = true
       end
     end
+  end
   
   button.Button.LudiusPlusOverlay:SetShown(showOverlay)
   if button.Button.LudiusPlusShadow then
@@ -184,22 +190,27 @@ local function UpdateSpellbookOverlay(button)
   end
 end
 
+local function HookSpellBookItemMixin()
+  if not SpellBookItemMixin then return end
+  hooksecurefunc(SpellBookItemMixin, "UpdateSpellData", function(self)
+    UpdateSpellbookOverlay(self)
+  end)
+  isHooked = true
+end
+
 local function EventFrameScript(self, event, ...)
   if event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == "LudiusPlus" then
-       addon.SetupOrTeardownSpellIconOverlay()
+      addon.SetupOrTeardownSpellIconOverlay()
     elseif addonName == "Blizzard_PlayerSpells" then
-       if SpellBookItemMixin and not isHooked then
-          hooksecurefunc(SpellBookItemMixin, "UpdateSpellData", function(self)
-            UpdateSpellbookOverlay(self)
-          end)
-          isHooked = true
-       end
+      if not isHooked then
+        HookSpellBookItemMixin()
+      end
     end
     
     if isHooked and C_AddOns.IsAddOnLoaded("LudiusPlus") then
-        self:UnregisterEvent("ADDON_LOADED")
+      self:UnregisterEvent("ADDON_LOADED")
     end
   elseif event == "SPELLS_CHANGED" then
     UpdateRotationSpellsCache()
@@ -221,14 +232,9 @@ local function SetupSpellIconOverlay()
   -- Hook into SpellBookItemMixin (can only be done once)
   if not isHooked then
     if C_AddOns.IsAddOnLoaded("Blizzard_PlayerSpells") then
-       if SpellBookItemMixin then
-          hooksecurefunc(SpellBookItemMixin, "UpdateSpellData", function(self)
-            UpdateSpellbookOverlay(self)
-          end)
-          isHooked = true
-       end
+      HookSpellBookItemMixin()
     else
-      -- If the module is activated via options when LudiusPlus hasis already loaded, the ADDON_LOADED event is no longer registered.
+      -- If the module is activated via options when LudiusPlus has already loaded, the ADDON_LOADED event is no longer registered.
       -- So we need to listen for Blizzard_PlayerSpells loading.
       eventFrame:RegisterEvent("ADDON_LOADED")
     end
@@ -249,9 +255,9 @@ local function TeardownSpellIconOverlay()
   eventFrame:SetScript("OnEvent", nil)
   
   -- Hide overlays on action bars
-  for _, prefix in ipairs(actionBarButtonPrefixes) do
-    for i = 1, 12 do
-      local button = _G[prefix .. i]
+  for _, entry in ipairs(actionButtonSets) do
+    for i = 1, entry.count do
+      local button = _G[entry.prefix .. i]
       if button and button.LudiusPlusOverlayFrame then
         button.LudiusPlusOverlayFrame:Hide()
       end
