@@ -79,6 +79,14 @@ local function UpdateMacros()
   -- Ensure macros are created
   local item = Item:CreateFromItemID(itemID)
   item:ContinueOnItemLoad(function()
+    -- ContinueOnItemLoad is asynchronous when the item isn't cached yet, so
+    -- combat may have started while waiting for it. Re-check here, since the
+    -- InCombatLockdown() check above only covers the moment UpdateMacros was called.
+    if InCombatLockdown() then
+      deferredSetupNeeded = true
+      return
+    end
+
     local itemName = C_Item.GetItemInfo(itemID)
     local spellName = C_Spell.GetSpellInfo(spellID).name
 

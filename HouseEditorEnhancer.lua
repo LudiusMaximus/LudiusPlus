@@ -170,7 +170,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- BLIZZARD SOURCE PROVENANCE - AND HOW TO RE-CHECK IT EACH PATCH (READ THIS!)
 -- ============================================================================
 --
--- LAST CHECKED AGAINST: wow-ui-source 12.0.7 (build 68235). When you run the
+-- LAST CHECKED AGAINST: wow-ui-source 12.0.7 (build 68453). When you run the
 -- routine below, diff from this build to the new one and update this line.
 --
 -- Large parts of this module are a hand-rebuilt 1:1 copy of Blizzard's house
