@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = "仅在价格低于（金币）时跳�
 L["Set the maximum price in gold for automatically confirming auctions."] = "设置自动确认拍卖的最高金币价格。"
 L["Skip Polished Pet Charm purchases"] = "跳过使用抛光的宠物符购买确认"
 L["Skip Order Resources purchases"] = "跳过使用职业大厅资源购买确认"
+L["Skip Dragon Isles Supplies purchases"] = "跳过使用巨龙群岛补给购买确认"
 L["Skip Community Coupons purchases"] = "跳过社区礼券购买"
 L["Skip equip bind confirmations"] = "跳过装备绑定确认"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "在装备来自任务奖励、商人或其他来源的装备时，自动确认“装备后绑定”对话框。"

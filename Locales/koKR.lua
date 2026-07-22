@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = "가격이 다음 미만일 경우에�
 L["Set the maximum price in gold for automatically confirming auctions."] = "경매를 자동으로 확인할 최대 가격(골드)을 설정합니다."
 L["Skip Polished Pet Charm purchases"] = "윤나는 애완동물 부적 구매 확인 건너뛰기"
 L["Skip Order Resources purchases"] = "연맹 자원 구매 확인 건너뛰기"
+L["Skip Dragon Isles Supplies purchases"] = "용의 섬 보급품 구매 확인 건너뛰기"
 L["Skip Community Coupons purchases"] = "공동체 상품권 구매 건너뛰기"
 L["Skip equip bind confirmations"] = "착용 시 귀속 확인 건너뛰기"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "퀘스트 보상, 상인 또는 기타 출처의 장비를 착용할 때 \"착용 시 귀속\" 대화 상자를 자동으로 확인합니다."

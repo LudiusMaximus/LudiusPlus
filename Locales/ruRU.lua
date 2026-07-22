@@ -53,6 +53,7 @@ L["Only skip if price is below (gold)"] = "Пропускать только е�
 L["Set the maximum price in gold for automatically confirming auctions."] = "Установите максимальную цену в золоте для автоматического подтверждения аукционов."
 L["Skip Polished Pet Charm purchases"] = "Пропускать подтверждение покупок за Отполированные обереги"
 L["Skip Order Resources purchases"] = "Пропускать подтверждение покупок за Ресурсы оплота"
+L["Skip Dragon Isles Supplies purchases"] = "Пропускать подтверждение покупок за Припасы Драконьих островов"
 L["Skip Community Coupons purchases"] = "Пропускать покупки за районные купоны"
 L["Skip equip bind confirmations"] = "Пропускать подтверждение персональных предметов"
 L["Automatically confirm \"Bind on Equip\" dialogs when equipping gear from quest rewards, vendors, or other sources."] = "Автоматически подтверждает диалоги «Становится персональным при надевании» при экипировке предметов из наград за задания, от торговцев или других источников."

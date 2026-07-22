@@ -53,6 +53,7 @@ local CONFIG_DEFAULTS = {
   dialogSkipper_auctionPriceLimit      = 10000000,
   dialogSkipper_skipPetCharm           = true,
   dialogSkipper_skipOrderResources     = true,
+  dialogSkipper_skipDragonIslesSupplies = true,
   dialogSkipper_skipCommunityCoupons   = true,
   dialogSkipper_skipEquipBind          = true,
 
@@ -1031,6 +1032,23 @@ local optionsTable = {
           set =
             function(_, newValue)
               config.dialogSkipper_skipOrderResources = newValue
+              addon.SetupOrTeardownDialogSkipper()
+            end,
+          disabled =
+            function()
+              return not config.dialogSkipper_enabled
+            end,
+        },
+
+        dialogSkipperSkipDragonIslesSupplies = {
+          order = 5.5,
+          type = "toggle",
+          name = L["Skip Dragon Isles Supplies purchases"],
+          width = "full",
+          get = function() return config.dialogSkipper_skipDragonIslesSupplies end,
+          set =
+            function(_, newValue)
+              config.dialogSkipper_skipDragonIslesSupplies = newValue
               addon.SetupOrTeardownDialogSkipper()
             end,
           disabled =
