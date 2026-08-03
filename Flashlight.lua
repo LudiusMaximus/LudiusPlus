@@ -32,6 +32,7 @@ local torchToggleButton = CreateFrame("button", "TorchToggleButton", nil, "Secur
 local torchBuffInstanceId = nil
 local deferredSetupNeeded = false    -- Deferred operation flag for combat lockdown protection
 local deferredTeardownNeeded = false -- Deferred macro deletion when disabled during combat
+local toyConfirmed = false           -- Set once we have confirmed toy ownership this session
 
 
 local eventFrame = CreateFrame("Frame")
@@ -59,8 +60,16 @@ local function UpdateMacros()
     return
   end
 
-  -- Check if player has the toy
-  if not addon.HasFlashlightToy() then
+  -- Check if player has the toy.
+  -- PlayerHasToy can transiently report false while toy data is unavailable
+  -- (e.g. during loading screens). The toy is account-wide and permanent, so
+  -- once ownership has been confirmed this session we never auto-disable again;
+  -- a later false reading is treated as transient and simply skipped.
+  if addon.HasFlashlightToy() then
+    toyConfirmed = true
+  elseif toyConfirmed then
+    return
+  else
     if LP_config and LP_config.flashlight_enabled then
       LP_config.flashlight_enabled = false
       print("|cffff0000Ludius Plus:|r " .. L["Flashlight module disabled because you don't own the toy."])
