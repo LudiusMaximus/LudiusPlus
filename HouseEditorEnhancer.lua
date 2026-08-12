@@ -170,8 +170,21 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- BLIZZARD SOURCE PROVENANCE - AND HOW TO RE-CHECK IT EACH PATCH (READ THIS!)
 -- ============================================================================
 --
--- LAST CHECKED AGAINST: wow-ui-source 12.0.7 (build 68453). When you run the
+-- LAST CHECKED AGAINST: wow-ui-source 12.1.0 (build 69273). When you run the
 -- routine below, diff from this build to the new one and update this line.
+--
+-- DELIBERATELY SKIPPED Blizzard behavior (so a re-check doesn't keep re-flagging):
+--   * Content tracking (12.1.0): OnInteract's tracking-modifier click and the decor
+--     tooltip's tracking lines are BOTH gated on displayContext.showTrackingOptions,
+--     which the House Editor sets to FALSE (only the Housing Dashboard sets it true).
+--     Inert in the frame we mirror, so we don't reproduce it.
+--   * GetCurrentSavedStateKey mode+tab keying (12.1.0): internal to Blizzard's own
+--     filter/category persistence. We don't call it and our Recent persistence is
+--     independent (LP_houseEditorRecent, keyed by house+area), so no effect.
+--   * HousingCatalogCategoriesVisualsTemplate split (12.1.0): pure XML inheritance
+--     refactor. The mixin and the fields our category fakes read (BackButton,
+--     SelectedBackground, categoryFramesByID, atlasNames, GetDefaultTexture) are all
+--     unchanged.
 --
 -- Large parts of this module are a hand-rebuilt 1:1 copy of Blizzard's house
 -- editor catalog (our "parallel catalog" replaces their ScrollBox to dodge the
@@ -231,6 +244,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 --       Check{Start,Close}MarketInteraction, and the OnResizeStopped snap. We hook
 --       several of these; we also work around two of its bugs (Featured->All label,
 --       and the unhandled CATALOG_SHOP_FETCH_FAILURE - see MinimalWorkingExample).
+--       Its 12.1.0 rework (UpdateTabContentVisibility) can hide all CatalogElements
+--       when a non-catalog tab is active; RefreshParallelCatalog gates on
+--       OptionsContainer:IsShown() so our grid never renders over hidden content.
 --   * Blizzard_SharedXML/Shared/Scroll/* (ScrollBox.lua, ScrollBar.lua,
 --       ScrollBoxViewUtil.lua, MinimalScrollBar.*)
 --       Read-only reference for how the real scroll box/bar behave (edge fade math,
@@ -919,8 +935,13 @@ local function SetupIconResizer()
       RefreshCatalog()
       if refreshParallelOnSliderChange then refreshParallelOnSliderChange() end
     end)
-    slider:SetScript("OnEnter", function(self)
-      GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+    -- Both tooltips hang from the reset button's bottom-right corner (growing down
+    -- and right) instead of ANCHOR_TOPLEFT, which would pop up over the slider row
+    -- and hide the very controls being hovered.
+    slider:SetScript("OnEnter", function()
+      GameTooltip:SetOwner(resetButton, "ANCHOR_NONE")
+      GameTooltip:ClearAllPoints()
+      GameTooltip:SetPoint("TOPLEFT", resetButton, "BOTTOMRIGHT", 0, 0)
       GameTooltip:SetText(L["Resize decor item icons"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1, true)
       GameTooltip:AddLine(L["by Ludius Plus"], DISABLED_FONT_COLOR.r, DISABLED_FONT_COLOR.g, DISABLED_FONT_COLOR.b, 1, true)
       if IsFeaturedCategoryFocused() then
@@ -934,7 +955,9 @@ local function SetupIconResizer()
       slider:SetValue(DEFAULT_SCALE)
     end)
     resetButton:SetScript("OnEnter", function(self)
-      GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+      GameTooltip:SetOwner(self, "ANCHOR_NONE")
+      GameTooltip:ClearAllPoints()
+      GameTooltip:SetPoint("TOPLEFT", self, "BOTTOMRIGHT", 0, 0)
       GameTooltip:SetText(L["Reset to default size"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1, true)
       GameTooltip:Show()
     end)
@@ -1186,14 +1209,56 @@ local function EnsureParallelFrame()
 end
 
 
+-- Decor invalidity, mirroring HousingCatalogEntryMixin:GetIsValid's decor path
+-- (indoor/outdoor mismatch, Blizzard_HousingCatalogEntry.lua:174-189) plus
+-- HousingCatalogDecorEntryMixin:GetTypeSpecificIsValid (the pet-decor budget cap,
+-- added 12.1.0 for pet beds, :599-616). Returns (invalidTooltip, invalidError) or
+-- nil - the two strings Blizzard's GetIsValid carries: the tooltip form for the
+-- tile grey-out / tooltip line (UpdateTileVisuals, OnEnter), the error form for the
+-- UIErrorsFrame message CanStartPlacing raises on a blocked placement. Single source
+-- for all three so they can't drift. Only meaningful with the editor active and a
+-- decor record.
+local function GetDecorInvalidReason(entryInfo, recordID)
+  if not entryInfo then return nil end
+  if not (C_HouseEditor and C_HouseEditor.IsHouseEditorActive
+          and C_HouseEditor.IsHouseEditorActive()) then return nil end
+
+  if C_Housing and C_Housing.IsInsideHouse then
+    local indoors = C_Housing.IsInsideHouse()
+    if indoors and not entryInfo.isAllowedIndoors then
+      return HOUSING_DECOR_ONLY_PLACEABLE_OUTSIDE, HOUSING_DECOR_ONLY_PLACEABLE_OUTSIDE_ERROR
+    elseif (not indoors) and not entryInfo.isAllowedOutdoors then
+      return HOUSING_DECOR_ONLY_PLACEABLE_INSIDE, HOUSING_DECOR_ONLY_PLACEABLE_INSIDE_ERROR
+    end
+  end
+
+  if recordID and C_HousingDecor.GetDecorCanAttachPet
+     and C_HousingDecor.GetDecorCanAttachPet(recordID)
+     and C_HousingDecor.HasMaxPlacementBudget and C_HousingDecor.HasMaxPlacementBudget() then
+    local spentPet = C_HousingDecor.GetSpentPetPlacementBudget and C_HousingDecor.GetSpentPetPlacementBudget()
+    local maxPet = C_HousingDecor.GetMaxPetPlacementBudget and C_HousingDecor.GetMaxPetPlacementBudget()
+    if spentPet and maxPet and spentPet >= maxPet then
+      -- Pet cap uses the same string for tooltip and error (as Blizzard does).
+      return PLACED_PET_DECOR_LIMIT_REACHED, PLACED_PET_DECOR_LIMIT_REACHED
+    end
+  end
+
+  return nil
+end
+
+
 -- Guard mirroring HousingCatalogDecorEntryMixin:TypeSpecificOnInteract
--- (Blizzard_HousingCatalogEntry.lua:590-622) so our parallel tiles surface
+-- (Blizzard_HousingCatalogEntry.lua:646-690) so our parallel tiles surface
 -- the same popups and error messages Blizzard's tiles do before placement
--- starts: HOUSING_MAX_DECOR_REACHED popup at budget cap; indoor/outdoor
--- mismatch via UIErrorsFrame; silent bails for inactive editor / empty
--- storage. Skips the bundle-item check because our parallel catalog
--- filters to Decor/Room entries only.
-local function CanStartPlacing(entryInfo)
+-- starts: indoor/outdoor mismatch and the pet-decor budget cap via UIErrorsFrame;
+-- HOUSING_MAX_DECOR_REACHED popup at the general budget cap; silent bails for
+-- inactive editor / empty storage. Skips the bundle-item check because our
+-- parallel catalog filters to Decor/Room entries only.
+--
+-- Order matches Blizzard's 12.1.0 flow: the validity check (GetDecorInvalidReason,
+-- our shared GetIsValid mirror) runs BEFORE the general max-decor popup, and raises
+-- its error via AddExternalErrorMessage (the API Blizzard switched to in 12.1.0).
+local function CanStartPlacing(entryInfo, recordID)
   if not C_HouseEditor.IsHouseEditorActive() then return false end
   if not entryInfo then return false end
 
@@ -1206,22 +1271,23 @@ local function CanStartPlacing(entryInfo)
     if (stored or 0) <= 0 then return false end
   end
 
+  -- Validity (indoor/outdoor + pet-budget), from the same helper the grey-out and
+  -- tooltip use. Raise the error-frame form and bail if invalid.
+  local _, invalidError = GetDecorInvalidReason(entryInfo, recordID)
+  if invalidError then
+    UIErrorsFrame:AddExternalErrorMessage(invalidError)
+    return false
+  end
+
+  -- General placement budget cap: a popup (not an error line), shown last.
   if C_HousingDecor.HasMaxPlacementBudget and C_HousingDecor.HasMaxPlacementBudget() then
     local placed = C_HousingDecor.GetSpentPlacementBudget()
     local maxDecor = C_HousingDecor.GetMaxPlacementBudget()
-    if placed and maxDecor and placed >= maxDecor then
+    -- If budget counts aren't available we're not in a placeable state (matches
+    -- the guard Blizzard added in 12.1.0).
+    if not placed or not maxDecor then return false end
+    if placed >= maxDecor then
       StaticPopup_Show("HOUSING_MAX_DECOR_REACHED")
-      return false
-    end
-  end
-
-  if C_Housing and C_Housing.IsInsideHouse then
-    local indoors = C_Housing.IsInsideHouse()
-    if indoors and not entryInfo.isAllowedIndoors then
-      UIErrorsFrame:AddMessage(HOUSING_DECOR_ONLY_PLACEABLE_OUTSIDE_ERROR, RED_FONT_COLOR:GetRGBA())
-      return false
-    elseif (not indoors) and not entryInfo.isAllowedOutdoors then
-      UIErrorsFrame:AddMessage(HOUSING_DECOR_ONLY_PLACEABLE_INSIDE_ERROR, RED_FONT_COLOR:GetRGBA())
       return false
     end
   end
@@ -1251,16 +1317,21 @@ local function StartPlacingForEntry(entryVariantID)
 end
 
 
--- A room's placement-invalid reason (or nil if placeable), mirroring the room-
--- specific GetTypeSpecificIsValid: at the room-placement cap, or no valid
--- connection to the currently selected door. Shared by the click handler
--- (PlaceRoomFromEntry, shown via UIErrorsFrame) and the hover tooltip (shown as
--- an error line, like Blizzard's AddInvalidTooltipLine).
+-- A room's placement-invalid reason (or nil if placeable), mirroring
+-- HousingCatalogRoomEntryMixin:GetTypeSpecificIsValid (Blizzard_HousingCatalogEntry.
+-- lua:889-916): at the room-placement cap, or no valid connection to the currently
+-- selected door. Shared by the click handler (PlaceRoomFromEntry, shown via
+-- UIErrorsFrame) and the hover tooltip (shown as an error line, like Blizzard's
+-- AddInvalidTooltipLine). The budget branch carries Blizzard's 12.1.0 nil-guard
+-- (treat missing budget counts as "at max" rather than erroring on the >= compare).
 local function GetRoomInvalidReason(recordID)
   if not C_HousingLayout then return nil end
-  if C_HousingLayout.HasRoomPlacementBudget and C_HousingLayout.HasRoomPlacementBudget()
-     and C_HousingLayout.GetSpentPlacementBudget() >= C_HousingLayout.GetRoomPlacementBudget() then
-    return ERR_PLACED_ROOM_LIMIT_REACHED
+  if C_HousingLayout.HasRoomPlacementBudget and C_HousingLayout.HasRoomPlacementBudget() then
+    local spent = C_HousingLayout.GetSpentPlacementBudget and C_HousingLayout.GetSpentPlacementBudget()
+    local max = C_HousingLayout.GetRoomPlacementBudget and C_HousingLayout.GetRoomPlacementBudget()
+    if not spent or not max or spent >= max then
+      return ERR_PLACED_ROOM_LIMIT_REACHED
+    end
   end
   local doorComponentID, roomGUID = C_HousingLayout.GetSelectedDoor()
   if doorComponentID and roomGUID
@@ -1276,7 +1347,7 @@ end
 -- decor: CLICK ONLY (no drag), and instead of cursor-attached StartPlacingNewDecor
 -- it toggles a "selected floorplan" (C_HousingLayout.SelectFloorplan) that the
 -- user then drops into a door slot. Mirrors HousingCatalogRoomEntryMixin:
--- TypeSpecificOnInteract (Blizzard_HousingCatalogEntry.lua:891-932), including
+-- TypeSpecificOnInteract (Blizzard_HousingCatalogEntry.lua:969-1010), including
 -- its room-specific validity (placement budget + a valid connection to the
 -- currently selected door) so the same errors surface. Runs synchronously like
 -- Blizzard's (no GLOBAL_MOUSE_UP auto-commit to dodge, unlike decor).
@@ -1314,7 +1385,7 @@ end
 
 
 -- Right-click handler for a decor tile, mirroring HousingCatalogDecorEntryMixin:
--- ShowContextMenu (Blizzard_HousingCatalogEntry.lua:707-794) where we're able to.
+-- ShowContextMenu (Blizzard_HousingCatalogEntry.lua:770-857) where we're able to.
 -- Decor only; rooms have no right-click action (their mixin keeps the no-op base).
 -- Blizzard branches Storage-vs-Market off displayContext, which our tiles don't
 -- carry, so we key off the tab:
@@ -1562,10 +1633,14 @@ local function CreateTile()
     -- HousingCatalogEntryMixin:OnInteract's CHATLINK branch. GetDecorHyperlink
     -- returns nil for non-decor (rooms), so those just do nothing - which also
     -- matches Blizzard (the CHATLINK branch short-circuits placement either way).
-    if IsModifiedClick("CHATLINK") then
+    -- Since 12.1.0 Blizzard also requires an active chat window (GetActiveWindow) -
+    -- with no chat edit box open, shift-click falls through to normal placement
+    -- instead of being swallowed. Mirror that guard.
+    if IsModifiedClick("CHATLINK") and ChatFrameUtil and ChatFrameUtil.GetActiveWindow
+       and ChatFrameUtil.GetActiveWindow() then
       local link = C_HousingDecor and C_HousingDecor.GetDecorHyperlink
                    and C_HousingDecor.GetDecorHyperlink(self.entryVariantID.recordID)
-      if link and ChatFrameUtil and ChatFrameUtil.InsertLink then
+      if link and ChatFrameUtil.InsertLink then
         ChatFrameUtil.InsertLink(link)
       end
       return
@@ -1604,7 +1679,7 @@ local function CreateTile()
     -- it does nothing, like an out-of-stock catalog entry. (CanStartPlacing
     -- only sees the whole-item total, so this variant-specific guard is needed.)
     if self.recentStored ~= nil and self.recentStored <= 0 then return end
-    if not CanStartPlacing(self.entryInfo) then return end
+    if not CanStartPlacing(self.entryInfo, self.entryVariantID.recordID) then return end
     -- Defer to the next frame so this click's mouse-up is fully processed
     -- BEFORE we enter placement mode. Otherwise Blizzard's
     -- HouseEditorBasicDecorMode GLOBAL_MOUSE_UP handler sees us already
@@ -1622,7 +1697,7 @@ local function CreateTile()
     if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then return end
     -- See OnClick: a Recent tile with 0 of this variant in storage isn't placeable.
     if self.recentStored ~= nil and self.recentStored <= 0 then return end
-    if not CanStartPlacing(self.entryInfo) then return end
+    if not CanStartPlacing(self.entryInfo, self.entryVariantID.recordID) then return end
     -- No defer here: mouse is still down. Calling StartPlacing right now
     -- attaches the placement to the cursor mid-drag, and the drag's own
     -- mouse-up commits it via commitNewDecorOnMouseUp's default value of
@@ -1672,7 +1747,7 @@ local function CreateTile()
     -- name + room-cost format, an optional prefab line, and the placement-
     -- invalid error line - no owned-count / market lines. Mirrors
     -- HousingCatalogRoomEntryMixin:AddTooltipTitle/AddTooltipLines
-    -- (Blizzard_HousingCatalogEntry.lua:876-889).
+    -- (Blizzard_HousingCatalogEntry.lua:954-967).
     if self.entryVariantID.entryType == Enum.HousingCatalogEntryType.Room then
       local qualityColor = ColorManager.GetColorDataForItemQuality(info.quality or Enum.ItemQuality.Common).color
       local cost = info.placementCost
@@ -1691,7 +1766,7 @@ local function CreateTile()
 
     -- Title line: name (in item-quality color) on the left, placement
     -- cost on the right. Mirrors HousingCatalogDecorEntryMixin:AddTooltipTitle
-    -- (Blizzard_HousingCatalogEntry.lua:476-486).
+    -- (Blizzard_HousingCatalogEntry.lua:508-518).
     local dyeNames = info.customizations
     local isDyed = dyeNames and #dyeNames > 0
     local name = isDyed and HOUSING_DECOR_DYED_NAME_FORMAT:format(info.name) or info.name
@@ -1710,7 +1785,7 @@ local function CreateTile()
     -- 12.0.7. If the subcategory's name already contains the category's full name,
     -- show just the subcategory; otherwise show "Category - Subcategory". Mirrors
     -- HousingCatalogDecorEntryMixin:AddTooltipLines (Blizzard_HousingCatalogEntry.lua:
-    -- 498-508). We add the nil-name guard Blizzard omits (the API MayReturnNothing).
+    -- 530-540). We add the nil-name guard Blizzard omits (the API MayReturnNothing).
     if info.subcategoryIDs and C_HousingCatalog.GetCatalogCategoryAndSubcategoryNames then
       for _, subcategoryID in ipairs(info.subcategoryIDs) do
         local categoryName, subcategoryName = C_HousingCatalog.GetCatalogCategoryAndSubcategoryNames(subcategoryID)
@@ -1743,10 +1818,19 @@ local function CreateTile()
         HOUSING_DECOR_FIRST_ACQUISITION_FORMAT:format(info.firstAcquisitionBonus))
     end
 
+    -- Invalid reason (indoor/outdoor mismatch, or the pet-decor budget cap added
+    -- 12.1.0). Mirrors HousingCatalogEntryMixin:AddInvalidTooltipLine
+    -- (HousingCatalogEntry.lua:199-203, called from AddTooltipLines at :553), which
+    -- shows the invalidTooltip from GetIsValid as an error line here.
+    local decorInvalidReason = GetDecorInvalidReason(info, self.entryVariantID.recordID)
+    if decorInvalidReason then
+      GameTooltip_AddErrorLine(GameTooltip, decorInvalidReason)
+    end
+
     -- Market (in the UI called "Catalog") mode additions:
     -- price + "Click or drag to preview" line.
     -- Mirrors HousingCatalogDecorEntryMixin:AddTooltipLines
-    -- (HousingCatalogEntry.lua:530-542). Owned-count above stays as-is:
+    -- (HousingCatalogEntry.lua:562-574). Owned-count above stays as-is:
     -- Blizzard also shows it on Market when total > 0, naturally hidden
     -- when total == 0 (which is the common Market case).
     local preview = C_HousingDecor and C_HousingDecor.IsPreviewState
@@ -1763,7 +1847,7 @@ local function CreateTile()
           HOUSING_DECOR_PRICE_FORMAT:format(priceText))
       end
       -- Disclaimer when the entry is also obtainable through one or more
-      -- bundles - same condition Blizzard uses (HousingCatalogEntry.lua:525-527).
+      -- bundles - same condition Blizzard uses (HousingCatalogEntry.lua:568-570).
       if marketInfo and marketInfo.bundleIDs and #marketInfo.bundleIDs > 0 then
         GameTooltip_AddColoredLine(GameTooltip, HOUSING_DECOR_BUNDLE_DISCLAIMER,
           DISCLAIMER_TOOLTIP_COLOR)
@@ -1772,13 +1856,13 @@ local function CreateTile()
     end
 
     -- Dye channel names ("Dyes: X, Y"). Mirrors HousingCatalogDecorEntryMixin:
-    -- AddTooltipLines (HousingCatalogEntry.lua:544-548).
+    -- AddTooltipLines (HousingCatalogEntry.lua:576-581).
     if dyeNames and #dyeNames > 0 and HOUSING_DECOR_DYE_LIST then
       GameTooltip_AddNormalLine(GameTooltip, HOUSING_DECOR_DYE_LIST:format(table.concat(dyeNames, ", ")))
     end
 
     -- Refund window + "right-click to refund" instruction (HousingCatalogEntry.lua:
-    -- 550-556). The right-click then opens our context menu's Refund entry.
+    -- 582-588). The right-click then opens our context menu's Refund entry.
     local refundTs = C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID
       and C_HousingCatalog.GetCatalogEntryRefundTimeStampByRecordID(Enum.HousingCatalogEntryType.Decor, self.entryVariantID.recordID)
     if refundTs then
@@ -2000,19 +2084,29 @@ local function UpdateTileVisuals(tile, entryVariantID, info)
   tile.customizeIcon:SetPoint("BOTTOMLEFT", tile, "BOTTOMLEFT", 12 +xOffset, 6 +yOffset)
   tile.customizeIcon:SetShown(info.canCustomize and not anyDyes)
 
-  -- Rooms (Layout mode): grey out + disable tiles that can't be placed right now
-  -- - placement budget reached, or no valid connection to the selected door -
-  -- mirroring Blizzard's UpdateVisuals (HousingCatalogEntry.lua:222-236) off
-  -- GetTypeSpecificIsValid (== our GetRoomInvalidReason). Also show the prefab
-  -- "special room" frame + corner badge. All of this is reset for valid /
-  -- non-room tiles too, since tiles are pooled and reused.
+  -- Grey out + disable tiles that can't be placed right now, mirroring Blizzard's
+  -- UpdateVisuals (HousingCatalogEntry.lua:211-235), which greys ANY invalid entry
+  -- off GetIsValid. For rooms that's the placement budget / door connection (our
+  -- GetRoomInvalidReason); for decor it's indoor/outdoor + the pet-decor budget cap
+  -- (our GetDecorInvalidReason, the latter added 12.1.0). Also show the prefab
+  -- "special room" frame + corner badge. All of this is reset for valid tiles too,
+  -- since tiles are pooled and reused.
   local isRoomTile = entryVariantID.entryType == Enum.HousingCatalogEntryType.Room
-  local roomInvalid = isRoomTile and GetRoomInvalidReason(entryVariantID.recordID) ~= nil
-  tile.icon:SetDesaturated(roomInvalid)
-  tile.icon:SetAlpha(roomInvalid and 0.5 or 1)
-  tile.bg:SetDesaturated(roomInvalid)
-  tile.customizeIcon:SetDesaturated(roomInvalid)
-  tile:SetEnabled(not roomInvalid)
+  local invalid
+  if isRoomTile then
+    invalid = GetRoomInvalidReason(entryVariantID.recordID) ~= nil
+  else
+    invalid = GetDecorInvalidReason(info, entryVariantID.recordID) ~= nil
+  end
+  tile.icon:SetDesaturated(invalid)
+  tile.icon:SetAlpha(invalid and 0.5 or 1)
+  tile.bg:SetDesaturated(invalid)
+  tile.customizeIcon:SetDesaturated(invalid)
+  -- Blizzard also greys the info text (quantity/price) on invalid tiles.
+  if invalid then
+    tile.infoText:SetTextColor(DISABLED_FONT_COLOR:GetRGB())
+  end
+  tile:SetEnabled(not invalid)
   tile.specialRoomFrame:SetShown(isRoomTile and info.isPrefab)
   tile.specialRoomIcon:SetScale(s)
   tile.specialRoomIcon:SetShown(isRoomTile and info.isPrefab)
@@ -2023,9 +2117,14 @@ local function UpdateTileVisuals(tile, entryVariantID, info)
   -- UpdateTypeSpecificData / FLOORPLAN_SELECTION_CHANGED). Mirror it on both the
   -- base and hover backgrounds; default atlas otherwise (and for non-room/pooled
   -- tiles). Re-rendered live via the parallelLayoutEventFrame hook above.
+  -- Since 12.1.0 Blizzard suppresses this highlight while a BLUEPRINT floorplan is
+  -- selected (HasSelectedBlueprintFloorplan) - a blueprint drives placement instead
+  -- of a single catalog room - so mirror that guard (UpdateTypeSpecificData:933-941).
   local selected = isRoomTile
     and C_HouseEditor and C_HouseEditor.IsHouseEditorModeActive
     and C_HouseEditor.IsHouseEditorModeActive(Enum.HouseEditorMode.Layout)
+    and not (C_HousingLayout and C_HousingLayout.HasSelectedBlueprintFloorplan
+             and C_HousingLayout.HasSelectedBlueprintFloorplan())
     and C_HousingLayout and C_HousingLayout.GetSelectedFloorplan
     and C_HousingLayout.GetSelectedFloorplan() == entryVariantID.recordID
   local bgAtlas = selected and "house-chest-list-item-active" or "house-chest-list-item-default"
@@ -2230,19 +2329,22 @@ local renderEntriesBuilt = false
 -- Blizzard's catalog search results - dropping Storage-tab decor that has hit 0
 -- in storage.
 --
--- WHY DROP THEM: the Storage search normally lists only owned variants, but when
--- a refund or a Destroy merely DECREMENTS a count (rather than removing the entry
--- outright) Blizzard takes its lightweight OnCatalogEntryUpdated -> UpdateEntryData
--- path and does NOT re-run the search, so the now-empty variant lingers in the
--- cached results and would render as a dim-red 0. Blizzard's own list never shows
--- a 0-stock storage item; a fresh search (e.g. on a category switch) drops it. We
--- can't re-run that search ourselves without risking taint - RunSearch from our
--- (addon) call stack can leave the shared scroll box sticky-tainted, and Featured's
--- protected GetProductInfo then breaks - so we replicate its visible result by
--- filtering here, a pure read that writes no Blizzard state. Gated to the Storage
--- tab: Recent KEEPS its 0-stock history (the dim-red 0 is intentional there) and
--- the Market tab lists unowned items by design. The quantity test mirrors exactly
--- what UpdateTileVisuals would display, so "filtered" == "would have shown 0".
+-- WHY DROP THEM: the Storage search lists only owned variants, but a refund or a
+-- Destroy that merely DECREMENTS a count (rather than removing the entry outright)
+-- can leave the now-empty variant briefly lingering in the cached search results,
+-- where it would render as a dim-red 0. Blizzard's own list never shows a 0-stock
+-- storage item. Since 12.1.0 Blizzard's OnCatalogEntryUpdated re-runs the search in
+-- this case (IsStoredOnlyActive + GetEntryNumStored <= 0 -> RunSearch), which fixes
+-- it in the stock UI - but that RunSearch is ASYNC, so at the moment our own
+-- OnCatalogEntryUpdated hook rebuilds the grid the searcher may still hold the stale
+-- entry. We can't re-run the search ourselves without risking taint (RunSearch from
+-- our addon call stack can sticky-taint the shared scroll box and break Featured's
+-- protected GetProductInfo), so we replicate the visible result by filtering here -
+-- a pure read that writes no Blizzard state, and covers the async window plus any
+-- older client. Gated to the Storage tab: Recent KEEPS its 0-stock history (the
+-- dim-red 0 is intentional there) and the Market tab lists unowned items by design.
+-- The quantity test mirrors exactly what UpdateTileVisuals would display, so
+-- "filtered" == "would have shown 0".
 local function BuildRenderEntries()
   wipe(renderEntries)
   local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
@@ -2589,10 +2691,19 @@ local function RefreshParallelCatalog()
   --     StoragePanel method we'd be calling anyway)
   --   - AND we're NOT on the Featured market category (Featured uses
   --     fixed-size bundle cards we don't lay out)
+  --   - AND the catalog content (OptionsContainer) is actually shown. If the
+  --     container is hidden there is nothing for us to enhance, so we must not paint
+  --     our grid over whatever replaced it. This is defensive: 12.1.0's storage-frame
+  --     rework can hide all CatalogElements when a non-catalog tab is active (its
+  --     UpdateTabContentVisibility), and our renderable test keys off Featured focus,
+  --     NOT the active tab, so it wouldn't otherwise notice. A no-op in normal
+  --     Storage/Market, where the container is always shown.
   -- This covers Storage tab implicitly because Featured is Market-only.
   local storagePanel = HouseEditorFrame and HouseEditorFrame.StoragePanel
+  local optionsContainer = storagePanel and storagePanel.OptionsContainer
   local renderable = storagePanel and storagePanel.IsInMarketTab
                      and not IsFeaturedCategoryFocused()
+                     and optionsContainer and optionsContainer:IsShown()
   -- Recent is a Storage-tab-only view: drop out of it if the storage catalog
   -- isn't renderable (Featured focused, or the panel is gone) or we've moved to
   -- the Market tab. Done BEFORE computing "active", because "active" depends on
@@ -2662,15 +2773,15 @@ local function SetupParallelCatalog()
     end)
     -- OnEntryResultsUpdated only fires when the result SET changes (an entry
     -- added or removed -> RunSearch -> this callback). A storage change that
-    -- merely alters an existing entry's stored count - e.g. a refund or a
-    -- Destroy(1) that leaves copies behind (HOUSING_STORAGE_ENTRY_UPDATED) -
-    -- takes Blizzard's lightweight OnCatalogEntryUpdated path, which updates
-    -- just that one (now-hidden) Blizzard tile via UpdateEntryData and does NOT
-    -- re-run the search, so OnEntryResultsUpdated never fires. Our grid would
-    -- then show a stale count badge until an unrelated refresh. Hook it too so
-    -- our tiles re-query their live per-variant numStored (VariantStoredCount).
-    -- Mirrors what Blizzard does for its own tile; read-only, same taint profile
-    -- as the hook above. (Full removals are still covered by OnEntryResultsUpdated.)
+    -- merely alters an existing entry's stored count while copies REMAIN - e.g. a
+    -- Destroy(1) of 5 (HOUSING_STORAGE_ENTRY_UPDATED) - takes Blizzard's lightweight
+    -- OnCatalogEntryUpdated path, which updates just that one (now-hidden) Blizzard
+    -- tile via UpdateEntryData and does NOT re-run the search, so OnEntryResultsUpdated
+    -- never fires. (Dropping to 0 stock IS re-searched since 12.1.0 - see BuildRender-
+    -- Entries - but the copies-remain case still isn't.) Our grid would otherwise show
+    -- a stale count badge until an unrelated refresh, so hook it too and re-query our
+    -- tiles' live per-variant numStored (VariantStoredCount). Mirrors what Blizzard
+    -- does for its own tile; read-only, same taint profile as the hook above.
     hooksecurefunc(storagePanel, "OnCatalogEntryUpdated", function()
       RefreshParallelCatalog()
     end)
@@ -2716,13 +2827,17 @@ local function SetupParallelCatalog()
     end)
     parallelCategoryHooked = true
   end
-  -- Room tiles re-render on the same layout events Blizzard's room tiles use
-  -- (HousingCatalogEntry.lua:798-823), so two things track live: the grey-out
-  -- (placement budget + per-room door connection) as the user selects doors and
-  -- places/removes rooms, and the selected-floorplan highlight (FLOORPLAN_-
-  -- SELECTION_CHANGED) when a room is picked for placement. Only has a visible
-  -- effect while our grid is showing rooms (icon resizer in Layout mode);
-  -- RefreshParallelCatalog self-gates on "active", so it's a no-op otherwise.
+  -- Tiles re-render on the placement-state events Blizzard's own tiles watch, so
+  -- our grey-out / highlight track live:
+  --   * ROOMS (HousingCatalogEntry.lua:806-830): grey-out (placement budget +
+  --     per-room door connection) as the user selects doors and places/removes
+  --     rooms, and the selected-floorplan highlight (FLOORPLAN_SELECTION_CHANGED)
+  --     when a room is picked.
+  --   * DECOR: HOUSING_NUM_DECOR_PLACED_CHANGED, which Blizzard's decor tiles
+  --     register (HousingCatalogEntry.lua:487-497, added 12.1.0) to re-grey pet
+  --     decor as the pet-placement budget fills/empties.
+  -- Only has a visible effect while our grid is active; RefreshParallelCatalog
+  -- self-gates on "active", so this is a no-op otherwise.
   if not parallelLayoutEventsHooked then
     parallelLayoutEventFrame = CreateFrame("Frame")
     parallelLayoutEventFrame:SetScript("OnEvent", function() RefreshParallelCatalog() end)
@@ -2733,6 +2848,7 @@ local function SetupParallelCatalog()
       "HOUSING_LAYOUT_ROOM_RECEIVED",
       "HOUSING_LAYOUT_ROOM_REMOVED",
       "HOUSE_LEVEL_CHANGED",
+      "HOUSING_NUM_DECOR_PLACED_CHANGED",
     }) do
       parallelLayoutEventFrame:RegisterEvent(ev)
     end
@@ -3371,7 +3487,7 @@ UpdateRecentButtonVisibility = function()
     recentButton.inSub = inSub
     recentButton:SetSize(inSub and 54 or 64, inSub and 54 or 64)
     recentButton:ClearAllPoints()
-    recentButton:SetPoint("BOTTOM", cats, "BOTTOM", 0, inSub and 12 or 8)
+    recentButton:SetPoint("BOTTOM", cats, "BOTTOM", 0, inSub and 12 or 2)
   end
 
   -- Hidden in Layout mode: the catalog lists rooms there, not decor, so Recent
