@@ -18,6 +18,7 @@ Enhance vendor browsing with additional item information overlays.
 ### 🏠 Enhanced House Editor
 Not being able to properly inspect the decor items in the small icons of the House Editor's Storage and Catalog frames is a s#!tshow obviously. Ludius Plus's "Thoughtfully Augmented Editor" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!
 Among the other options of the TAE is chain placement: holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count.
+There is also blueprint-code masking for streamers: it hides the share codes in the blueprint import and export windows behind dots (toggle them visible with the eye button), so you can save or import a blueprint on stream without exposing its code to viewers - while copying it to clipboard or posting it to chat still works on the real code.
 
 ### 🔄 Spell Icon Overlay
 Display an icon overlay on spells in your spellbook or action bars that are included in the single-button combat rotation. This visual indicator helps you identify at a glance which abilities are automated, so you can see which ones you still need to press manually while using the single-button assistant, or even which ones you want to keep off your action bars as they are automated.

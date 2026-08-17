@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "Kategorie „Zuletzt benutzt“"
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Wenn aktiviert, wird dem Lager-Reiter des Hauseditors eine benutzerdefinierte Kategorie „Zuletzt benutzt“ hinzugefügt. Sie listet die Dekorationsgegenstände auf, die ihr zuletzt bearbeitet habt (die neuesten zuerst) - getrennt gespeichert pro Haus und für drinnen/draußen. Fahrt mit der Maus über ein Feld und klickt auf das rote X, um es aus dem Verlauf zu löschen. Wenn ihr diese Option deaktiviert, wird der gespeicherte Verlauf gelöscht."
 L["Remove from history"] = "Aus dem Verlauf entfernen"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Zum Kaufen geht in die \"%2$s\"-Kategorie des %1$ss!"
+L["Hide blueprint codes"] = "Bauplancodes verbergen"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "Wenn aktiviert, werden Bauplan-Freigabecodes in den Import- und Exportfenstern hinter Punkten verborgen und können mit einem Augen-Button aufgedeckt werden. Praktisch beim Streamen oder bei Bildschirmübertragungen: Baupläne können gespeichert oder importiert werden, ohne dass die Zuschauer sie sehen. Die Buttons zum Kopieren und im Chat posten funktionieren weiterhin mit den echten Codes."
+L["Show blueprint code"] = "Bauplancode anzeigen"
+L["Hide blueprint code"] = "Bauplancode verbergen"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Willkommen bei LudiusPlus! Gebt /ldp ein, um Module zu aktivieren."

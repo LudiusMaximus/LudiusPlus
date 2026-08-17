@@ -101,6 +101,7 @@ local CONFIG_DEFAULTS = {
   houseEditorEnhancer_previewWidth         = 540,
   houseEditorEnhancer_chainPlacement       = false,
   houseEditorEnhancer_recent               = false,
+  houseEditorEnhancer_blueprintMasking     = false,
 
   -- Saved-variable migration bookkeeping (not a user-facing setting): the config
   -- version this user has been migrated up to (see ApplyConfigMigrations). Kept
@@ -1510,7 +1511,7 @@ local optionsTable = {
 
     houseEditorEnhancerGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement or config.houseEditorEnhancer_recent) end,
+      name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement or config.houseEditorEnhancer_recent or config.houseEditorEnhancer_blueprintMasking) end,
       desc = houseEditorEnhancerDesc,
       order = houseEditorEnhancerOrder,
       args = {
@@ -1600,6 +1601,22 @@ local optionsTable = {
             end,
         },
 
+        houseEditorEnhancerGroupBlank55 = {order = 5.5, type = "description", name = " ",},
+
+        houseEditorEnhancerBlueprintMasking = {
+          order = 6,
+          type = "toggle",
+          name = L["Hide blueprint codes"],
+          desc = L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."],
+          width = "full",
+          get = function() return config.houseEditorEnhancer_blueprintMasking end,
+          set =
+            function(_, newValue)
+              config.houseEditorEnhancer_blueprintMasking = newValue
+              addon.SetupOrTeardownBlueprintMasking()
+            end,
+        },
+
       },
     },
 
@@ -1623,7 +1640,8 @@ local function AreAllModulesDisabled()
     config.houseEditorEnhancer_iconResizerCtrlWheel or
     config.houseEditorEnhancer_preview or
     config.houseEditorEnhancer_chainPlacement or
-    config.houseEditorEnhancer_recent
+    config.houseEditorEnhancer_recent or
+    config.houseEditorEnhancer_blueprintMasking
   )
 end
 

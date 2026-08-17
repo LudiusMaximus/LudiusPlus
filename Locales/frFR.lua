@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "Catégorie « Récents »"
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Si activé, une catégorie personnalisée « Récents » est ajoutée à l'onglet Stockage de l'éditeur de maison. Elle liste les objets de décoration que vous avez récemment modifiés, du plus récent au plus ancien - conservés séparément par maison et par intérieur/extérieur. Survolez une case et cliquez sur le X rouge pour la retirer de l'historique. La désactivation de cette option efface l'historique enregistré."
 L["Remove from history"] = "Retirer de l'historique"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Pour l'acheter, rendez-vous dans la catégorie « %2$s » du %1$s !"
+L["Hide blueprint codes"] = "Masquer les codes de plan"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "Si activé, les codes de partage de plan dans les fenêtres d'importation et d'exportation sont masqués par des points, avec un bouton en forme d'œil pour les révéler. Pratique lors de diffusions ou de partages d'écran : les plans peuvent être sauvegardés ou importés sans être exposés aux spectateurs. Les boutons Copier et Publier dans le chat fonctionnent sur les vrais codes malgré tout."
+L["Show blueprint code"] = "Afficher le code de plan"
+L["Hide blueprint code"] = "Masquer le code de plan"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bienvenue dans LudiusPlus ! Tapez /ldp pour choisir les modules à activer."

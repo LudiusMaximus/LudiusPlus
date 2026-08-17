@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "\"최근 사용\" 카테고리"
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "활성화하면 집 편집기의 보관함 탭에 사용자 지정 \"최근 사용\" 카테고리가 추가됩니다. 최근에 수정한 장식 아이템이 최신순으로 나열되며, 집마다 그리고 실내/야외마다 별도로 유지됩니다. 타일 위에 마우스를 올리고 빨간색 X를 클릭하면 기록에서 삭제됩니다. 이 옵션을 비활성화하면 저장된 기록이 삭제됩니다."
 L["Remove from history"] = "기록에서 삭제"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "구매하려면 %1$s의 \"%2$s\" 카테고리로 이동하세요!"
+L["Hide blueprint codes"] = "청사진 코드 숨기기"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "활성화하면 가져오기 및 내보내기 창의 청사진 공유 코드가 점으로 숨겨지며, 눈 모양 버튼을 눌러 코드를 표시할 수 있습니다. 스트리밍이나 화면 공유 시 유용합니다. 시청자에게 노출되지 않고 청사진을 저장하거나 가져올 수 있습니다. 복사 및 대화창에 링크 버튼은 실제 코드에 정상적으로 작동합니다."
+L["Show blueprint code"] = "청사진 코드 표시"
+L["Hide blueprint code"] = "청사진 코드 숨기기"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "LudiusPlus에 오신 것을 환영합니다! /ldp를 입력하여 활성화할 모듈을 선택하세요."

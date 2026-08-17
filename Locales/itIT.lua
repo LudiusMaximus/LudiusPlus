@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "Categoria \"Recenti\""
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Se abilitato, una categoria personalizzata \"Recenti\" viene aggiunta alla scheda Deposito dell'Editor della Casa. Elenca gli oggetti decorativi che hai modificato di recente, partendo dai più nuovi - mantenuti separatamente per ogni casa e per interni/esterni. Passa il mouse su un riquadro e fai clic sulla X rossa per rimuoverlo dalla cronologia. Disabilitando questa opzione, la cronologia salvata verrà cancellata."
 L["Remove from history"] = "Rimuovi dalla cronologia"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Per acquistarlo, vai nella categoria \"%2$s\" del %1$s!"
+L["Hide blueprint codes"] = "Nascondi codici dei progetti"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "Se abilitato, i codici di condivisione dei progetti nelle finestre di importazione ed esportazione vengono nascosti dietro dei punti, con un pulsante a forma di occhio per rivelarli. Utile durante lo streaming o la condivisione dello schermo: i progetti possono essere salvati o importati senza essere esposti agli spettatori. I pulsanti Copia e Pubblica in chat funzionano comunque sui codici reali."
+L["Show blueprint code"] = "Mostra codice del progetto"
+L["Hide blueprint code"] = "Nascondi codice del progetto"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Benvenuto in LudiusPlus! Digita /ldp per scegliere i moduli da abilitare."

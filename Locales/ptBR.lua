@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "Categoria \"Recentes\""
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Quando ativado, uma categoria personalizada \"Recentes\" é adicionada à aba Depósito do editor da casa. Ela lista os itens de decoração que você modificou recentemente, os mais novos primeiro — mantidos separadamente por casa e por interior/exterior. Passe o mouse sobre um quadro e clique no X vermelho para removê-lo do histórico. Desativar esta opção apaga o histórico salvo."
 L["Remove from history"] = "Remover do histórico"
   L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Para comprar, vá para a categoria \"%2$s\" do %1$s!"
+L["Hide blueprint codes"] = "Ocultar códigos do diagrama"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "Quando ativado, os códigos de compartilhamento de diagrama nas janelas de importação e exportação ficam ocultos por pontos, com um botão de olho para revelá-los. Útil para transmissões ou compartilhamento de tela: os diagramas podem ser salvos ou importados sem serem expostos aos espectadores. Os botões Copiar e Postar no Bate-papo funcionam nos códigos reais de qualquer maneira."
+L["Show blueprint code"] = "Mostrar código do diagrama"
+L["Hide blueprint code"] = "Ocultar código do diagrama"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Bem-vindo ao LudiusPlus! Digite /ldp para escolher os módulos a ativar."

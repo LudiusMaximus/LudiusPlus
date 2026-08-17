@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "Категория «Недавние»"
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "Если включено, на вкладку «Склад» редактора дома добавляется пользовательская категория «Недавние». В ней перечислены предметы декора, которые вы недавно изменяли, начиная с самых новых (сохраняется отдельно для каждого дома, а также для интерьера и экстерьера). Наведите указатель мыши на плитку и нажмите на красный крестик, чтобы удалить ее из истории. Отключение этой опции очищает сохраненную историю."
 L["Remove from history"] = "Удалить из истории"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "Для покупки перейдите в категорию «%2$s» раздела «%1$s»!"
+L["Hide blueprint codes"] = "Скрыть коды чертежей"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "Если включено, коды для публикации чертежей в окнах импорта и экспорта скрываются за точками, а для их отображения появляется кнопка с изображением глаза. Удобно для стримов и демонстрации экрана: чертежи можно сохранять или импортировать, не показывая их зрителям. Кнопки копирования и отправки в чат при этом используют настоящие коды."
+L["Show blueprint code"] = "Показать код чертежа"
+L["Hide blueprint code"] = "Скрыть код чертежа"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "Добро пожаловать в LudiusPlus! Введите /ldp, чтобы выбрать модули для включения."

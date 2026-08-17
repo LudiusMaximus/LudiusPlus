@@ -135,6 +135,10 @@ L["\"Recent\" category"] = "「最近使用」分類"
 L["When enabled, a custom \"Recent\" category is added to the House Editor's Storage tab. It lists the decor items you recently modified, newest first - kept separately per house and per indoors/outdoors. Hover a tile and click the red X to drop it from the history. Disabling this option clears the saved history."] = "啟用後，房屋編輯器的儲藏分頁中會新增一個自訂的「最近使用」分類。它會列出您最近修改過的裝飾物品，最新的排在最前面——按每棟房屋以及室內/室外分別保存。將游標懸停在圖示上並點擊紅色 X 即可將其從歷史記錄中移除。停用此選項將清除已儲存的歷史記錄。"
 L["Remove from history"] = "從歷史記錄中移除"
 L["If you cannot resist, go and spend your actual real-life money on it in the %1$s's \"%2$s\" category!"] = "如需購買，請前往 %1$s 的「%2$s」分類！"
+L["Hide blueprint codes"] = "隱藏藍圖代碼"
+L["When enabled, blueprint share codes in the import and export windows are hidden behind dots, with an eye button to reveal them. Handy while streaming or screen-sharing: blueprints can be saved or imported without being exposed to viewers. The Copy and Post-to-Chat buttons work on the real codes regardless."] = "啟用後，匯入和匯出視窗中的藍圖分享代碼會被隱藏成小圓點，並提供一個眼睛按鈕來顯示它們。在實況或分享螢幕時非常方便：可以儲存或匯入藍圖而不向觀眾暴露代碼。複製和發送到聊天按鈕仍對真實代碼起作用。"
+L["Show blueprint code"] = "顯示藍圖代碼"
+L["Hide blueprint code"] = "隱藏藍圖代碼"
 
 -- Welcome Message
 L["Welcome to LudiusPlus! Type /ldp to pick modules to enable."] = "歡迎使用 LudiusPlus！輸入 /ldp 選擇要啟用的模組。"
