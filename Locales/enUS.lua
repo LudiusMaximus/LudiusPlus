@@ -78,7 +78,7 @@ L["Grey out and mark recipes that you already know."] = true
 
 -- SpellIconOverlay Options
 L["Spell Icon Overlay"] = true
-L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = true
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook, in the talent tree, or on action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = true
 L["Show in Spellbook"] = true
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = true
 L["Spellbook Icon Position"] = true
@@ -87,6 +87,10 @@ L["Show on Action Bars"] = true
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = true
 L["Action Bar Icon Position"] = true
 L["Choose the corner where the overlay icon appears on action bar buttons."] = true
+L["Show in Talents"] = true
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on talents in your talent tree that are included in the single-button combat rotation."] = true
+L["Talent Icon Position"] = true
+L["Choose the corner where the overlay icon appears on talent buttons."] = true
 L["Only when Single-Button is used"] = true
 L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = true
 L["Top Left"] = true

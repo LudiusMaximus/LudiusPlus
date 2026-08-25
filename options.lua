@@ -87,10 +87,12 @@ local CONFIG_DEFAULTS = {
   vendorItemOverlay_recipes_enabled    = false,
 
   spellIconOverlay_showInSpellbook     = false,
-  spellIconOverlay_showOnActionBars    = false,
-  spellIconOverlay_onlyWhenAssistUsed  = false,
   spellIconOverlay_spellbookPosition   = "BOTTOMLEFT",
+  spellIconOverlay_showInTalents       = false,
+  spellIconOverlay_talentPosition      = "BOTTOMLEFT",
+  spellIconOverlay_showOnActionBars    = false,
   spellIconOverlay_actionBarPosition   = "BOTTOMLEFT",
+  spellIconOverlay_onlyWhenAssistUsed  = false,
 
   flashlight_enabled                   = false,
 
@@ -377,7 +379,7 @@ flashlightToyName = flashlightToyName or "Cave Spelunker's Torch"
 -- (Defining these here, as we use them as text and tooltip in the options.
 local dialogSkipperDesc = L["Automatically skip confirmation dialogs."]
 local vendorItemOverlayDesc = L["Display useful information as overlays for items at vendors."]
-local spellIconOverlayDesc = L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."]
+local spellIconOverlayDesc = L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook, in the talent tree, or on action bars that are included in the single-button combat rotation. So you can identify them at a glance."]
 local dismountToggleDesc = L["Assign dismounting and re-mounting to a single key, so you can comfortably switch between both. The addon will remember your last mount and re-mount it when you press the hotkey again."]
 local raceOnLastMountDesc = L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game).\n\nNote: Cannot automatically switch to Druid Flight Form due to API limitations."]
 local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."]
@@ -1230,7 +1232,7 @@ local optionsTable = {
 
     spellIconOverlayGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Spell Icon Overlay"], config.spellIconOverlay_showInSpellbook or config.spellIconOverlay_showOnActionBars) end,
+      name = function() return GetModuleGroupName(L["Spell Icon Overlay"], config.spellIconOverlay_showInSpellbook or config.spellIconOverlay_showOnActionBars or config.spellIconOverlay_showInTalents) end,
       desc = spellIconOverlayDesc,
       order = spellIconOverlayOrder,
       args = {
@@ -1286,8 +1288,50 @@ local optionsTable = {
 
         spellIconOverlayGroupBlank25 = {order = 2.5, type = "description", name = " ",},
 
-        spellIconOverlayShowOnActionBars = {
+        spellIconOverlayShowInTalents = {
           order = 3,
+          type = "toggle",
+          name = L["Show in Talents"],
+          desc = L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on talents in your talent tree that are included in the single-button combat rotation."],
+          width = "full",
+          get = function() return config.spellIconOverlay_showInTalents end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_showInTalents = newValue
+              addon.SetupOrTeardownSpellIconOverlay()
+            end,
+        },
+
+        spellIconOverlayGroupBlank35 = {order = 3.5, type = "description", name = " ", width = 0.1,},
+
+        spellIconOverlayTalentPosition = {
+          order = 4,
+          type = "select",
+          name = L["Talent Icon Position"],
+          desc = L["Choose the corner where the overlay icon appears on talent buttons."],
+          width = 1.5,
+          get = function() return config.spellIconOverlay_talentPosition end,
+          set =
+            function(_, newValue)
+              config.spellIconOverlay_talentPosition = newValue
+              addon.RefreshSpellIconOverlayPositions()
+            end,
+          values = {
+            ["TOPLEFT"] = L["Top Left"],
+            ["TOPRIGHT"] = L["Top Right"],
+            ["BOTTOMLEFT"] = L["Bottom Left"],
+            ["BOTTOMRIGHT"] = L["Bottom Right"],
+          },
+          disabled =
+            function()
+              return not config.spellIconOverlay_showInTalents
+            end,
+        },
+
+        spellIconOverlayGroupBlank45 = {order = 4.5, type = "description", name = " ",},
+
+        spellIconOverlayShowOnActionBars = {
+          order = 5,
           type = "toggle",
           name = L["Show on Action Bars"],
           desc = L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."],
@@ -1301,10 +1345,10 @@ local optionsTable = {
         },
 
 
-        spellIconOverlayGroupBlank35 = {order = 3.5, type = "description", name = " ", width = 0.1,},
+        spellIconOverlayGroupBlank55 = {order = 5.5, type = "description", name = " ", width = 0.1,},
 
         spellIconOverlayActionBarPosition = {
-          order = 4,
+          order = 6,
           type = "select",
           name = L["Action Bar Icon Position"],
           desc = L["Choose the corner where the overlay icon appears on action bar buttons."],
@@ -1333,7 +1377,7 @@ local optionsTable = {
         spellIconOverlayOnlyWhenAssistUsedGroup = {
           type = "group",
           name = "",
-          order = 5,
+          order = 7,
           inline = true,
           args = {
 
@@ -1654,7 +1698,7 @@ end
 -- must be safe to run on ANY config - it should naturally no-op on fresh/default
 -- data by gating on existing state (e.g. v1 below changes nothing for a
 -- brand-new user, who has no features enabled), so we needn't special-case them.
-local CONFIG_VERSION = 1
+local CONFIG_VERSION = 2
 
 local function ApplyConfigMigrations()
   local version = config.migrationVersion or 0
@@ -1669,6 +1713,15 @@ local function ApplyConfigMigrations()
        or config.houseEditorEnhancer_preview
        or config.houseEditorEnhancer_chainPlacement then
       config.houseEditorEnhancer_recent = true
+    end
+  end
+
+  -- v2: enable the new talent-tree overlay for users who already show the Spell
+  -- Icon Overlay in their spellbook, so the new location follows the preference
+  -- they already expressed. No-ops for fresh users, who have spellbook off.
+  if version < 2 then
+    if config.spellIconOverlay_showInSpellbook then
+      config.spellIconOverlay_showInTalents = true
     end
   end
 

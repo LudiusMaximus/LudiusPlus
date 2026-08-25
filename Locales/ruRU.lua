@@ -78,7 +78,7 @@ L["Grey out and mark recipes that you already know."] = "Затеняет и о�
 
 -- SpellIconOverlay Options
 L["Spell Icon Overlay"] = "Наложение значка заклинания"
-L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook or action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на заклинаниях в книге заклинаний или на панелях команд, которые включены в однокнопочную боевую ротацию. Так вы сможете сразу их определить."
+L["Display an |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in the spellbook, in the talent tree, or on action bars that are included in the single-button combat rotation. So you can identify them at a glance."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на заклинаниях в книге заклинаний, в дереве талантов или на панелях команд, которые включены в однокнопочную боевую ротацию. Так вы сможете сразу их определить."
 L["Show in Spellbook"] = "Показывать в книге заклинаний"
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on spells in your spellbook that are included in the single-button combat rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на заклинаниях в вашей книге заклинаний, которые включены в однокнопочную боевую ротацию."
 L["Spellbook Icon Position"] = "Позиция значка в книге заклинаний"
@@ -87,6 +87,10 @@ L["Show on Action Bars"] = "Показывать на панелях коман�
 L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bar buttons for spells included in the rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на кнопках панели команд для заклинаний, включенных в ротацию."
 L["Action Bar Icon Position"] = "Позиция значка на панели команд"
 L["Choose the corner where the overlay icon appears on action bar buttons."] = "Выберите угол, где будет отображаться значок наложения на кнопках панели команд."
+L["Show in Talents"] = "Показывать в талантах"
+L["Display the |A:UI-RefreshButton:16:16:0:0|a icon overlay on talents in your talent tree that are included in the single-button combat rotation."] = "Отображает наложение значка |A:UI-RefreshButton:16:16:0:0|a на талантах в вашем дереве талантов, которые включены в однокнопочную боевую ротацию."
+L["Talent Icon Position"] = "Позиция значка в талантах"
+L["Choose the corner where the overlay icon appears on talent buttons."] = "Выберите угол, где будет отображаться значок наложения на кнопках талантов."
 L["Only when Single-Button is used"] = "Только при использовании одной кнопки"
 L["Only show the |A:UI-RefreshButton:16:16:0:0|a icon overlay on action bars if the Single-Button Assistant spell is currently placed on an action bar."] = "Показывать наложение значка |A:UI-RefreshButton:16:16:0:0|a на панелях команд только в том случае, если заклинание Однокнопочный помощник в данный момент размещено на панели команд."
 L["Top Left"] = "Сверху слева"
