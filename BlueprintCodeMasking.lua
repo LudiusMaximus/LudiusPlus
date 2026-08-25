@@ -689,6 +689,15 @@ end
 
 -- Public entry point for the options toggle. Enhances the boxes if the feature is
 -- on and the blueprint UI is already loaded, then activates/restores each one.
+--
+-- Teardown (active == false) is the SetBlueprintMaskActive(box, false) branch: it
+-- hides the eye button and overlay and restores each box to Blizzard's native
+-- alpha, highlight color and scrollbar. The created widgets and the edit-box
+-- HookScript hooks are left in place on purpose - WoW cannot destroy a frame or
+-- remove a hook - but they are made inert: the widgets are hidden and, because
+-- every update path ends in overlay:SetShown(box.ludiusMasked), masked == false
+-- keeps them a no-op that never touches the box's text. So the runtime footprint
+-- is reduced as far as the platform permits, even though it cannot reach zero.
 function addon.SetupOrTeardownBlueprintMasking()
   local active = IsEnabled()
   if active then
@@ -705,7 +714,7 @@ EventUtil.ContinueOnAddOnLoaded("Blizzard_HousingBlueprint", EnhanceBlueprintFra
 
 
 
--- There is no in-game string to directly use for "House Editor".
+-- There is no in-game string to directly use for "Blueprint".
 -- To get the translations right, let the translators extract the string to use from these:
 -- ERR_HOUSING_RESULT_BLUEPRINT_NOT_FOUND
 -- EN:  "Blueprint not found"
