@@ -61,7 +61,10 @@ local function EventFrameScript(self, event, ...)
     local unitTarget, updateInfo = ...
     if unitTarget ~= "player" then return end
 
-    if updateInfo and updateInfo.addedAuras then
+    -- The whole aura delta table (not just individual fields like spellId) can now be a
+    -- secret value; pairs() errors on a secret table, so if it is unreadable we cannot
+    -- inspect the delta and simply skip this update.
+    if updateInfo and updateInfo.addedAuras and not issecretvalue(updateInfo.addedAuras) then
       for _, v in pairs(updateInfo.addedAuras) do
         if v.spellId and not issecretvalue(v.spellId) then
           if raceBuffs[v.spellId] then

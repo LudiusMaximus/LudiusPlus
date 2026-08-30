@@ -182,6 +182,11 @@ local function EventFrameScript(self, event, ...)
 
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
     local unit, _, spellId = ...
+    -- For non-player casts, unit and spellId arrive as secret values while cast
+    -- restrictions are active (combat, dungeon, raid, PvP). Operating on a secret from
+    -- addon code (comparing it, or using it as a table key below) errors, so bail out
+    -- here; the player's own cast info is never secret.
+    if issecretvalue(unit) then return end
     if unit == "player" then
 
       if dismissCompanionSpells[spellId] then

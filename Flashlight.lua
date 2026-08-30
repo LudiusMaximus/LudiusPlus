@@ -198,6 +198,13 @@ local function EventFrameScript(self, event, ...)
       -- Check if torch aura was added or removed
       local torchChanged = false
       if updateInfo.addedAuras then
+        -- The whole aura delta table (not just individual fields like spellId) can now
+        -- be a secret value; pairs() errors on a secret table, so if it is unreadable we
+        -- cannot inspect the delta here and defer setup until a later readable update.
+        if issecretvalue(updateInfo.addedAuras) then
+          deferredSetupNeeded = true
+          return
+        end
         for _, k in pairs(updateInfo.addedAuras) do
           if issecretvalue(k.spellId) then
             deferredSetupNeeded = true
@@ -210,6 +217,10 @@ local function EventFrameScript(self, event, ...)
         end
       end
       if not torchChanged and updateInfo.removedAuraInstanceIDs then
+        if issecretvalue(updateInfo.removedAuraInstanceIDs) then
+          deferredSetupNeeded = true
+          return
+        end
         for _, k in pairs(updateInfo.removedAuraInstanceIDs) do
           if k == torchBuffInstanceId then
             torchChanged = true
