@@ -30,7 +30,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- mapping (line,col) back to a character index to drive the real box. The real
 -- box's own proportional wrapping is hidden and irrelevant; our grid scrolls on
 -- its own dot-row count (SyncBar drives Blizzard's scroll-bar widget; the bar's
--- OnScroll drives our bullets).
+-- OnScroll drives our bullets). The grid's column pitch is the MEASURED bullet
+-- advance, which shifts with the UI scale and the screen resolution, so it is
+-- re-measured whenever either changes - see GetBulletWidth for why that matters.
 --
 -- TAINT MODEL (established empirically in-client)
 -- ----------------------------------------------------------------------------
@@ -85,6 +87,7 @@ local EYE_OFF = "128-RedButton-VisibilityOff"
 local BULLET = "\226\151\143"              -- U+25CF BLACK CIRCLE
 local SELECTION_COLOR = { 1, 1, 1, 0.28 }  -- fallback if the box has no highlight colour
 local MAX_BULLETS = 5000                   -- safety cap for very long codes
+local MEASURE_RUN = 100                    -- bullets measured at once to get one bullet's advance
 local TEXT_RIGHT_MARGIN = 18               -- px InputScrollFrame reserves on the right for
                                            -- its scroll bar; our dots stop there too
 
@@ -105,15 +108,36 @@ local function SetEyeTexture(button, masked)
   button:SetHighlightAtlas(base .. "-Highlight", "ADD")
 end
 
--- Width of a single bullet, measured once and cached.
+-- Width of a single bullet: the advance the renderer actually steps by from one dot
+-- to the next. Cached, but keyed on everything that can change it.
+--
+-- Measured over a long RUN and divided, never from a single glyph. GetStringWidth
+-- of a one-character string does not give that advance (it rounds, and it measures
+-- the glyph rather than its advance), and the whole grid multiplies this one number
+-- by the column index, so a fraction of a pixel of error per bullet accumulates into
+-- visible drift: the caret and the selection slide ever further right of the dots the
+-- longer the line gets. A run of MEASURE_RUN divides that leftover error by MEASURE_RUN
+-- as well.
+--
+-- That rounding happens in RASTERIZED pixels - the glyph is rendered at font size x
+-- effective scale physical pixels - so the leftover error is not a constant. It shifts
+-- with the UI scale and with the physical resolution, which is why the same code can
+-- look pixel-perfect on one monitor and visibly drift on another. The cache is keyed on
+-- both so it can never serve a measurement taken under a different rasterization; that
+-- covers scale changes nothing announces, such as another addon rescaling a parent
+-- frame. Display changes force a re-measure outright instead - see DISPLAY CHANGES.
 local function GetBulletWidth(overlay)
-  if not overlay.bulletWidth then
+  local scale = overlay:GetEffectiveScale()
+  local _, screenHeight = GetPhysicalScreenSize()
+  if not overlay.bulletWidth or overlay.bulletScale ~= scale or overlay.bulletScreenH ~= screenHeight then
     local shown = overlay.Bullets:GetText()
-    overlay.Bullets:SetText(BULLET)
+    overlay.Bullets:SetText(string.rep(BULLET, MEASURE_RUN))
     local w = overlay.Bullets:GetStringWidth()
     overlay.Bullets:SetText(shown or "")
     if w and w > 0 then
-      overlay.bulletWidth = w
+      overlay.bulletWidth = w / MEASURE_RUN
+      overlay.bulletScale = scale
+      overlay.bulletScreenH = screenHeight
     end
   end
   return overlay.bulletWidth
@@ -675,10 +699,83 @@ local function SetBlueprintMaskActive(box, active)
   end
 end
 
+-- ----------------------------------------------------------------------------
+-- DISPLAY CHANGES
+-- ----------------------------------------------------------------------------
+-- Going fullscreen/windowed, changing resolution, or moving the client to a monitor
+-- with a different DPI re-rasterizes the font. That changes the bullet advance and with
+-- it our column pitch and bullets-per-line, so a grid built before the change has its
+-- caret and selection drifting off the dots again.
+--
+-- Two details here were established in-client, and both are easy to get wrong:
+--
+--   * Re-measure by FORCE rather than through GetBulletWidth's cache key. The key is
+--     the safety net for scale changes that announce themselves nowhere; on this path
+--     we already know something moved, so there is nothing to ask.
+--   * Measure LATE, and twice. The font is not finished re-rasterizing by the time the
+--     events stop firing, and an early measurement is worse than none: it gets cached
+--     against the new scale and screen size, so it is never revisited and the drift
+--     stays until the next display change. The debounce absorbs the burst of events;
+--     the confirm pass catches the atlas settling afterwards.
+local DISPLAY_SETTLE = 0.3   -- debounce; the events fire several times per change
+local DISPLAY_CONFIRM = 1.5  -- second measurement, once the font atlas has settled
+
+local displayFrame = CreateFrame("Frame")
+local settleTimer, confirmTimer
+
+local function RemeasureAllBoxes()
+  for _, box in ipairs(enhancedBoxes) do
+    box.ludiusOverlay.bulletWidth = nil  -- makes GetBulletWidth measure again
+    -- Unconditional: UpdateBullets ends in overlay:SetShown(box.ludiusMasked), so a
+    -- revealed box just re-measures and stays hidden, ready for the next reveal.
+    UpdateBullets(box)
+    UpdateSelection(box)
+    UpdateCaret(box)
+  end
+end
+
+displayFrame:SetScript("OnEvent", function()
+  if settleTimer then
+    settleTimer:Cancel()
+  end
+  settleTimer = C_Timer.NewTimer(DISPLAY_SETTLE, function()
+    settleTimer = nil
+    RemeasureAllBoxes()
+    if confirmTimer then
+      confirmTimer:Cancel()  -- a rapid second change restarts the confirm window
+    end
+    confirmTimer = C_Timer.NewTimer(DISPLAY_CONFIRM, function()
+      confirmTimer = nil
+      RemeasureAllBoxes()
+    end)
+  end)
+end)
+
+-- Listened to only while the feature is on, so a disabled module registers nothing and
+-- leaves no timers pending.
+local function SetDisplayWatchActive(active)
+  if active then
+    displayFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
+    displayFrame:RegisterEvent("UI_SCALE_CHANGED")
+  else
+    displayFrame:UnregisterEvent("DISPLAY_SIZE_CHANGED")
+    displayFrame:UnregisterEvent("UI_SCALE_CHANGED")
+    if settleTimer then
+      settleTimer:Cancel()
+      settleTimer = nil
+    end
+    if confirmTimer then
+      confirmTimer:Cancel()
+      confirmTimer = nil
+    end
+  end
+end
+
 local function EnhanceBlueprintFrames()
   if not IsEnabled() then
     return
   end
+  SetDisplayWatchActive(true)
   if HousingBlueprintImportFrame and HousingBlueprintImportFrame.InputContent then
     EnhanceShareCodeBox(HousingBlueprintImportFrame.InputContent.ShareCodeBox, TUNING.import)
   end
@@ -696,13 +793,16 @@ end
 -- HookScript hooks are left in place on purpose - WoW cannot destroy a frame or
 -- remove a hook - but they are made inert: the widgets are hidden and, because
 -- every update path ends in overlay:SetShown(box.ludiusMasked), masked == false
--- keeps them a no-op that never touches the box's text. So the runtime footprint
--- is reduced as far as the platform permits, even though it cannot reach zero.
+-- keeps them a no-op that never touches the box's text. The display watch, being an
+-- event registration rather than a widget, CAN be given up completely, so it is. The
+-- runtime footprint is reduced as far as the platform permits, even though it cannot
+-- reach zero.
 function addon.SetupOrTeardownBlueprintMasking()
   local active = IsEnabled()
   if active then
     EnhanceBlueprintFrames()
   end
+  SetDisplayWatchActive(active)
   for _, box in ipairs(enhancedBoxes) do
     SetBlueprintMaskActive(box, active)
   end
