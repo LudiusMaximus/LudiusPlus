@@ -110,6 +110,13 @@ local CONFIG_DEFAULTS = {
   -- in CONFIG_DEFAULTS so it survives the unknown-key cleanup in OnInitialize.
   migrationVersion                         = 0,
 
+  -- Likewise bookkeeping: the version of the House Editor "Recent" history this
+  -- user's saved list has been brought up to (see MigrateRecentHistory). It is
+  -- deliberately NOT part of migrationVersion, because that runs in
+  -- OnInitialize, where the housing catalog holds no data yet - a history
+  -- migration that reads the catalog has to wait until the editor is open.
+  recentHistoryVersion                     = 0,
+
 }
 
 

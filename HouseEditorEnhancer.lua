@@ -227,7 +227,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 --   * Blizzard_HousingTemplates/Blizzard_HousingCatalogUtil.lua
 --       Stateless helpers we call directly (NOT reimplemented): GetEntryQuantity,
 --       GetEntryNumStored, GetEntryTotalOwned, FormatPrice, FormatRefundTime.
---       If a signature changes, our call sites change with it.
+--       If a signature changes, our call sites change with it. GetEntryQuantity
+--       in particular carries the unredeemed-copies rule that Recent tile counts
+--       depend on, so VariantRecord hands it each variant rather than restating
+--       the arithmetic.
 --   * Blizzard_HousingTemplates/Blizzard_HousingCatalogCategories.lua (+ .xml)
 --       The category pane. Source for our Recent button styling, the room-category
 --       and "unselected" fakes, and the SetFocus choke-point hook. Key symbols:
@@ -386,10 +389,14 @@ local LeaveRecentMode
 local UpdateRecentButtonVisibility
 -- Drop one entry from history (called from a tile's hover delete button, in CreateTile).
 local RemoveRecentEntry
--- Per-variant storage count (UpdateTileVisuals).
+-- Per-variant storage count and catalog variantIdentifier (UpdateTileVisuals).
 local VariantStoredCount
--- Per-RefreshTileGrid-pass memo for VariantStoredCount (wiped at start of each pass).
+local VariantIdentifierFor
+-- Per-RefreshTileGrid-pass memo behind both (wiped at start of each pass).
 local variantStoredCache = {}
+-- One-time cleanup of histories saved before dye identities were recorded
+-- correctly (called by SyncRecentList). Declared here, defined late: needs DyeKey.
+local MigrateRecentHistory
 
 -- Tile grid:
 -- Hoisted here (rather than near RefreshTileGrid) so they're in scope for
@@ -1308,9 +1315,14 @@ local function StartPlacingForEntry(entryVariantID)
   if preview then
     C_HousingBasicMode.StartPlacingPreviewDecor(entryVariantID.recordID)
   else
-    -- StartPlacingNewDecor needs a real variantIdentifier. Our uncatalogued
-    -- Recent color tiles (a dyed variant fully placed out of storage) carry
-    -- none and can't be placed anyway (0 in storage) - they're history-only.
+    -- StartPlacingNewDecor needs a real variantIdentifier. A Recent tile without
+    -- one is a color the catalog can't name, which only happens while none of it
+    -- is in storage - so it's history-only and there is nothing to place.
+    --
+    -- That holds only because UpdateTileVisuals re-resolves the identifier on
+    -- every render: a nil here means "none in storage RIGHT NOW", not "never
+    -- looked it up". Drop that repair and this silently starts refusing colors
+    -- the player does have.
     if entryVariantID.variantIdentifier == nil then return end
     C_HousingBasicMode.StartPlacingNewDecor(entryVariantID)
   end
@@ -1955,19 +1967,35 @@ local function UpdateTileVisuals(tile, entryVariantID, info)
   tile.deleteBtn:SetPoint("TOPRIGHT", tile, "TOPRIGHT",
                           -DELETE_BTN_INSET * tileScale, -DELETE_BTN_INSET * tileScale)
 
-  -- Variant info drives the owned-quantity and (for catalog tiles) the dye
-  -- swatches. Skipped for our uncatalogued Recent entries (no variantIdentifier,
-  -- e.g. a color fully placed out of storage) - they carry their own dyeSlots.
-  local variantInfo = entryVariantID.variantIdentifier
-                      and C_HousingCatalog.GetCatalogEntryVariantInfo
-                      and C_HousingCatalog.GetCatalogEntryVariantInfo(entryVariantID)
-
   -- Recent tiles carry a dyeKey; compute this variant's own storage count
   -- (variant-specific, correct even for the base/undyed - see VariantStoredCount).
   -- Stashed on the tile so the click handlers can gate placement on it.
   local isRecent = entryVariantID.dyeKey ~= nil
-  tile.recentStored = isRecent
-    and VariantStoredCount(entryVariantID.recordID, entryVariantID.dyeKey) or nil
+  if isRecent then
+    -- Re-resolve a missing variantIdentifier. It is written ONCE, at record time,
+    -- by matching the placed instance's dyes against the catalog - and that can
+    -- only match a variant which is IN STORAGE, so placing a color's last copy
+    -- records it without one. The count beside it is a live query, so the two
+    -- drift apart the moment a copy comes back: the tile prints a real number
+    -- and still refuses every click, because StartPlacingForEntry bails on a nil
+    -- identifier. entryVariantID IS the saved history entry, so this persists.
+    if entryVariantID.variantIdentifier == nil then
+      entryVariantID.variantIdentifier =
+        VariantIdentifierFor(entryVariantID.recordID, entryVariantID.dyeKey)
+    end
+    tile.recentStored = VariantStoredCount(entryVariantID.recordID, entryVariantID.dyeKey)
+  else
+    tile.recentStored = nil
+  end
+
+  -- Variant info drives the owned-quantity and (for catalog tiles) the dye
+  -- swatches. Skipped for our uncatalogued Recent entries (no variantIdentifier,
+  -- e.g. a color fully placed out of storage) - they carry their own dyeSlots.
+  -- Read AFTER the repair above, so a just-recovered variant shows its data on
+  -- this render rather than the next one.
+  local variantInfo = entryVariantID.variantIdentifier
+                      and C_HousingCatalog.GetCatalogEntryVariantInfo
+                      and C_HousingCatalog.GetCatalogEntryVariantInfo(entryVariantID)
 
   -- Let the position change a little depending on scale, so the labels are
   -- not outside the chamfered edges of the tiles.
@@ -2897,8 +2925,9 @@ end
 --     list (GetAllVariantInfosForEntry). Works for any placed instance, session
 --     or pre-existing. If the dyes can't be matched (a dyed variant with 0 in
 --     storage isn't enumerated), we still record the exact color from the
---     instance's own dyeSlots: the tile draws its swatches but is display-only
---     (not placeable), since StartPlacingNewDecor needs a real variantIdentifier.
+--     instance's own dyeSlots: the tile draws its swatches and is history-only
+--     until a copy is back in storage, at which point UpdateTileVisuals recovers
+--     the identifier and it becomes placeable again.
 --
 -- Also recorded: re-dyes of already-placed decor, captured at the dye pane's
 -- COMMIT (hooksecurefunc on C_HousingCustomizeMode.CommitDyesForSelectedDecor)
@@ -2977,6 +3006,7 @@ SyncRecentList = function()
   local key = CurrentRecentKey()
   LP_houseEditorRecent[key] = LP_houseEditorRecent[key] or {}
   recentEntries = LP_houseEditorRecent[key]
+  if MigrateRecentHistory then MigrateRecentHistory() end
 end
 
 -- Exit the Recent view and restore Blizzard's real header text. The order
@@ -3066,7 +3096,8 @@ end
 -- variant plus the dyed variants currently in STORAGE (each entry carries
 -- entryVariantID, numStored, and dyeSlots). Returns nil if the API is missing.
 -- See the NOTE in FindVariantIdForInstance for what this list omits (0-stored
--- dyed variants). Used by both VariantStoredCount and FindVariantIdForInstance.
+-- dyed variants). Used by VariantRecord (which backs both the per-variant count
+-- and the identifier lookup) and by FindVariantIdForInstance.
 local function GetDecorVariantInfos(recordID)
   if not (C_HousingCatalog and C_HousingCatalog.GetAllVariantInfosForEntry) then
     return nil
@@ -3077,26 +3108,77 @@ local function GetDecorVariantInfos(recordID)
   })
 end
 
--- Assigned to the forward-declared local so UpdateTileVisuals (defined earlier)
--- can use it. Live per-variant storage count keyed by dye signature.
--- GetAllVariantInfosForEntry lists every owned variant's numStored - INCLUDING
--- the base (id 0), even at 0 - so this is the correct per-variant count, unlike
--- GetEntryQuantity on the base variant (which returns the whole-entry total).
--- A variant with none in storage isn't listed, so it reads as 0. Cached per
--- RefreshTileGrid pass (variantStoredCache is wiped there).
-VariantStoredCount = function(recordID, dyeKey)
+-- Everything we need to know about ONE dye variant of a decor, keyed by its dye
+-- signature: the live storage count, and the catalog variantIdentifier that lets
+-- it be placed. Both come out of the same query, so they share one cache, filled
+-- per decor and wiped per RefreshTileGrid pass (see variantStoredCache).
+--
+-- Per-variant because a Recent tile is one specific color. The count is Blizzard's
+-- own GetEntryQuantity handed that variant, so we inherit its rule instead of
+-- restating it - and the rule is easy to get wrong. Some decor is awarded lazily:
+-- the copies sit in storage as UNREDEEMED instances, counted in neither
+-- totalNumStored nor any variant's numStored until first placed. GetEntryQuantity
+-- adds those to the base variant (redemption always yields the base) and to no
+-- other. Miss them and the tile still tracks placing and deleting by one, so it
+-- looks right while sitting a fixed number BELOW the truth forever - and at an
+-- apparent 0 it greys out and refuses to place decor the player really does have.
+--
+-- A variant with none in storage may not be listed at all; Blizzard's own
+-- GetSortedVariantInfosWithBase synthesizes a 0-stored base for that case. An
+-- absent key then reads as 0 with no identifier to place it by, which is right -
+-- unless the missing one is the base and there are unredeemed copies, since
+-- nothing else would carry them. Hence the synthesized entry below.
+local function VariantRecord(recordID, dyeKey)
   local map = variantStoredCache[recordID]
   if not map then
     map = {}
-    local variants = GetDecorVariantInfos(recordID)
-    if variants then
-      for _, v in ipairs(variants) do
-        map[DyeKey(v.dyeSlots)] = v.numStored or 0
+    local info = C_HousingCatalog.GetCatalogEntryInfo({
+      entryType = Enum.HousingCatalogEntryType.Decor,
+      recordID = recordID,
+    })
+    local quantityOf = info and Blizzard_HousingCatalogUtil
+                       and Blizzard_HousingCatalogUtil.GetEntryQuantity
+    local baseKey  -- dye signature of the base variant, when it is listed
+    for _, v in ipairs(GetDecorVariantInfos(recordID) or {}) do
+      local key = DyeKey(v.dyeSlots)
+      -- Not "quantityOf and ... or v.numStored": a genuine 0 would fall through.
+      local stored = v.numStored or 0
+      if quantityOf then
+        stored = quantityOf(info, v)
       end
+      map[key] = {
+        stored = stored,
+        variantIdentifier = v.entryVariantID and v.entryVariantID.variantIdentifier,
+      }
+      if v.entryVariantID and v.entryVariantID.variantIdentifier == 0 then
+        baseKey = key
+      end
+    end
+    -- Base absent but unredeemed copies exist: none of the listed variants was
+    -- given them above. An unlisted base is undyed, so it lands on the empty
+    -- signature, and its identifier is 0. GetEntryQuantity with no variantInfo
+    -- would be wrong here - it falls back to totalNumStored, which counts the
+    -- DYED copies too.
+    if not baseKey and info and (info.remainingRedeemable or 0) > 0 then
+      map[""] = { stored = info.remainingRedeemable, variantIdentifier = 0 }
     end
     variantStoredCache[recordID] = map
   end
-  return map[dyeKey] or 0
+  return map[dyeKey]
+end
+
+-- Assigned to the forward-declared locals so UpdateTileVisuals (defined earlier)
+-- can use them.
+VariantStoredCount = function(recordID, dyeKey)
+  local rec = VariantRecord(recordID, dyeKey)
+  return rec and rec.stored or 0
+end
+
+-- nil when this color has none in storage: an unlisted variant has no identifier
+-- to give, and without one the decor cannot be placed.
+VariantIdentifierFor = function(recordID, dyeKey)
+  local rec = VariantRecord(recordID, dyeKey)
+  return rec and rec.variantIdentifier
 end
 
 -- Record a Recent entry = {entryType, recordID, variantIdentifier?,
@@ -3104,8 +3186,9 @@ end
 -- each distinct color is ONE tile whether or not it has a catalog
 -- variantIdentifier. We keep the dyeSlots so the tile can draw its own swatches
 -- (dyed variants with 0 in storage have no catalog variant - see
--- FindVariantIdForInstance), and the variantIdentifier when known so the tile
--- can be placed while stock exists.
+-- FindVariantIdForInstance), and the variantIdentifier when it is known, so the
+-- tile can be placed. When it isn't, UpdateTileVisuals recovers it on a later
+-- render, as soon as a copy of that color is back in storage.
 local function RecordRecentEntry(entry)
   -- The recording hooks (StartPlacingNewDecor stash, PLACE_SUCCESS, dye commit)
   -- stay installed for the session once Recent has ever been enabled, since
@@ -3131,13 +3214,112 @@ local function RecordRecentEntry(entry)
   FinalizeRecentChange()
 end
 
+-- One-time cleanup of saved histories, across every house+area list. Assigned to
+-- the forward-declared local because SyncRecentList (defined earlier) calls it,
+-- while it needs DyeKey (defined above).
+--
+-- THE DAMAGE IT UNDOES. Until the StartPlacingNewDecor hook began capturing
+-- dyeSlots, they were read at PLACE_SUCCESS instead - after the copy had left
+-- storage. Placing the last one of a color drops that variant from the catalog,
+-- so the lookup returned nil and the entry was saved carrying a dyed
+-- variantIdentifier with no dyeSlots, and therefore the UNDYED dye signature.
+-- Such a tile counts the undyed stack instead of its own color, gates its clicks
+-- on that same wrong number, and no longer dedups against the correctly-keyed
+-- entry it came from - so the color sits in the list twice. Nothing records
+-- entries that way any more; this is purely about lists already on disk.
+--
+-- REPAIR, ELSE DROP. The dye signature can be recovered from the catalog, but
+-- only while that variant has at least one copy in storage - at zero there is
+-- nothing to ask, and inventing a color from an opaque identifier hash would
+-- write a permanently wrong key. So an unrecoverable entry is deleted instead.
+-- That loses a line of history, which is the lesser harm: the alternative is a
+-- tile that stays wrong indefinitely and can only be cleared by hand.
+--
+-- Only entries with a REAL dyed identifier are touched. Identifier 0 is the
+-- undyed base, whose empty signature is already correct even with no dyeSlots
+-- saved, and a nil identifier means there is no variant to ask about.
+--
+-- WHY NOT ApplyConfigMigrations. That runs in OnInitialize, where the housing
+-- catalog is still empty, so every lookup would fail and every affected entry
+-- would be deleted rather than repaired. This one runs from SyncRecentList - the
+-- editor is open and the catalog is populated by then - and it verifies that for
+-- itself before deleting anything, so a call that lands too early simply defers.
+local RECENT_HISTORY_VERSION = 1
+
+MigrateRecentHistory = function()
+  if (LP_config.recentHistoryVersion or 0) >= RECENT_HISTORY_VERSION then return end
+  if type(LP_houseEditorRecent) ~= "table" then return end
+  if not (C_HousingCatalog.GetCatalogEntryInfo and C_HousingCatalog.GetCatalogEntryVariantInfo) then
+    return
+  end
+
+  -- Refuse to delete anything against a catalog that has not loaded: it would
+  -- answer "no such variant" for every entry alike. One entry resolving proves
+  -- the data is there, and asking about ALL of them (rather than trusting any
+  -- single one) means a decor that Blizzard has since removed from the game
+  -- cannot wedge the migration shut forever.
+  local anyEntry, catalogLive = false, false
+  for _, list in pairs(LP_houseEditorRecent) do
+    for _, e in ipairs(list) do
+      anyEntry = true
+      if C_HousingCatalog.GetCatalogEntryInfo(e) then
+        catalogLive = true
+        break
+      end
+    end
+    if catalogLive then break end
+  end
+  if anyEntry and not catalogLive then return end  -- too early; a later call retries
+
+  for _, list in pairs(LP_houseEditorRecent) do
+    local i = 1
+    while i <= #list do
+      local e = list[i]
+      if e.dyeSlots ~= nil or not e.variantIdentifier or e.variantIdentifier == 0 then
+        i = i + 1
+      else
+        local vinfo = C_HousingCatalog.GetCatalogEntryVariantInfo(e)
+        if vinfo and vinfo.dyeSlots then
+          e.dyeSlots = vinfo.dyeSlots
+          e.dyeKey = DyeKey(vinfo.dyeSlots)
+          i = i + 1
+        else
+          tremove(list, i)
+        end
+      end
+    end
+
+    -- A repaired key collides with the entry it should have deduped against in
+    -- the first place. Keep the FIRST occurrence: the list is most-recent-first,
+    -- so that is the newer placement, and it is the one carrying a usable
+    -- variantIdentifier.
+    local seen, j = {}, 1
+    while j <= #list do
+      local e = list[j]
+      local key = tostring(e.entryType) .. ":" .. tostring(e.recordID) .. ":" .. tostring(e.dyeKey)
+      if seen[key] then
+        tremove(list, j)
+      else
+        seen[key] = true
+        j = j + 1
+      end
+    end
+  end
+
+  LP_config.recentHistoryVersion = RECENT_HISTORY_VERSION
+end
+
 -- Recover the catalog variantIdentifier for a placed instance by matching its
 -- applied dyes against the catalog's variant list for the same decor. The
 -- placed instance carries dyeSlots (the colors) but not the variantIdentifier;
 -- each catalog variant carries both, so the variant whose dyeSlots match is
--- the one. Works for any instance with a valid GUID (session or pre-existing);
--- the placed variant enumerates even when 0 are left in storage. Returns the
--- matched variantIdentifier, or nil if there's no catalog data / no match.
+-- the one. Works for any instance with a valid GUID (session or pre-existing).
+-- Returns the matched variantIdentifier, or nil if there's no catalog data or no
+-- match - see the NOTE below for when a match is impossible.
+--
+-- Deliberately NOT VariantIdentifierFor, which answers the same question from
+-- variantStoredCache: that cache is scoped to a render pass, and what we resolve
+-- here is written into the saved history for good. A stale hit would persist.
 local function FindVariantIdForInstance(decorID, instanceDyeSlots)
   local variants = GetDecorVariantInfos(decorID)
   if not variants then return nil end
@@ -3146,8 +3328,9 @@ local function FindVariantIdForInstance(decorID, instanceDyeSlots)
   -- storage (fully placed, or dyed in-world) isn't listed, so its
   -- variantIdentifier (an opaque hash) can't be recovered here. Returning nil is
   -- fine: the caller still records the exact color from the instance's own
-  -- dyeSlots, so the tile draws its swatches - it's just display-only (not
-  -- placeable, count shown as 0) until a copy of that color is back in storage.
+  -- dyeSlots, so the tile draws its swatches and shows a 0, and UpdateTileVisuals
+  -- retries the lookup each render - the entry becomes placeable again as soon as
+  -- a copy of that color is back in storage.
   local target = DyeKey(instanceDyeSlots)
   for _, v in ipairs(variants) do
     if v.entryVariantID and DyeKey(v.dyeSlots) == target then
@@ -3193,16 +3376,15 @@ local function RecordPlacedDecor(decorGUID, isNew, isPreview)
   if isNew and pendingPlaceVariant then
     -- Fresh placement we tracked: record the exact stashed variant. (The
     -- event's decorGUID is usually nil here - the server hasn't assigned the
-    -- new instance's GUID yet - but we don't need it.) Pull its dyeSlots from
-    -- the catalog variant so its tile draws swatches like any other entry.
+    -- new instance's GUID yet - but we don't need it.) Its dyeSlots came with
+    -- the stash, read while the copy was still in storage - see the
+    -- StartPlacingNewDecor hook for why they can no longer be read here.
     local v = pendingPlaceVariant
-    local vinfo = C_HousingCatalog.GetCatalogEntryVariantInfo
-                  and C_HousingCatalog.GetCatalogEntryVariantInfo(v)
     RecordRecentEntry({
       entryType = v.entryType,
       recordID = v.recordID,
       variantIdentifier = v.variantIdentifier,
-      dyeSlots = vinfo and vinfo.dyeSlots,
+      dyeSlots = v.dyeSlots,
     })
     pendingPlaceVariant = nil
     return
@@ -3562,10 +3744,19 @@ local function SetupRecent()
   if not recentRecordHooked then
     hooksecurefunc(C_HousingBasicMode, "StartPlacingNewDecor", function(entryVariantID)
       if type(entryVariantID) == "table" then
+        -- Take the dyeSlots NOW, while the copy is still in storage. Asking at
+        -- PLACE_SUCCESS is too late: placing the LAST copy of a color removes
+        -- that variant from the catalog, so the lookup comes back nil and the
+        -- entry gets saved with a dyed variantIdentifier but no dye signature -
+        -- which then counts the undyed stack and fails to dedup against the very
+        -- tile it was placed from, leaving that color in the list twice.
+        local vinfo = C_HousingCatalog.GetCatalogEntryVariantInfo
+                      and C_HousingCatalog.GetCatalogEntryVariantInfo(entryVariantID)
         pendingPlaceVariant = {
           entryType = entryVariantID.entryType,
           recordID = entryVariantID.recordID,
           variantIdentifier = entryVariantID.variantIdentifier,
+          dyeSlots = vinfo and vinfo.dyeSlots,
         }
       end
     end)
