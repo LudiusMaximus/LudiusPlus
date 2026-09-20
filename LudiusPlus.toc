@@ -3,7 +3,30 @@
 ## Title: Ludius Plus
 ## IconAtlas: nameplates-icon-flag-alliance
 ## Author: LudiusMaximus
+
 ## Notes: A collection of little WoW tweaks by Ludius.
+## Notes-deDE: Eine Sammlung kleiner WoW-Anpassungen von Ludius.
+## Notes-esES: Una colección de pequeños ajustes para WoW por Ludius.
+## Notes-esMX: Una colección de pequeños ajustes para WoW por Ludius.
+## Notes-frFR: Une collection de petits ajustements pour WoW par Ludius.
+## Notes-itIT: Una raccolta di piccoli aggiustamenti per WoW creati da Ludius.
+## Notes-koKR: Ludius가 제작한 소소한 WoW 조정 기능 모음입니다.
+## Notes-ptBR: Uma coleção de pequenos ajustes para WoW por Ludius.
+## Notes-ruRU: Коллекция небольших твиков для WoW от Ludius.
+## Notes-zhCN: 由 Ludius 制作的一系列 WoW 小调整集合。
+## Notes-zhTW: 由 Ludius 製作的一系列 WoW 小調整集合。
+
+## Category: Other
+## Category-deDE: Anderes
+## Category-esES: Otros
+## Category-esMX: Otros
+## Category-frFR: Autre
+## Category-itIT: Altro
+## Category-koKR: 기타
+## Category-ptBR: Outro
+## Category-ruRU: Другое
+## Category-zhCN: 其它
+## Category-zhTW: 其他
 
 ## OptionalDeps: Bartender4
 ## SavedVariables: LP_desiredCompanion, LP_desiredUnsheath, LP_lastMount, LP_houseEditorRecent, LP_config
@@ -17,16 +40,16 @@
 
 embeds.xml
 
+BlueprintCodeMasking.lua
 DialogSkipper.lua
 DismountToggle.lua
 Flashlight.lua
+HouseEditorEnhancer.lua
 MuteSounds.lua
 PersistentCompanion.lua
 PersistentUnsheath.lua
 RaceOnLastMount.lua
-VendorItemOverlay.lua
 SpellIconOverlay.lua
-HouseEditorEnhancer.lua
-BlueprintCodeMasking.lua
+VendorItemOverlay.lua
 
 options.lua
