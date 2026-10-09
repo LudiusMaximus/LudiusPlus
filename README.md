@@ -14,10 +14,9 @@ Enhance vendor browsing with additional item information overlays.
 * **Ownership for decor items:** Displays ownership details for housing decor items - showing "[in storage]/[total owned]" in the top-right corner of each icon, so you can see at a glance how many you already own.
 * **Already known items:** Greys out and marks items you already know (Toys, Mounts, Pets, Transmog, Recipes) with a checkmark, so you can see at a glance what you have already collected.
 
-
 ### 🏠 Enhanced House Editor
-Not being able to properly inspect the decor items in the small icons of the House Editor's Storage and Catalog frames is a s#!tshow obviously. Ludius Plus's "Thoughtfully Augmented Editor" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!
-Among the other options of the TAE is chain placement: holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count.
+Not being able to properly inspect the decor items in the small icons of the House Editor's Storage and Catalog frames is a s#!tshow obviously. Ludius Plus's "Thoughtfully Augmented Editor" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!  
+Among the other options of the TAE is chain placement: holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count.  
 There is also blueprint-code masking for streamers: it hides the share codes in the blueprint import and export windows behind dots (toggle them visible with the eye button), so you can save or import a blueprint on stream without exposing its code to viewers - while copying it to clipboard or posting it to chat still works on the real code.
 
 ### 🔄 Spell Icon Overlay
@@ -30,21 +29,17 @@ Bind a single hotkey to seamlessly switch between mounted and dismounted states.
 Start Skyriding races on your preferred flying mount, not the default Renewed Proto-Drake. If you start a race unmounted, the addon automatically switches to your last active flying mount during the race countdown which saves you one action bar click.
 
 ### 🐾 Persistent Companion
-Never lose your pet companion again. The addon is aware of when you actively summon or dismiss your companion battle pet and automatically persists this state. It resummons the pet after it disappears - e.g. from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away.
-
+Never lose your pet companion again. The addon is aware of when you actively summon or dismiss your companion battle pet and automatically persists this state. It resummons the pet after it disappears - e.g. from flying, stepping through portals, or entering instances. Your trusted companion is always just a moment away.  
 Additional features:
 * **Dismiss pet while stealthed:** Nothing breaks immersion like your pet seemingly giving you away while you are stealthed (Rogue Stealth/Vanish, Druid Prowl, Hunter Camouflage, Mage Invisibility, Night Elf Shadowmeld, etc.). The addon can automatically dismiss your pet when entering stealth and resummon it when stealth ends.
 * **Dismiss pet in combat:** Automatically dismiss your pet when entering combat and resummon it when combat ends. Ideal if you prefer a cleaner view during battles.
-
 
 ### ⚔️ Persistent Unsheath
 The addon keeps track of when you actively sheathe or unsheathe and persists this state. It then automatically maintains your last desired weapon sheath state. For example, you never have to manually unsheathe your wand after a spell cast, if unsheathed is your preference, or you never have to manually sheathe your weapon after combat if sheathed is your preference.
 
 ### 🗣️ Dialog Fade Sound
-WoW's voice lines are performed by excellent voice actors, and every nuance deserves to be heard. Punchy sound effects and a soaring score deserve their full volume, too - just not on top of a masterfully delivered line. The game itself only lowers ("ducks") the other channels very subtly during dialog, so this module detects whenever a sound plays on the Dialog channel and fades music, effects and/or ambience down for as long as it lasts.
-* **Smooth fades:** For each channel you set how far it is lowered and how quickly it fades out and back in. Unlike Blizzard's abrupt ducking, the fades follow smooth curves, so the channels can return almost unnoticed. A Test button lets you hear your settings right away.
-* **Delves:** Your companion comments a lot during combat, and some sound effects play on the Dialog channel too. If the fading gets more distracting than helpful there, you can switch it off for delves.
-* **Quest turn-in fanfare:** Can be muted, as it often drowns out the NPC's last words and makes the game duck the music, only to bring it back abruptly.
+WoW's voice lines are performed by excellent voice actors, and every nuance deserves to be heard. Punchy sound effects and a soaring score deserve their full volume, too - just not on top of a masterfully delivered line. The game itself only lowers ("ducks") the other channels very subtly during dialog, so this module detects whenever a sound plays on the Dialog channel and fades music, effects and/or ambience down for as long as it lasts.  
+For each channel you set how far it is lowered and how quickly it fades out and back in. Unlike Blizzard's abrupt ducking, the fades follow smooth curves, so the channels can return almost unnoticed. A Test button lets you hear your settings right away. Optionally, the fading can be switched off in delves, and the quest turn-in fanfare can be muted.
 
 ### 🔇 Mute Sounds
 Banish annoying sounds by their ID. Ever been bothered by repetitive summon sounds, ambient noise, or other audio distractions? Mute them individually while keeping all other game sounds intact.
