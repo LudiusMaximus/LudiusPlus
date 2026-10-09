@@ -36,6 +36,7 @@ L["Torch Toggle"] = "Переключить факел"
 L["Toy Missing:"] = "Игрушка отсутствует:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "У вас нет игрушки «%s»!\nПолучите ее из Сияющего сундука:\nhttps://www.wowhead.com/ru/object=437211/сияющий-сундук"
 L["Flashlight module is disabled. Enable it in the addon options."] = "Модуль Фонарик отключен. Включите его в настройках аддона."
+L["Flashlight module disabled because you don't own the toy."] = "Модуль Фонарик отключен, так как у вас нет этой игрушки."
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = "Заглушение звука при диалогах"
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = "Не приглушать в вылазках"
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = "Во время вылазок ваш спутник довольно часто комментирует свои действия в бою, а некоторые звуковые эффекты (например, подбор сокровищ или обвал камней) тоже проигрываются в канале «Диалог». Некоторым игрокам приглушение при всех этих звуках может мешать, и они, возможно, захотят отключить его в вылазках.\nКнопка «Тест» вверху этой страницы в любом случае всегда вызывает приглушение."
 L["Mute quest turn-in fanfare"] = "Отключить фанфары при сдаче задания"
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = "Фанфары, звучащие при сдаче задания, часто заглушают последние слова NPC. Кроме того, пока они звучат, игра приглушает музыку, а затем резко возвращает ее громкость. С этой настройкой фанфары отключаются, и музыка остается как есть."
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = "Фанфары, звучащие при сдаче задания, часто заглушают последние слова NPC. Кроме того, пока они звучат, игра приглушает музыку, а затем резко возвращает ее громкость. С этой настройкой фанфары отключаются везде."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Отключить звуки"
@@ -146,14 +147,14 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Улучшенный редактор дома"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Значки предпросмотра предметов декора в окнах %s и %s редактора дома могут быть слишком мелкими, чтобы их можно было четко рассмотреть. Улучшенный редактор дома от Ludius Plus добавляет - помимо прочего - ползунок для изменения размера значков и боковую панель предварительного просмотра (открывается с помощью CTRL + ЛЕВАЯ КНОПКА МЫШИ)."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Значки предпросмотра предметов декора в окнах %s и %s редактора дома могут быть слишком мелкими, чтобы их можно было четко рассмотреть. Улучшенный редактор дома от Ludius Plus добавляет - помимо прочего - ползунок для изменения размера значков и боковую панель предварительного просмотра (открывается с помощью CTRL + ЛЕВАЯ КНОПКА МЫШИ)."
 L["Icon resize with slider"] = "Изменение размера значков ползунком"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Если включено, в окно %s/%s редактора дома добавляется ползунок для настройки размера значков декора."
 L["Icon resize with CTRL + mouse wheel"] = "Изменение размера значков через CTRL + колесико мыши"
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "Если включено, удерживание клавиши CTRL при прокрутке колесика мыши над окном %s/%s редактора дома изменяет размер значков декора."
 L["Decor preview"] = "Предпросмотр декора"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Если включено, вы можете нажать CTRL + ЛЕВАЯ КНОПКА МЫШИ на значке декора в окне %s/%s редактора дома, чтобы открыть рядом окно предпросмотра модели."
-L["Chain placement when holding SHIFT"] = "Серийное размещение при удерживании SHIFT"
+L["Chain placement"] = "Серийное размещение"
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "Если включено, удерживание клавиши SHIFT во время подтверждения размещения декора сразу же начинает повторное размещение этого предмета (пока в инвентаре остаются его копии). Маленький значок у указателя мыши показывает оставшееся количество."
 L["Decor Icon Size:"] = "Размер значков декора:"
 L["Resize decor item icons"] = "Изменить размер значков предметов декора"

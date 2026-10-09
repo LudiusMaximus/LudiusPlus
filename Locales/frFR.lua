@@ -36,6 +36,7 @@ L["Torch Toggle"] = "Basculer la torche"
 L["Toy Missing:"] = "Jouet manquant :"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "Vous ne possédez pas le jouet « %s » !\nRécupérez-le dans la Cantine illuminée :\nhttps://www.wowhead.com/fr/object=437211/cantine-illumin%C3%A9e"
 L["Flashlight module is disabled. Enable it in the addon options."] = "Le module Lampe torche est désactivé. Activez-le dans les options de l'addon."
+L["Flashlight module disabled because you don't own the toy."] = "Le module Lampe torche a été désactivé car vous ne possédez pas le jouet."
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = "Atténuation sonore des dialogues"
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = "Ne pas atténuer dans les Gouffres"
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = "Dans les Gouffres, votre compagnon commente assez souvent ses propres actions en combat, et certains effets sonores (comme le ramassage de trésors ou des éboulements) passent eux aussi par le canal Dialogue. Certains joueurs trouveront peut-être l'atténuation gênante pour tous ces sons et voudront la désactiver dans les Gouffres.\nLe bouton « Tester » en haut de cette page déclenche toujours une atténuation malgré tout."
 L["Mute quest turn-in fanfare"] = "Couper la fanfare de fin de quête"
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = "La fanfare jouée lorsque vous rendez une quête couvre souvent les derniers mots du PNJ. De plus, le jeu baisse la musique pendant qu'elle retentit, puis la remonte brusquement. Avec cette option, la fanfare est coupée et la musique reste telle quelle."
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = "La fanfare jouée lorsque vous rendez une quête couvre souvent les derniers mots du PNJ. De plus, le jeu baisse la musique pendant qu'elle retentit, puis la remonte brusquement. Avec cette option, la fanfare est coupée partout."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Couper les sons"
@@ -146,14 +147,14 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "Éditeur de maison amélioré"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Les icônes d'aperçu des objets de décoration dans les fenêtres %s et %s de l'éditeur de maison peuvent être trop petites pour être vues clairement. L'éditeur de maison amélioré de Ludius Plus ajoute - entre autres - un curseur pour modifier la taille des icônes et un panneau de prévisualisation latéral (ouvert avec CTRL + CLIC GAUCHE)."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "Les icônes d'aperçu des objets de décoration dans les fenêtres %s et %s de l'éditeur de maison peuvent être trop petites pour être vues clairement. L'éditeur de maison amélioré de Ludius Plus ajoute - entre autres - un curseur pour modifier la taille des icônes et un panneau de prévisualisation latéral (ouvert avec CTRL + CLIC GAUCHE)."
 L["Icon resize with slider"] = "Redimensionner les icônes avec le curseur"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "Si activé, un curseur est ajouté à la fenêtre %s/%s de l'éditeur de maison pour personnaliser la taille des icônes de décoration."
 L["Icon resize with CTRL + mouse wheel"] = "Redimensionner les icônes avec CTRL + molette de la souris"
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "Si activé, maintenir CTRL enfoncé tout en faisant défiler la molette de la souris sur la fenêtre %s/%s de l'éditeur de maison redimensionne les icônes de décoration."
 L["Decor preview"] = "Aperçu de décoration"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Si activé, vous pouvez faire CTRL + CLIC GAUCHE sur les icônes de décoration dans la fenêtre %s/%s de l'éditeur de maison pour ouvrir un aperçu du modèle à côté."
-L["Chain placement when holding SHIFT"] = "Placement en chaîne en maintenant MAJ enfoncé"
+L["Chain placement"] = "Placement en chaîne"
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "Si activé, maintenir MAJ enfoncé lors de la validation du placement d'un décor lance immédiatement un nouveau placement du même objet (tant qu'il reste des exemplaires en réserve). Un petit icône sur le curseur indique le nombre restant."
 L["Decor Icon Size:"] = "Taille des icônes de décoration :"
 L["Resize decor item icons"] = "Modifier la taille des icônes d'objets de décoration"

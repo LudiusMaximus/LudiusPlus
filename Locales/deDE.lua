@@ -36,6 +36,7 @@ L["Torch Toggle"] = "Fackel umschalten"
 L["Toy Missing:"] = "Spielzeug fehlt:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "Ihr besitzt das „%s“ nicht!\nHolt es euch aus der Beleuchteten Schließkiste:\nhttps://www.wowhead.com/de/object=437211/beleuchtete-schließkiste"
 L["Flashlight module is disabled. Enable it in the addon options."] = "Taschenlampen-Modul ist deaktiviert. Aktiviert es in den Addon-Optionen."
+L["Flashlight module disabled because you don't own the toy."] = "Taschenlampen-Modul deaktiviert, weil Ihr das Spielzeug nicht besitzt."
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = "Dialog-Soundausblendung"
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = "In Tiefen nicht ausblenden"
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = "In Tiefen kommentiert Euer Gefährte im Kampf recht häufig das eigene Handeln, und auch manche Soundeffekte (etwa beim Aufheben von Schätzen oder bei einstürzendem Gestein) laufen über den Dialogkanal. Manche Spieler finden das Ausblenden bei all diesen Geräuschen störend und möchten es in Tiefen vielleicht abschalten.\nDer Button „Testen“ oben auf dieser Seite löst unabhängig davon immer ein Ausblenden aus."
 L["Mute quest turn-in fanfare"] = "Fanfare bei Questabgabe stummschalten"
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = "Die Fanfare, die beim Abgeben einer Quest ertönt, übertönt oft die letzten Worte des NPCs. Außerdem senkt das Spiel währenddessen die Musik und hebt sie danach abrupt wieder an. Mit dieser Option wird die Fanfare stummgeschaltet, und die Musik bleibt, wie sie ist."
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = "Die Fanfare, die beim Abgeben einer Quest ertönt, übertönt oft die letzten Worte des NPCs. Außerdem senkt das Spiel währenddessen die Musik und hebt sie danach abrupt wieder an. Mit dieser Option wird die Fanfare überall stummgeschaltet."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "Töne stummschalten"
@@ -153,7 +154,7 @@ L["Icon resize with CTRL + mouse wheel"] = "Icon-Größe mit STRG + Mausrad änd
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "Wenn aktiviert, ändert das Halten von STRG während des Scrollens mit dem Mausrad über dem %s/%s-Fenster des Hauseditors die Größe der Dekor-Icons."
 L["Decor preview"] = "Dekor-Vorschau"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "Ermöglicht das Öffnen eines Vorschau-Fensters durch STRG + LINKSKLICK auf die Dekor-Icons im %s/%s-Fenster des Hauseditors."
-L["Chain placement when holding SHIFT"] = "Kettenplatzierung beim Halten von SIFT"
+L["Chain placement"] = "Kettenplatzierung"
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "Wenn aktiviert, startet das Halten von SHIFT beim Bestätigen einer Dekorplatzierung sofort eine neue Platzierung desselben Gegenstands (solange noch Exemplare im Lager vorhanden sind). Ein kleines Icon am Cursor zeigt die verbleibende Anzahl an."
 L["Decor Icon Size:"] = "Dekor-Icon-Größe"
 L["Resize decor item icons"] = "Verändere die Größe der Dekor-Items"

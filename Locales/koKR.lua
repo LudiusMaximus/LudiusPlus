@@ -36,6 +36,7 @@ L["Torch Toggle"] = "횃불 켜기/끄기"
 L["Toy Missing:"] = "장난감 없음:"
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "\"%s\" 장난감을 가지고 있지 않습니다!\n빛나는 사물함에서 획득하세요:\nhttps://www.wowhead.com/ko/object=437211/빛나는-사물함"
 L["Flashlight module is disabled. Enable it in the addon options."] = "손전등 모듈이 비활성화되어 있습니다. 애드온 설정에서 활성화하세요."
+L["Flashlight module disabled because you don't own the toy."] = "장난감을 보유하고 있지 않아 손전등 모듈이 비활성화되었습니다."
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = "대화 소리 감쇄"
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = "구렁에서는 감쇄하지 않음"
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = "구렁에서는 동료가 전투 중 자신의 행동에 대해 꽤 자주 말하며, 일부 효과음(보물 줍기나 바위 붕괴 등)도 대화 채널에서 재생됩니다. 이 모든 소리에 대한 감쇄가 거슬리는 플레이어는 구렁에서 이를 끄고 싶을 수 있습니다.\n이 페이지 상단의 \"테스트\" 버튼은 이와 관계없이 항상 감쇄를 일으킵니다."
 L["Mute quest turn-in fanfare"] = "퀘스트 완료 팡파르 음소거"
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = "퀘스트를 완료할 때 재생되는 팡파르가 NPC의 마지막 대사를 가리는 경우가 많습니다. 게다가 게임은 팡파르가 재생되는 동안 배경음악을 낮췄다가 끝나면 갑자기 다시 높입니다. 이 옵션을 켜면 팡파르가 음소거되어 배경음악이 그대로 유지됩니다."
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = "퀘스트를 완료할 때 재생되는 팡파르가 NPC의 마지막 대사를 가리는 경우가 많습니다. 게다가 게임은 팡파르가 재생되는 동안 배경음악을 낮췄다가 끝나면 갑자기 다시 높입니다. 이 옵션을 켜면 팡파르가 어디서나 음소거됩니다."
 
 -- MuteSounds Options
 L["Mute Sounds"] = "소리 음소거"
@@ -146,14 +147,14 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "향상된 집 편집기"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "집 편집기의 %s 및 %s 창에 있는 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. Ludius Plus의 향상된 집 편집기는 아이콘 크기를 조절하는 슬라이더와 미리보기 측면 패널(CTRL + 왼쪽 클릭으로 열기) 등의 기능을 추가합니다."
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "집 편집기의 %s 및 %s 창에 있는 장식 아이템 미리보기 아이콘이 너무 작아 명확하게 확인하기 어려울 수 있습니다. Ludius Plus의 향상된 집 편집기는 아이콘 크기를 조절하는 슬라이더와 미리보기 측면 패널(CTRL + 왼쪽 클릭으로 열기) 등의 기능을 추가합니다."
 L["Icon resize with slider"] = "슬라이더로 아이콘 크기 조절"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "활성화하면 집 편집기의 %s/%s 창에 장식 아이콘 크기를 조절할 수 있는 슬라이더가 추가됩니다."
 L["Icon resize with CTRL + mouse wheel"] = "CTRL + 마우스 휠로 아이콘 크기 조절"
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "활성화하면 집 편집기의 %s/%s 창 위에서 CTRL 키를 누른 채 마우스 휠을 굴려 장식 아이콘의 크기를 조절할 수 있습니다."
 L["Decor preview"] = "장식 미리보기"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "활성화하면 집 편집기의 %s/%s 창에서 장식 아이콘을 CTRL + 왼쪽 클릭하여 옆에 모델 미리보기를 열 수 있습니다."
-L["Chain placement when holding SHIFT"] = "SHIFT 키를 누른 채 연속 배치"
+L["Chain placement"] = "연속 배치"
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "활성화하면 장식 배치를 확정할 때 SHIFT 키를 누르고 있으면 즉시 동일한 아이템의 새로운 배치가 시작됩니다(보관함에 수량이 남아있는 경우에 한함). 커서에 표시되는 작은 아이콘을 통해 남은 수량을 확인할 수 있습니다."
 L["Decor Icon Size:"] = "장식 아이콘 크기:"
 L["Resize decor item icons"] = "장식 아이템 아이콘 크기 조절"

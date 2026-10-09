@@ -36,6 +36,7 @@ L["Torch Toggle"] = "切换火把"
 L["Toy Missing:"] = "缺少玩具："
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = "您没有玩具“%s”！\n请从光耀提箱中获取：\nhttps://www.wowhead.com/cn/object=437211/光耀提箱"
 L["Flashlight module is disabled. Enable it in the addon options."] = "手电筒模块已禁用。请在插件设置中启用。"
+L["Flashlight module disabled because you don't own the toy."] = "由于你没有该玩具，手电筒模块已禁用。"
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = "对话声音淡入淡出"
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = "在地下堡中不淡出"
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = "在地下堡中，您的伙伴在战斗时会相当频繁地评论自己的行动，而且一些音效（例如拾取宝藏或岩石坍塌）也会在对话频道播放。有些玩家可能会觉得对所有这些声音进行淡出很烦人，因而希望在地下堡中关闭它。\n本页面顶部的“测试”按钮无论如何都会触发淡出。"
 L["Mute quest turn-in fanfare"] = "静音交任务时的号角声"
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = "交任务时播放的号角声常常盖过 NPC 的最后几句话。此外，游戏会在它播放期间降低音乐音量，结束后又突然恢复。启用此选项后，号角声将被静音，音乐也会保持不变。"
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = "交任务时播放的号角声常常盖过 NPC 的最后几句话。此外，游戏会在它播放期间降低音乐音量，结束后又突然恢复。启用此选项后，号角声将在任何场合被静音。"
 
 -- MuteSounds Options
 L["Mute Sounds"] = "静音声音"
@@ -146,14 +147,14 @@ L["Mute the pet summon sound when automatically resummoning your pet. The sound 
 
 -- HouseEditorEnhancer Options
 L["Enhanced House Editor"] = "增强型住宅编辑器"
-L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFT CLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "住宅编辑器的 %s 和 %s 窗口中的装饰品预览图标可能太小，无法清晰辨认。Ludius Plus 的增强型住宅编辑器添加了调整图标大小的滑块和预览侧栏（通过 CTRL + 左键点击打开）等功能。"
+L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"] = "住宅编辑器的 %s 和 %s 窗口中的装饰品预览图标可能太小，无法清晰辨认。Ludius Plus 的增强型住宅编辑器添加了调整图标大小的滑块和预览侧栏（通过 CTRL + 左键点击打开）等功能。"
 L["Icon resize with slider"] = "使用滑块调整图标大小"
 L["When enabled, a slider is added to the House Editor's %s/%s frame to customize the size of the decor icons."] = "启用后，住宅编辑器的 %s/%s 窗口将添加一个滑块，用于自定义装饰图标的大小。"
 L["Icon resize with CTRL + mouse wheel"] = "使用 CTRL + 鼠标滚轮调整图标大小"
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = "启用后，在住宅编辑器的 %s/%s 窗口上滚动鼠标滚轮时按住 CTRL 键可调整装饰图标的大小。"
 L["Decor preview"] = "装饰预览"
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = "启用后，您可以 CTRL + 左键点击住宅编辑器 %s/%s 窗口中的装饰图标，在旁边打开模型预览。"
-L["Chain placement when holding SHIFT"] = "按住 SHIFT 键进行连续放置"
+L["Chain placement"] = "连续放置"
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = "启用后，在确认放置装饰时按住 SHIFT 键将立即开始重新放置相同的物品（只要库存中还有剩余）。光标处的小图标会显示剩余数量。"
 L["Decor Icon Size:"] = "装饰图标大小："
 L["Resize decor item icons"] = "调整装饰品图标大小"

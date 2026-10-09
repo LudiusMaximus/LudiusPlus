@@ -36,6 +36,7 @@ L["Torch Toggle"] = true
 L["Toy Missing:"] = true
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
 L["Flashlight module is disabled. Enable it in the addon options."] = true
+L["Flashlight module disabled because you don't own the toy."] = true
 
 -- DialogFadeSound Options
 L["Dialog Fade Sound"] = true
@@ -61,7 +62,7 @@ L["Resets the faded volume and the fade times of all three channels to the value
 L["Don't fade in delves"] = true
 L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = true
 L["Mute quest turn-in fanfare"] = true
-L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = true
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."] = true
 
 -- MuteSounds Options
 L["Mute Sounds"] = true
@@ -153,7 +154,7 @@ L["Icon resize with CTRL + mouse wheel"] = true
 L["When enabled, holding CTRL while scrolling the mouse wheel over the House Editor's %s/%s frame resizes the decor icons."] = true
 L["Decor preview"] = true
 L["When enabled, you can CTRL + LEFTCLICK on decor icons in the House Editor's %s/%s frame to open a model preview next to it."] = true
-L["Chain placement when holding SHIFT"] = true
+L["Chain placement"] = true
 L["When enabled, holding SHIFT while committing a decor placement immediately starts a new placement of the same item (as long as there are copies left in storage). A small icon at the cursor shows the remaining count."] = true
 L["Decor Icon Size:"] = true
 L["Resize decor item icons"] = true
