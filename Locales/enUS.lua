@@ -37,6 +37,32 @@ L["Toy Missing:"] = true
 L["You don't have the %s!\nGet it from the Illuminated Footlocker:\nhttps://www.wowhead.com/object=437211/illuminated-footlocker"] = true
 L["Flashlight module is disabled. Enable it in the addon options."] = true
 
+-- DialogFadeSound Options
+L["Dialog Fade Sound"] = true
+L["While many voice lines are playing - a quest giver greeting you, a \"%s\", an NPC speaking up nearby - the game itself lowers the other sound channels a little. This is called \"ducking\", but Blizzard keeps it very subtle: the music usually only drops to about 75%%, and some voice lines are not ducked at all.\n\nSo if you like your music, effects or ambience fairly loud and still want to understand every dialog clearly, you may want more than that. This module notices whenever a sound plays on the Dialog channel and lowers the other channels through the game's own volume settings for as long as the dialog lasts.\n\nFor music, effects and ambience you can set separately how far they are lowered (in percent of the volume you have set for them), how quickly they fade out when a dialog starts, and how quickly they fade back in after it has ended. Unlike Blizzard's ducking, which often switches within a quarter of a second, the fades follow smooth curves and can be set to bring the channels back almost unnoticed."] = true
+L["Fade music during dialog"] = true
+L["Lower the music volume while a dialog is playing."] = true
+L["Fade effects during dialog"] = true
+L["Lower the sound effects volume (spells, combat, footsteps and the like) while a dialog is playing."] = true
+L["Fade ambience during dialog"] = true
+L["Lower the ambience volume (background sounds of your surroundings like wind, water or crowds) while a dialog is playing."] = true
+L["Faded volume"] = true
+L["How loud this channel is while a dialog is playing, in percent of the volume you have set for it. At 0% it is silenced completely."] = true
+L["Fade-in time (sec)"] = true
+L["How long it takes to bring the volume back up after a dialog has ended."] = true
+L["Fade-out time (sec)"] = true
+L["How long it takes to lower the volume when a dialog starts."] = true
+L["Test"] = true
+L["Stop"] = true
+L["Play a voice line on the Dialog channel, so you can hear how the fading sounds with your current settings. Click again to stop it early."] = true
+L["Could not play the test dialog. Is Dialog sound enabled in the game's sound settings?"] = true
+L["Reset to Defaults"] = true
+L["Resets the faded volume and the fade times of all three channels to the values Ludius found to work best. Which channels are faded stays as it is."] = true
+L["Don't fade in delves"] = true
+L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."] = true
+L["Mute quest turn-in fanfare"] = true
+L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is muted, and the music stays as it is."] = true
+
 -- MuteSounds Options
 L["Mute Sounds"] = true
 L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."] = true

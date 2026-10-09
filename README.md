@@ -40,6 +40,12 @@ Additional features:
 ### ⚔️ Persistent Unsheath
 The addon keeps track of when you actively sheathe or unsheathe and persists this state. It then automatically maintains your last desired weapon sheath state. For example, you never have to manually unsheathe your wand after a spell cast, if unsheathed is your preference, or you never have to manually sheathe your weapon after combat if sheathed is your preference.
 
+### 🗣️ Dialog Fade Sound
+WoW's voice lines are performed by excellent voice actors, and every nuance deserves to be heard. Punchy sound effects and a soaring score deserve their full volume, too - just not on top of a masterfully delivered line. The game itself only lowers ("ducks") the other channels very subtly during dialog, so this module detects whenever a sound plays on the Dialog channel and fades music, effects and/or ambience down for as long as it lasts.
+* **Smooth fades:** For each channel you set how far it is lowered and how quickly it fades out and back in. Unlike Blizzard's abrupt ducking, the fades follow smooth curves, so the channels can return almost unnoticed. A Test button lets you hear your settings right away.
+* **Delves:** Your companion comments a lot during combat, and some sound effects play on the Dialog channel too. If the fading gets more distracting than helpful there, you can switch it off for delves.
+* **Quest turn-in fanfare:** Can be muted, as it often drowns out the NPC's last words and makes the game duck the music, only to bring it back abruptly.
+
 ### 🔇 Mute Sounds
 Banish annoying sounds by their ID. Ever been bothered by repetitive summon sounds, ambient noise, or other audio distractions? Mute them individually while keeping all other game sounds intact.
 

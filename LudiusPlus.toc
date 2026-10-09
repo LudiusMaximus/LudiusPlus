@@ -41,6 +41,7 @@
 embeds.xml
 
 BlueprintCodeMasking.lua
+DialogFadeSound.lua
 DialogSkipper.lua
 DismountToggle.lua
 Flashlight.lua

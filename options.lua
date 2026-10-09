@@ -75,6 +75,21 @@ local CONFIG_DEFAULTS = {
   persistentUnsheath_autoUnsheath      = false,
   persistentUnsheath_muteToggleSounds  = true,
 
+  dialogFadeSound_music_enabled        = false,
+  dialogFadeSound_music_volume         = 0.25,
+  dialogFadeSound_music_fadeOut        = 0.5,
+  dialogFadeSound_music_fadeIn         = 2.0,
+  dialogFadeSound_sfx_enabled          = false,
+  dialogFadeSound_sfx_volume           = 0.50,
+  dialogFadeSound_sfx_fadeOut          = 0.5,
+  dialogFadeSound_sfx_fadeIn           = 2.0,
+  dialogFadeSound_ambience_enabled     = false,
+  dialogFadeSound_ambience_volume      = 0.75,
+  dialogFadeSound_ambience_fadeOut     = 0.5,
+  dialogFadeSound_ambience_fadeIn      = 2.0,
+  dialogFadeSound_ignoreDelves         = false,
+  dialogFadeSound_muteQuestFanfare     = false,
+
   muteSounds_enabled                   = false,
   muteSounds_soundIds                  = "598079, 598187",
 
@@ -391,6 +406,7 @@ local dismountToggleDesc = L["Assign dismounting and re-mounting to a single key
 local raceOnLastMountDesc = L["When you start a Skyriding race while not mounted, you're automatically placed on the Renewed Proto-Drake with no way to choose your preferred mount. This addon automatically switches to your last active flying mount during the race countdown (after a 2-second delay required by the game).\n\nNote: Cannot automatically switch to Druid Flight Form due to API limitations."]
 local persistentCompanionDesc = L["Automatically resummon your last active pet companion after it disappears. For example, after flying or stepping through portals."]
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
+local dialogFadeSoundDesc = L["While many voice lines are playing - a quest giver greeting you, a \"%s\", an NPC speaking up nearby - the game itself lowers the other sound channels a little. This is called \"ducking\", but Blizzard keeps it very subtle: the music usually only drops to about 75%%, and some voice lines are not ducked at all.\n\nSo if you like your music, effects or ambience fairly loud and still want to understand every dialog clearly, you may want more than that. This module notices whenever a sound plays on the Dialog channel and lowers the other channels through the game's own volume settings for as long as the dialog lasts.\n\nFor music, effects and ambience you can set separately how far they are lowered (in percent of the volume you have set for them), how quickly they fade out when a dialog starts, and how quickly they fade back in after it has ended. Unlike Blizzard's ducking, which often switches within a quarter of a second, the fades follow smooth curves and can be set to bring the channels back almost unnoticed."]:format(HUD_EDIT_MODE_TALKING_HEAD_FRAME_LABEL)
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
 local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
 local houseEditorEnhancerDesc = L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB)
@@ -405,8 +421,9 @@ local dismountToggleOrder      = 5
 local raceOnLastMountOrder     = 6
 local persistentCompanionOrder = 7
 local persistentUnsheathOrder  = 8
-local muteSoundsOrder          = 9
-local flashlightOrder          = 10
+local dialogFadeSoundOrder     = 9
+local muteSoundsOrder          = 10
+local flashlightOrder          = 11
 
 
 -- Dynamic group name functions (return grey text if module disabled)
@@ -424,6 +441,191 @@ local function GetModuleGroupName(name, ...)
   end
   return name
 end
+
+
+local function IsDialogFadeSoundEnabled()
+  return config.dialogFadeSound_music_enabled or config.dialogFadeSound_sfx_enabled or config.dialogFadeSound_ambience_enabled
+end
+
+-- The settings the "Reset to Defaults" button resets: the sliders only. The toggles default to off,
+-- so resetting them would switch the module off.
+local DIALOG_FADE_SOUND_SLIDER_KEYS = {}
+for _, channel in ipairs({"music", "sfx", "ambience"}) do
+  for _, setting in ipairs({"volume", "fadeOut", "fadeIn"}) do
+    table.insert(DIALOG_FADE_SOUND_SLIDER_KEYS, "dialogFadeSound_" .. channel .. "_" .. setting)
+  end
+end
+
+-- The options above the channels. The per-channel options are the same for every channel, so they are
+-- added by AddDialogFadeSoundChannelOptions() below.
+local dialogFadeSoundArgs = {
+
+  dialogFadeSoundDescription = {
+    order = 0,
+    type = "description",
+    name = dialogFadeSoundDesc,
+    width = "full",
+  },
+
+  dialogFadeSoundGroupBlank01 = {order = 0.1, type = "description", name = " ",},
+
+  dialogFadeSoundTest = {
+    order = 0.2,
+    type = "execute",
+    name = function() return addon.IsDialogFadeSoundTestPlaying() and L["Stop"] or L["Test"] end,
+    desc = L["Play a voice line on the Dialog channel, so you can hear how the fading sounds with your current settings. Click again to stop it early."],
+    width = 0.7,
+    func = function() addon.ToggleDialogFadeSoundTest() end,
+    disabled = function() return not IsDialogFadeSoundEnabled() end,
+  },
+
+  dialogFadeSoundGroupBlank025 = {order = 0.25, type = "description", name = " ", width = 0.05,},
+
+  dialogFadeSoundResetToDefaults = {
+    order = 0.3,
+    type = "execute",
+    name = L["Reset to Defaults"],
+    desc = L["Resets the faded volume and the fade times of all three channels to the values Ludius found to work best. Which channels are faded stays as it is."],
+    width = 1,
+    func =
+      function()
+        for _, key in ipairs(DIALOG_FADE_SOUND_SLIDER_KEYS) do
+          config[key] = CONFIG_DEFAULTS[key]
+        end
+        addon.SetupOrTeardownDialogFadeSound()
+      end,
+    disabled =
+      function()
+        for _, key in ipairs(DIALOG_FADE_SOUND_SLIDER_KEYS) do
+          -- With a tolerance, as slider steps can leave values like 0.30000000000000004.
+          if math.abs(config[key] - CONFIG_DEFAULTS[key]) > 0.0001 then return false end
+        end
+        return true
+      end,
+  },
+
+  dialogFadeSoundGroupBlank05 = {order = 0.5, type = "description", name = " ",},
+}
+
+local function AddDialogFadeSoundChannelOptions(order, channel, toggleName, toggleDesc)
+  local enabledKey = "dialogFadeSound_" .. channel .. "_enabled"
+  local volumeKey  = "dialogFadeSound_" .. channel .. "_volume"
+  local fadeInKey  = "dialogFadeSound_" .. channel .. "_fadeIn"
+  local fadeOutKey = "dialogFadeSound_" .. channel .. "_fadeOut"
+  local prefix     = "dialogFadeSound_" .. channel
+  local disabled   = function() return not config[enabledKey] end
+
+  dialogFadeSoundArgs[prefix .. "Enabled"] = {
+    order = order,
+    type = "toggle",
+    name = toggleName,
+    desc = toggleDesc,
+    width = "full",
+    get = function() return config[enabledKey] end,
+    set =
+      function(_, newValue)
+        config[enabledKey] = newValue
+        addon.SetupOrTeardownDialogFadeSound()
+      end,
+  }
+
+  dialogFadeSoundArgs[prefix .. "Blank1"] = {order = order + 0.1, type = "description", name = " ", width = 0.1,}
+
+  dialogFadeSoundArgs[prefix .. "Volume"] = {
+    order = order + 0.2,
+    type = "range",
+    name = L["Faded volume"],
+    desc = L["How loud this channel is while a dialog is playing, in percent of the volume you have set for it. At 0% it is silenced completely."],
+    min = 0,
+    max = 1,
+    step = 0.01,
+    isPercent = true,
+    -- As wide as the two fade-time sliders below together.
+    width = 2,
+    get = function() return config[volumeKey] end,
+    set =
+      function(_, newValue)
+        config[volumeKey] = newValue
+        addon.SetupOrTeardownDialogFadeSound()
+      end,
+    disabled = disabled,
+  }
+
+  -- Line break, so the two fade-time sliders get a row of their own, starting with the indent.
+  dialogFadeSoundArgs[prefix .. "LineBreak"] = {order = order + 0.25, type = "description", name = "", width = "full",}
+
+  dialogFadeSoundArgs[prefix .. "Blank2"] = {order = order + 0.3, type = "description", name = " ", width = 0.1,}
+
+  dialogFadeSoundArgs[prefix .. "FadeOut"] = {
+    order = order + 0.4,
+    type = "range",
+    name = L["Fade-out time (sec)"],
+    desc = L["How long it takes to lower the volume when a dialog starts."],
+    min = 0,
+    max = 1,
+    step = 0.05,
+    width = 1,
+    get = function() return config[fadeOutKey] end,
+    set = function(_, newValue) config[fadeOutKey] = newValue end,
+    disabled = disabled,
+  }
+
+  dialogFadeSoundArgs[prefix .. "FadeIn"] = {
+    order = order + 0.5,
+    type = "range",
+    name = L["Fade-in time (sec)"],
+    desc = L["How long it takes to bring the volume back up after a dialog has ended."],
+    min = 0,
+    max = 3,
+    step = 0.05,
+    width = 1,
+    get = function() return config[fadeInKey] end,
+    set = function(_, newValue) config[fadeInKey] = newValue end,
+    disabled = disabled,
+  }
+
+  dialogFadeSoundArgs[prefix .. "Blank3"] = {order = order + 0.6, type = "description", name = " ",}
+end
+
+AddDialogFadeSoundChannelOptions(1, "music",    L["Fade music during dialog"],    L["Lower the music volume while a dialog is playing."])
+AddDialogFadeSoundChannelOptions(2, "sfx",      L["Fade effects during dialog"],  L["Lower the sound effects volume (spells, combat, footsteps and the like) while a dialog is playing."])
+AddDialogFadeSoundChannelOptions(3, "ambience", L["Fade ambience during dialog"], L["Lower the ambience volume (background sounds of your surroundings like wind, water or crowds) while a dialog is playing."])
+
+-- Below the channels, after a bigger gap (the last channel already ends with a blank line).
+dialogFadeSoundArgs.dialogFadeSoundGroupBlank38 = {order = 3.8, type = "description", name = " ",}
+
+dialogFadeSoundArgs.dialogFadeSoundIgnoreDelves = {
+  order = 4,
+  type = "toggle",
+  name = L["Don't fade in delves"],
+  desc = L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."],
+  width = "full",
+  get = function() return config.dialogFadeSound_ignoreDelves end,
+  set =
+    function(_, newValue)
+      config.dialogFadeSound_ignoreDelves = newValue
+      addon.SetupOrTeardownDialogFadeSound()
+    end,
+  disabled = function() return not IsDialogFadeSoundEnabled() end,
+}
+
+dialogFadeSoundArgs.dialogFadeSoundMuteQuestFanfare = {
+  order = 4.1,
+  type = "toggle",
+  name = L["Mute quest turn-in fanfare"],
+  desc = L["The fanfare that plays when you hand in a quest often drowns out the NPC's last words. On top of that, the game lowers the music while it plays and brings it back abruptly afterwards. With this option, the fanfare is disabled everywhere."],
+  width = "full",
+  get = function() return config.dialogFadeSound_muteQuestFanfare end,
+  set =
+    function(_, newValue)
+      config.dialogFadeSound_muteQuestFanfare = newValue
+      addon.SetupOrTeardownDialogFadeSound()
+    end,
+  disabled = function() return not IsDialogFadeSoundEnabled() end,
+}
+
+dialogFadeSoundArgs.dialogFadeSoundGroupBlank45 = {order = 4.5, type = "description", name = " ",}
+
 
 local optionsTable = {
   type = "group",
@@ -875,6 +1077,14 @@ local optionsTable = {
           },
         },
       },
+    },
+
+    dialogFadeSoundGroup = {
+      type = "group",
+      name = function() return GetModuleGroupName(L["Dialog Fade Sound"], IsDialogFadeSoundEnabled()) end,
+      desc = dialogFadeSoundDesc,
+      order = dialogFadeSoundOrder,
+      args = dialogFadeSoundArgs,
     },
 
     muteSoundsGroup = {
@@ -1684,6 +1894,9 @@ local function AreAllModulesDisabled()
     config.persistentCompanion_enabled or
     config.persistentUnsheath_autoSheath or
     config.persistentUnsheath_autoUnsheath or
+    config.dialogFadeSound_music_enabled or
+    config.dialogFadeSound_sfx_enabled or
+    config.dialogFadeSound_ambience_enabled or
     config.muteSounds_enabled or
     config.vendorItemOverlay_enabled or
     config.flashlight_enabled or
