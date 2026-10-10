@@ -755,7 +755,7 @@ local optionsTable = {
             function(_, newValue)
               config.dismountToggle_ignoredMounts = newValue
               -- Update LibMountInfo's ignore list
-              local LibMountInfo = LibStub("LibMountInfo-1.0")
+              local LibMountInfo = LibStub("LibMountInfo-1.1")
               LibMountInfo:SetIgnoredMounts(newValue)
             end,
           disabled =
@@ -819,7 +819,7 @@ local optionsTable = {
               end
 
               -- Update LibMountInfo
-              local LibMountInfo = LibStub("LibMountInfo-1.0")
+              local LibMountInfo = LibStub("LibMountInfo-1.1")
               LibMountInfo:SetIgnoredMounts(config.dismountToggle_ignoredMounts)
 
               -- Refresh options display
