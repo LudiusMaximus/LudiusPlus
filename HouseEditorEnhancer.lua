@@ -170,7 +170,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("LudiusPlus")
 -- BLIZZARD SOURCE PROVENANCE - AND HOW TO RE-CHECK IT EACH PATCH (READ THIS!)
 -- ============================================================================
 --
--- LAST CHECKED AGAINST: wow-ui-source 12.1.0 (build 69273). When you run the
+-- LAST CHECKED AGAINST: wow-ui-source 12.1.5 (build 70391). When you run the
 -- routine below, diff from this build to the new one and update this line.
 --
 -- DELIBERATELY SKIPPED Blizzard behavior (so a re-check doesn't keep re-flagging):
