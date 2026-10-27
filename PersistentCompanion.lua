@@ -53,6 +53,7 @@ local function ResummonPet()
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
     and not (LP_config.persistentCompanion_dismissWhileStealthed and IsStealthed())  -- Not while stealthed (if option enabled).
     and not (HouseEditorFrame and HouseEditorFrame.LayoutModeFrame and HouseEditorFrame.LayoutModeFrame:IsShown()) -- While the house layout is shown, the pet gets dismissed and the character is "stunned".
+    and not (BarberShopFrame and BarberShopFrame:IsShown())  -- Not while the barber shop shows the character model.
     then
     -- print("Resummoning", desiredCompanion[playerName])
 
