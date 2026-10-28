@@ -1506,11 +1506,25 @@ local function HandleTileRightClick(tile)
 end
 
 
+-- From the top of Blizzard_HousingCatalogEntry.lua: the tile's model scene, the tag
+-- of its decor actor, and the question-mark icon for entries with neither icon nor model.
+local TILE_MODEL_SCENE_ID = 691
+local TILE_MODEL_ACTOR_TAG = "decor"
+local QUESTION_MARK_ICON = 134400
+-- BaseHousingCatalogEntryTemplate's ModelScene is 80x80 on the 97x97 tile.
+local TILE_MODEL_SIZE_RATIO = 80 / 97
+-- BaseHousingCatalogEntryTemplate insets the Icon 5px per side on the 97x97 tile. Kept
+-- as a share of the tile size, so the icon stays inside the border, which grows with the
+-- tile: a fixed 5px let icons whose picture reaches their edge cover the border at large sizes.
+local TILE_ICON_INSET_RATIO = 5 / 97
+
 -- Tile factory + pool. Tile structure matches Blizzard's
 -- BaseHousingCatalogEntryTemplate (Blizzard_HousingCatalogEntry.xml:38-103):
---   tile: 97x97 Button
---   bg:   house-chest-list-item-default atlas, fills the tile
---   icon: 5px inset on each side
+--   tile:  97x97 Button
+--   bg:    house-chest-list-item-default atlas, fills the tile
+--   icon:  5px inset on each side (scaled with the tile, see TILE_ICON_INSET_RATIO)
+--   model: 80x80 ModelScene, centered; shown instead of the icon for
+--          entries that only have a model file
 -- Click  -> deferred StartPlacingForEntry (mouse-up has fired; defer
 --           dodges Blizzard's auto-commit on the current mouse-up).
 -- Drag   -> immediate StartPlacingForEntry (mouse still down; the drag's
@@ -1539,9 +1553,16 @@ local function CreateTile()
   tile.hoverBg:SetBlendMode("ADD")
   tile.hoverBg:Hide()
 
-  tile.icon = tile:CreateTexture(nil, "ARTWORK")
-  tile.icon:SetPoint("TOPLEFT", tile, "TOPLEFT", 5, -5)
-  tile.icon:SetPoint("BOTTOMRIGHT", tile, "BOTTOMRIGHT", -5, 5)
+  tile.icon = tile:CreateTexture(nil, "ARTWORK")  -- anchored per render, inset scaled with the tile
+
+  -- ModelScene for entries without a flat icon but with a model file (info.asset),
+  -- which Blizzard renders as a 3D model instead. Mirrors the template's ModelScene
+  -- (Blizzard_HousingCatalogEntry.xml:85-90) and HousingCatalogEntryMixin:OnLoad
+  -- (HousingCatalogEntry.lua:57-61). Its size is set per render, so it scales with the tile.
+  tile.modelScene = CreateFrame("ModelScene", nil, tile, "NonInteractableModelSceneMixinTemplate")
+  tile.modelScene:SetPoint("CENTER")
+  tile.modelScene:TransitionToModelSceneID(TILE_MODEL_SCENE_ID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_MAINTAIN, true)
+  tile.modelScene:Hide()
 
   -- Overlay decorations mirroring BaseHousingCatalogEntryTemplate + DecorEntryTemplate
   -- (Blizzard_HousingCatalogEntry.xml:55-82, :107-111). Hidden by default;
@@ -1611,6 +1632,8 @@ local function CreateTile()
   tile.deleteBtn:GetHighlightTexture():SetAlpha(0.4)
   tile.deleteBtn:RegisterForClicks("LeftButtonUp")
   tile.deleteBtn:Hide()
+  -- Sibling of the ModelScene, so raise it above a model it would otherwise share a level with.
+  tile.deleteBtn:SetFrameLevel(tile.modelScene:GetFrameLevel() + 1)
   tile.deleteBtn:SetScript("OnClick", function()
     if tile.entryVariantID then RemoveRecentEntry(tile.entryVariantID) end
   end)
@@ -1924,6 +1947,9 @@ local function ReleaseAllTiles()
     tile:ClearAllPoints()
     tile.icon:SetTexture(nil)
     tile.icon:SetAtlas(nil)
+    local actor = tile.modelScene:GetActorByTag(TILE_MODEL_ACTOR_TAG)
+    if actor then actor:ClearModel() end
+    tile.modelScene:Hide()
     tile.customizeIcon:Hide()
     tile.infoText:SetText("")
     tile.infoText:Hide()
@@ -2128,6 +2154,11 @@ local function UpdateTileVisuals(tile, entryVariantID, info)
   end
   tile.icon:SetDesaturated(invalid)
   tile.icon:SetAlpha(invalid and 0.5 or 1)
+  local actor = tile.modelScene:GetActorByTag(TILE_MODEL_ACTOR_TAG)
+  if actor then
+    actor:SetDesaturation(invalid and 1 or 0)
+    actor:SetAlpha(invalid and 0.5 or 1)
+  end
   tile.bg:SetDesaturated(invalid)
   tile.customizeIcon:SetDesaturated(invalid)
   -- Blizzard also greys the info text (quantity/price) on invalid tiles.
@@ -2489,20 +2520,35 @@ local function RefreshTileGrid(rebuild)
           tile:SetPoint("TOPLEFT", parallelChild, "TOPLEFT",
                         c * colWidth,
                         -(TOP_PADDING + r * rowHeight))
+          -- Flat icon, else 3D model, else question mark. Mirrors the three
+          -- branches of HousingCatalogEntryMixin:UpdateVisuals
+          -- (HousingCatalogEntry.lua:214-260); the greying of invalid
+          -- entries is in UpdateTileVisuals.
           tile.icon:SetTexture(nil)
           tile.icon:SetAtlas(nil)
-          if info.iconTexture then
-            tile.icon:SetTexture(info.iconTexture)
-          elseif info.iconAtlas then
-            tile.icon:SetAtlas(info.iconAtlas)
+          local iconInsetX, iconInsetY = tileW * TILE_ICON_INSET_RATIO, tileH * TILE_ICON_INSET_RATIO
+          tile.icon:ClearAllPoints()
+          tile.icon:SetPoint("TOPLEFT", tile, "TOPLEFT", iconInsetX, -iconInsetY)
+          tile.icon:SetPoint("BOTTOMRIGHT", tile, "BOTTOMRIGHT", -iconInsetX, iconInsetY)
+          if info.iconTexture or info.iconAtlas then
+            tile.modelScene:Hide()
+            if info.iconTexture then
+              tile.icon:SetTexture(info.iconTexture)
+            else
+              tile.icon:SetAtlas(info.iconAtlas)
+            end
+            tile.icon:Show()
+          elseif info.asset then
+            local actor = tile.modelScene:GetActorByTag(TILE_MODEL_ACTOR_TAG)
+            if actor then actor:SetModelByFileID(info.asset) end
+            tile.modelScene:SetSize(tileW * TILE_MODEL_SIZE_RATIO, tileH * TILE_MODEL_SIZE_RATIO)
+            tile.modelScene:Show()
+            tile.icon:Hide()
+          else
+            tile.modelScene:Hide()
+            tile.icon:SetTexture(QUESTION_MARK_ICON)
+            tile.icon:Show()
           end
-          -- HEADS-UP: Blizzard's UpdateVisuals (HousingCatalogEntry.lua:239-261)
-          -- has two more fallbacks we don't replicate: entries with no icon but an
-          -- `info.asset` model id render a 3D ModelScene, and entries with neither
-          -- show a question-mark icon. We only do the flat icon, so such an entry
-          -- would render blank. Not observed in practice (owned decor all has
-          -- icons). If blank tiles ever appear, add a ModelScene to the tile +
-          -- a QuestionMarkIconFileDataID fallback here.
           tile.entryVariantID = entryVariantID
           tile.entryInfo = info  -- read by ShowPreviewForEntry + HasValidData
           UpdateTileVisuals(tile, entryVariantID, info)
