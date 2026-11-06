@@ -241,7 +241,9 @@ local function SetupPersistentCompanion()
   eventFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
   eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   if LP_config and LP_config.persistentCompanion_dismissInCombat then eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED") end
-  if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") end
+  -- Always needed, because summoning an orphan (dismissCompanionSpells) must work regardless of any option.
+  -- The UNIT_SPELLCAST_SUCCEEDED branch of EventFrameScript only reacts to stealth spells when "Dismiss while stealthed" is enabled.
+  eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 
   eventFrame:SetScript("OnEvent", EventFrameScript)
