@@ -506,8 +506,19 @@ local function TeardownSpellIconOverlay()
   end
 end
 
+-- The module has no enable toggle of its own; it is active as soon as one of its locations is on.
+-- The setup here, the options group name and the welcome message all ask this function.
+function addon.IsSpellIconOverlayActive()
+  return LP_config and (
+    LP_config.spellIconOverlay_showInSpellbook or
+    LP_config.spellIconOverlay_showOnActionBars or
+    LP_config.spellIconOverlay_showInTalents
+  ) and true or false
+end
+
+
 function addon.SetupOrTeardownSpellIconOverlay()
-  if LP_config and (LP_config.spellIconOverlay_showInSpellbook or LP_config.spellIconOverlay_showOnActionBars or LP_config.spellIconOverlay_showInTalents) then
+  if addon.IsSpellIconOverlayActive() then
     SetupSpellIconOverlay()
   else
     TeardownSpellIconOverlay()

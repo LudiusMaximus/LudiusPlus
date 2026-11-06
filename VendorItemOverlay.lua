@@ -16,6 +16,23 @@ local string_format                              = _G.string.format
 local string_match                               = _G.string.match
 
 
+-- vendorItemOverlay_enabled is only the "Ownership for decor items" toggle. It used to be the
+-- module's single flag, and the "Already known" toggles were added next to it later. So the module
+-- is active as soon as any one of them is on. Everything that needs to know whether the module is
+-- active (the setup here, the options group name, the welcome message) asks this function, so a
+-- new toggle only has to be added in this one place.
+function addon.IsVendorItemOverlayActive()
+  return LP_config and (
+    LP_config.vendorItemOverlay_enabled or
+    LP_config.vendorItemOverlay_toys_enabled or
+    LP_config.vendorItemOverlay_mounts_enabled or
+    LP_config.vendorItemOverlay_transmog_enabled or
+    LP_config.vendorItemOverlay_pets_enabled or
+    LP_config.vendorItemOverlay_recipes_enabled
+  ) and true or false
+end
+
+
 -- Table to store our overlay text frames
 local overlayFrames = {}
 -- Table to store our checkmark textures
@@ -282,8 +299,9 @@ local function UpdateSingleOverlay(i, index)
     end
   end
 
-  -- Check if this is a housing decor item
-  if IsHousingDecorItem(itemLink) then
+  -- Check if this is a housing decor item. The module can now be active for the "Already known"
+  -- toggles alone, so the decor counts need their own toggle check.
+  if LP_config.vendorItemOverlay_enabled and IsHousingDecorItem(itemLink) then
 
     local decorInfo = C_HousingCatalog_GetCatalogEntryInfoByItem(itemLink, true)
     -- print(itemLink, decorInfo.numPlaced, decorInfo.quantity, decorInfo.showQuantity, decorInfo.remainingRedeemable )
@@ -471,7 +489,7 @@ local function SetupVendorItemOverlay()
   -- Hook into MerchantFrame_Update (can only be done once)
   if not isHooked then
     hooksecurefunc("MerchantFrame_Update", function()
-      if LP_config and LP_config.vendorItemOverlay_enabled then
+      if addon.IsVendorItemOverlayActive() then
         UpdateOverlays()
       end
     end)
@@ -505,7 +523,7 @@ local function TeardownVendorItemOverlay()
 end
 
 function addon.SetupOrTeardownVendorItemOverlay()
-  if LP_config and LP_config.vendorItemOverlay_enabled then
+  if addon.IsVendorItemOverlayActive() then
     SetupVendorItemOverlay()
   else
     TeardownVendorItemOverlay()

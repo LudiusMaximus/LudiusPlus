@@ -1318,13 +1318,7 @@ local optionsTable = {
 
     vendorItemOverlayGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Vendor Item Overlay"],
-        config.vendorItemOverlay_enabled or
-        config.vendorItemOverlay_toys_enabled or
-        config.vendorItemOverlay_mounts_enabled or
-        config.vendorItemOverlay_transmog_enabled or
-        config.vendorItemOverlay_pets_enabled or
-        config.vendorItemOverlay_recipes_enabled) end,
+      name = function() return GetModuleGroupName(L["Vendor Item Overlay"], addon.IsVendorItemOverlayActive()) end,
       desc = vendorItemOverlayDesc,
       order = vendorItemOverlayOrder,
       args = {
@@ -1449,7 +1443,7 @@ local optionsTable = {
 
     spellIconOverlayGroup = {
       type = "group",
-      name = function() return GetModuleGroupName(L["Spell Icon Overlay"], config.spellIconOverlay_showInSpellbook or config.spellIconOverlay_showOnActionBars or config.spellIconOverlay_showInTalents) end,
+      name = function() return GetModuleGroupName(L["Spell Icon Overlay"], addon.IsSpellIconOverlayActive()) end,
       desc = spellIconOverlayDesc,
       order = spellIconOverlayOrder,
       args = {
@@ -1898,7 +1892,8 @@ local function AreAllModulesDisabled()
     config.dialogFadeSound_sfx_enabled or
     config.dialogFadeSound_ambience_enabled or
     config.muteSounds_enabled or
-    config.vendorItemOverlay_enabled or
+    addon.IsVendorItemOverlayActive() or
+    addon.IsSpellIconOverlayActive() or
     config.flashlight_enabled or
     config.houseEditorEnhancer_iconResizerSlider or
     config.houseEditorEnhancer_iconResizerCtrlWheel or

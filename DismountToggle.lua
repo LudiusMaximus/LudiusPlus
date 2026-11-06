@@ -118,7 +118,8 @@ local function EventFrameScript(self, event, ...)
     end
 
   elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-    local _, unit, _, spellId = ...
+    -- The payload is unitTarget, castGUID, spellID; self and event are already taken by the named parameters.
+    local unit, _, spellId = ...
     if issecretvalue(unit) or unit ~= "player" then return end
 
     -- Travel form or soar.

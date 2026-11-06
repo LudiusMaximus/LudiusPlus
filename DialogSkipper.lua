@@ -72,7 +72,7 @@ local function SetupDialogSkipper()
             ok = true
           end
         end
-        if not ok and LP_config.dialogSkipper_skipOrderResources then
+        if not ok and LP_config.dialogSkipper_skipCommunityCoupons then
           local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3363)
           local currencyName = currencyInfo and currencyInfo.name
           if type(args) == "string" and currencyName and string.find(args, currencyName) then
