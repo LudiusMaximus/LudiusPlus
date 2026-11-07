@@ -23,9 +23,43 @@ local stealthSpells = {
   [199483] = true,  -- Hunter: Camouflage
   [66] = true,      -- Mage: Invisibility
   [110959] = true,  -- Mage: Greater Invisibility
-  [198158] = true,  -- Mage: Mass Invisibility
+  [414664] = true,  -- Mage: Mass Invisibility
   [58984] = true,   -- Night Elf: Shadowmeld
 }
+
+-- Invisibility does not count as stealth for IsStealthed(), so resummoning has to check
+-- its auras instead. Summoning the pet would end the invisibility. The aura IDs are not
+-- always the spell IDs.
+local invisibilityAuras = {
+  66,               -- Mage: Invisibility (the fade phase)
+  32612,            -- Mage: Invisibility (after the fade)
+  110960,           -- Mage: Greater Invisibility
+  414664,           -- Mage: Mass Invisibility
+}
+
+-- In combat, Mythic+ and PvP matches, these auras are secret (in the latter two even out of
+-- combat), and GetPlayerAuraBySpellID() then returns nothing. The player's own casts are
+-- never secret, so an invisibility cast is remembered. As long as the auras cannot be read,
+-- it counts as still active. Only once they are readable again and none of them is left,
+-- or the player has died, is it certainly over.
+local invisibilitySpells = {
+  [66]     = true,  -- Mage: Invisibility
+  [110959] = true,  -- Mage: Greater Invisibility
+  [414664] = true,  -- Mage: Mass Invisibility
+}
+local maybeInvisible = false
+
+local function IsInvisible()
+  -- C_Secrets does not exist on WoW Forever.
+  if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+    return maybeInvisible
+  end
+  for _, auraId in ipairs(invisibilityAuras) do
+    if C_UnitAuras_GetPlayerAuraBySpellID(auraId) then return true end
+  end
+  maybeInvisible = false
+  return false
+end
 
 
 local realmName = GetRealmName()
@@ -42,6 +76,8 @@ local isHooked = false
 
 local function ResummonPet()
   if not LP_config or not LP_config.persistentCompanion_enabled then return end
+  -- Dying certainly ends any invisibility, even while its auras cannot be read.
+  if UnitIsDeadOrGhost("player") then maybeInvisible = false end
   if noResummon then return end
   if not UnitAffectingCombat("player")
     and desiredCompanion[playerName]
@@ -51,7 +87,7 @@ local function ResummonPet()
     and not UnitIsDeadOrGhost("player")
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
-    and not (LP_config.persistentCompanion_dismissWhileStealthed and IsStealthed())  -- Not while stealthed (if option enabled).
+    and not (LP_config.persistentCompanion_dismissWhileStealthed and (IsStealthed() or IsInvisible()))  -- Not while stealthed or invisible (if option enabled).
     and not (HouseEditorFrame and HouseEditorFrame.LayoutModeFrame and HouseEditorFrame.LayoutModeFrame:IsShown()) -- While the house layout is shown, the pet gets dismissed and the character is "stunned".
     and not (BarberShopFrame and BarberShopFrame:IsShown())  -- Not while the barber shop shows the character model.
     then
@@ -190,6 +226,10 @@ local function EventFrameScript(self, event, ...)
     if issecretvalue(unit) then return end
     if unit == "player" then
 
+      if invisibilitySpells[spellId] then
+        maybeInvisible = true
+      end
+
       if dismissCompanionSpells[spellId] then
         if desiredCompanion then
           desiredCompanion[playerName] = nil
@@ -243,6 +283,7 @@ local function SetupPersistentCompanion()
   if LP_config and LP_config.persistentCompanion_dismissInCombat then eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED") end
   -- Always needed, because summoning an orphan (dismissCompanionSpells) must work regardless of any option.
   -- The UNIT_SPELLCAST_SUCCEEDED branch of EventFrameScript only reacts to stealth spells when "Dismiss while stealthed" is enabled.
+  -- Invisibility casts are always recorded, because IsInvisible() may need them as soon as the option gets enabled.
   eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 
