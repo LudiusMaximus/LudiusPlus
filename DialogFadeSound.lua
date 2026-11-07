@@ -108,6 +108,18 @@ local TEST_SOUNDKITS = {
   241335,  -- VO_1027_LADY_JAINA_PROUDMOORE_05_F
   274651,  -- VO_1115_SORIDORMI_01_F
 }
+-- WoW Forever has none of the above, mostly only the original voice lines. Its sound kits are listed at
+-- https://wago.tools/db2/SoundKit?build=1.60.1.70790 (SoundType 10 are voice lines). The comments are the
+-- file names from https://wago.tools/db2/SoundKitEntry?build=1.60.1.70790 and the community listfile.
+-- Apart from Thrall's greeting, the faction leaders only have their aggro lines there, and those are
+-- shorter than 2 seconds, too short to hear a fade. These are lines of at least 3 seconds; kits with
+-- several files play a random one of them.
+if addon.isForever then
+  TEST_SOUNDKITS = {
+    6004,   -- sound/creature/thrall/thrallgreeting01.ogg and 02 (3.3 and 4.0 s)
+    8281,   -- sound/creature/vaelastrasz/vaelastraszline1.ogg (8.4 s)
+  }
+end
 
 
 local CHANNELS = {}

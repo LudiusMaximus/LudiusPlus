@@ -62,11 +62,12 @@ local function IsInvisible()
 end
 
 
-local realmName = GetRealmName()
-local playerName = UnitName("player")
+-- Only known from PLAYER_LOGIN on, see addon.GetCharacterKeys().
+local playerName = nil
 
 
 -- To be mapped to saved variable. Must be a table to work!!
+-- Also nil until PLAYER_LOGIN.
 local desiredCompanion = nil
 local tickerHandle = nil
 
@@ -76,6 +77,7 @@ local isHooked = false
 
 local function ResummonPet()
   if not LP_config or not LP_config.persistentCompanion_enabled then return end
+  if not desiredCompanion then return end
   -- Dying certainly ends any invisibility, even while its auras cannot be read.
   if UnitIsDeadOrGhost("player") then maybeInvisible = false end
   if noResummon then return end
@@ -87,6 +89,7 @@ local function ResummonPet()
     and not UnitIsDeadOrGhost("player")
     and not IsFalling("player")                              -- Not while "Parasol Fall" is happening.
     and C_UnitAuras_GetPlayerAuraBySpellID(211898) == nil    -- Not while "Eye of Kilrogg" replaces the current pet.
+    and C_UnitAuras_GetPlayerAuraBySpellID(126) == nil       -- The same for the original "Eye of Kilrogg" spell (WoW Forever).
     and not (LP_config.persistentCompanion_dismissWhileStealthed and (IsStealthed() or IsInvisible()))  -- Not while stealthed or invisible (if option enabled).
     and not (HouseEditorFrame and HouseEditorFrame.LayoutModeFrame and HouseEditorFrame.LayoutModeFrame:IsShown()) -- While the house layout is shown, the pet gets dismissed and the character is "stunned".
     and not (BarberShopFrame and BarberShopFrame:IsShown())  -- Not while the barber shop shows the character model.
@@ -114,7 +117,9 @@ local function CheckPet()
   -- While checking we want no restoring.
   noResummon = true
   C_Timer_After(0.6, function()
-    desiredCompanion[playerName] = C_PetJournal_GetSummonedPetGUID()
+    if desiredCompanion then
+      desiredCompanion[playerName] = C_PetJournal_GetSummonedPetGUID()
+    end
     -- print("Current pet:", C_PetJournal_GetSummonedPetGUID())
     noResummon = false
   end)
@@ -249,6 +254,16 @@ local function EventFrameScript(self, event, ...)
 
     end
 
+  elseif event == "UPDATE_STEALTH" then
+    -- Catches every way into stealth, including the ones not in stealthSpells, like the
+    -- lower spell ranks on WoW Forever.
+    if LP_config and LP_config.persistentCompanion_dismissWhileStealthed and IsStealthed() then
+      local petGUID = C_PetJournal_GetSummonedPetGUID()
+      if petGUID then
+        C_PetJournal_DismissSummonedPet(petGUID, folderName)
+      end
+    end
+
   elseif event == "PLAYER_REGEN_DISABLED" then
     if LP_config and LP_config.persistentCompanion_dismissInCombat then
       local petGUID = C_PetJournal_GetSummonedPetGUID()
@@ -258,16 +273,16 @@ local function EventFrameScript(self, event, ...)
       end
     end
 
-  elseif event == "ADDON_LOADED" then
-    local addonName = ...
-    if addonName == "LudiusPlus" then
-      LP_desiredCompanion = LP_desiredCompanion or {}
-      LP_desiredCompanion[realmName] = LP_desiredCompanion[realmName] or {}
-      desiredCompanion = LP_desiredCompanion[realmName]
+  -- Not ADDON_LOADED, because the character is not reliably known before PLAYER_LOGIN.
+  elseif event == "PLAYER_LOGIN" then
+    local realmKey
+    realmKey, playerName = addon.GetCharacterKeys()
+    LP_desiredCompanion = LP_desiredCompanion or {}
+    LP_desiredCompanion[realmKey] = LP_desiredCompanion[realmKey] or {}
+    desiredCompanion = LP_desiredCompanion[realmKey]
 
-      self:UnregisterEvent("ADDON_LOADED")
-      addon.SetupOrTeardownPersistentCompanion()
-    end
+    self:UnregisterEvent("PLAYER_LOGIN")
+    addon.SetupOrTeardownPersistentCompanion()
 
   end
 end
@@ -285,6 +300,11 @@ local function SetupPersistentCompanion()
   -- The UNIT_SPELLCAST_SUCCEEDED branch of EventFrameScript only reacts to stealth spells when "Dismiss while stealthed" is enabled.
   -- Invisibility casts are always recorded, because IsInvisible() may need them as soon as the option gets enabled.
   eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+  if LP_config and LP_config.persistentCompanion_dismissWhileStealthed then
+    eventFrame:RegisterEvent("UPDATE_STEALTH")
+  else
+    eventFrame:UnregisterEvent("UPDATE_STEALTH")
+  end
   eventFrame:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 
   eventFrame:SetScript("OnEvent", EventFrameScript)
@@ -325,6 +345,7 @@ local function TeardownPersistentCompanion()
   eventFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
   eventFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   eventFrame:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")
+  eventFrame:UnregisterEvent("UPDATE_STEALTH")
   eventFrame:SetScript("OnEvent", nil)
 
   -- Stop ticker
@@ -344,6 +365,6 @@ function addon.SetupOrTeardownPersistentCompanion()
 end
 
 
--- Initialize when addon loads
-eventFrame:RegisterEvent("ADDON_LOADED")
+-- Initialize when the character is known
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", EventFrameScript)

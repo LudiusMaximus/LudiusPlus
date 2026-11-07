@@ -8,12 +8,15 @@ local IsMounted = _G.IsMounted
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local InCombatLockdown = _G.InCombatLockdown
 
-local realmName = GetRealmName()
-local playerName = UnitName("player")
+-- Only known from PLAYER_LOGIN on, see addon.GetCharacterKeys().
+local playerName = nil
 
 local macroName = "Dismount/Mount Toggle"
-local travelFormSpellName = C_Spell.GetSpellInfo(783).name
-local soarSpellName = C_Spell.GetSpellInfo(369536).name
+local travelFormSpellInfo = C_Spell.GetSpellInfo(783)
+local travelFormSpellName = travelFormSpellInfo and travelFormSpellInfo.name
+-- Dracthyr do not exist on WoW Forever.
+local soarSpellInfo = C_Spell.GetSpellInfo(369536)
+local soarSpellName = soarSpellInfo and soarSpellInfo.name
 local macroIcon = GetFileIDFromPath("Interface\\AddOns\\" .. folderName .. "\\DismountMacroIcon.blp")
 local dismountToggleBindingName = "MACRO Dismount/Mount Toggle"
 
@@ -53,19 +56,21 @@ local function UpdateMacro()
   macroBody = macroBody .. "/dismount\n"
 
   -- If enabled cast travel form or soar. (As long as Dracthyr cannot be Druids, we are fine!)
-  if LP_config.dismountToggle_travelFormEnabled then
+  local useTravelForm = LP_config.dismountToggle_travelFormEnabled and travelFormSpellName
+  local useSoar = LP_config.dismountToggle_soarEnabled and soarSpellName
+  if useTravelForm then
     macroBody = macroBody .. "/cast [nomounted] " .. travelFormSpellName .. "\n"
   end
-  if LP_config.dismountToggle_soarEnabled then
+  if useSoar then
     macroBody = macroBody .. "/cast [nomounted] " .. soarSpellName .. "\n"
   end
 
   -- Summon mount (with logic to respect remount setting for ignored mounts).
   macroBody = macroBody .. "/run local lm=LPLMR[\"" .. playerName .. "\"] if lm then local m=LPGM(lm) if m"
-  if LP_config.dismountToggle_travelFormEnabled then
+  if useTravelForm then
     macroBody = macroBody .. " and not LPISK(783)"
   end
-  if LP_config.dismountToggle_soarEnabled then
+  if useSoar then
     macroBody = macroBody .. " and not LPISK(369536)"
   end
   -- If auto-mount is disabled, check if current mount was ignored before remounting
@@ -139,6 +144,18 @@ local function EventFrameScript(self, event, ...)
 
   elseif event == "PLAYER_LOGIN" then
     playerLoginFired = true
+
+    -- Not in ADDON_LOADED, because the character is not reliably known before PLAYER_LOGIN.
+    local realmKey
+    realmKey, playerName = addon.GetCharacterKeys()
+    LP_lastMount = LP_lastMount or {}
+    LP_lastMount[realmKey] = LP_lastMount[realmKey] or {}
+
+    -- Integrate LibMountInfo with our persistent storage, using our keys.
+    LibMountInfo:SetPersistentStorage(LP_lastMount, realmKey, playerName)
+
+    _G.LPLMR = LP_lastMount[realmKey]
+
     if LP_config and LP_config.dismountToggle_enabled then
       UpdateMacro()
     else
@@ -165,12 +182,6 @@ local function EventFrameScript(self, event, ...)
   elseif event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == folderName then
-      LP_lastMount = LP_lastMount or {}
-      LP_lastMount[realmName] = LP_lastMount[realmName] or {}
-
-      -- Integrate LibMountInfo with our persistent storage
-      LibMountInfo:SetPersistentStorage(LP_lastMount)
-
       -- Set up ignored mounts list
       if LP_config.dismountToggle_ignoredMounts then
         LibMountInfo:SetIgnoredMounts(LP_config.dismountToggle_ignoredMounts)
@@ -179,7 +190,7 @@ local function EventFrameScript(self, event, ...)
       -- Abbreviations to use in macro.
       _G.LPMJS = _G.C_MountJournal.SummonByID
       _G.LPISK = _G.C_SpellBook.IsSpellKnown
-      _G.LPLMR = LP_lastMount[realmName]
+      -- _G.LPLMR (the last mounts of this realm) is set at PLAYER_LOGIN.
 
       -- Helper to check if current mount is ignored
       _G.LPCMI = function()

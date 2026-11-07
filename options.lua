@@ -91,7 +91,8 @@ local CONFIG_DEFAULTS = {
   dialogFadeSound_muteQuestFanfare     = false,
 
   muteSounds_enabled                   = false,
-  muteSounds_soundIds                  = "598079, 598187",
+  -- The Dutiful Squire example does not exist on WoW Forever.
+  muteSounds_soundIds                  = addon.isForever and "" or "598079, 598187",
 
   vendorItemOverlay_enabled            = false,
   vendorItemOverlay_toys_enabled       = false,
@@ -408,6 +409,10 @@ local persistentCompanionDesc = L["Automatically resummon your last active pet c
 local persistentUnsheathDesc = L["Automatically maintain your desired weapon sheath state."]
 local dialogFadeSoundDesc = L["While many voice lines are playing - a quest giver greeting you, a \"%s\", an NPC speaking up nearby - the game itself lowers the other sound channels a little. This is called \"ducking\", but Blizzard keeps it very subtle: the music usually only drops to about 75%%, and some voice lines are not ducked at all.\n\nSo if you like your music, effects or ambience fairly loud and still want to understand every dialog clearly, you may want more than that. This module notices whenever a sound plays on the Dialog channel and lowers the other channels through the game's own volume settings for as long as the dialog lasts.\n\nFor music, effects and ambience you can set separately how far they are lowered (in percent of the volume you have set for them), how quickly they fade out when a dialog starts, and how quickly they fade back in after it has ended. Unlike Blizzard's ducking, which often switches within a quarter of a second, the fades follow smooth curves and can be set to bring the channels back almost unnoticed."]:format(HUD_EDIT_MODE_TALKING_HEAD_FRAME_LABEL)
 local muteSoundsDesc = L["Mute specific sounds by their Sound File IDs.\n\nFind IDs on Wago (https://wago.tools/sounds), Wowhead (https://www.wowhead.com/sounds/) or learn about other methods at https://warcraft.wiki.gg/wiki/API_MuteSoundFile.\n\nExample: 598079, 598187 (Dutiful Squire summon sounds)."]
+-- The Dutiful Squire does not exist on WoW Forever, so drop the example, which is the last paragraph in every locale.
+if addon.isForever then
+  muteSoundsDesc = (muteSoundsDesc:gsub("\n\n[^\n]*$", ""))
+end
 local flashlightDesc = L["Toggles the \"%s\" toy on and off with a hotkey."]:format(flashlightToyName)
 local houseEditorEnhancerDesc = L["Not being able to properly inspect the decor items in the small icons of the House Editor's %s and %s frames is a s#!tshow obviously. Ludius Plus's \"Thoughtfully Augmented Editor\" (TAE) - among other things - adds a slider to change the decor icon size and a preview side-pane (opened with CTRL + LEFTCLICK). This way, TAE gives you a better knowledge of what decor items look like before you place them. And knowledge is power!"]:format(HOUSE_EDITOR_CATALOG_STORAGE_TAB, HOUSE_EDITOR_CATALOG_MARKET_TAB)
 
@@ -598,6 +603,8 @@ dialogFadeSoundArgs.dialogFadeSoundIgnoreDelves = {
   order = 4,
   type = "toggle",
   name = L["Don't fade in delves"],
+  -- WoW Forever has no delves.
+  hidden = addon.isForever,
   desc = L["In delves, your companion comments on their own actions quite often during combat, and some sound effects (like picking up treasure or collapsing rocks) play on the Dialog channel, too. Some players may find the fading for all of these annoying and might want to turn it off in delves.\nThe Test button at the top of this page will always trigger a fade regardless."],
   width = "full",
   get = function() return config.dialogFadeSound_ignoreDelves end,
@@ -905,6 +912,8 @@ local optionsTable = {
           order = 6,
           type = "toggle",
           name = L["Dracthyr Soar instead of mounting"],
+          -- Dracthyr do not exist on WoW Forever.
+          hidden = addon.isForever,
           desc = L["Dracthyr only: Use Soar as \"mounting\" and humanoid form as \"dismounting\", instead of standard mounts."],
           width = "full",
           get = function() return config.dismountToggle_soarEnabled end,
@@ -924,6 +933,8 @@ local optionsTable = {
 
     raceOnLastMountGroup = {
       type = "group",
+      -- WoW Forever has no Skyriding races.
+      hidden = addon.isForever,
       name = function() return GetModuleGroupName(L["Race on Last Mount"], config.raceOnLastMount_enabled) end,
       desc = raceOnLastMountDesc,
       order = raceOnLastMountOrder,
@@ -956,6 +967,8 @@ local optionsTable = {
 
     flashlightGroup = {
       type = "group",
+      -- The Cave Spelunker's Torch does not exist on WoW Forever.
+      hidden = addon.isForever,
       name = function() return GetModuleGroupName(L["Flashlight (Torch)"], config.flashlight_enabled) end,
       desc = flashlightDesc,
       order = flashlightOrder,
@@ -1224,9 +1237,12 @@ local optionsTable = {
             end,
         },
 
-        dialogSkipperGroupBlank35 = {order = 3.5, type = "description", name = " ",},
+        -- The pet charm and currency options below do not apply on WoW Forever, which would leave two blank lines.
+        dialogSkipperGroupBlank35 = {order = 3.5, type = "description", name = " ", hidden = addon.isForever,},
 
         dialogSkipperSkipPetCharm = {
+          -- Retail content, not on WoW Forever.
+          hidden = addon.isForever,
           order = 4,
           type = "toggle",
           name = L["Skip Polished Pet Charm purchases"],
@@ -1244,6 +1260,8 @@ local optionsTable = {
         },
 
         dialogSkipperSkipOrderResources = {
+          -- Retail content, not on WoW Forever.
+          hidden = addon.isForever,
           order = 5,
           type = "toggle",
           name = L["Skip Order Resources purchases"],
@@ -1261,6 +1279,8 @@ local optionsTable = {
         },
 
         dialogSkipperSkipDragonIslesSupplies = {
+          -- Retail content, not on WoW Forever.
+          hidden = addon.isForever,
           order = 5.5,
           type = "toggle",
           name = L["Skip Dragon Isles Supplies purchases"],
@@ -1278,6 +1298,8 @@ local optionsTable = {
         },
 
         dialogSkipperSkipCommunityCoupons = {
+          -- Retail content, not on WoW Forever.
+          hidden = addon.isForever,
           order = 6,
           type = "toggle",
           name = L["Skip Community Coupons purchases"],
@@ -1336,6 +1358,8 @@ local optionsTable = {
           order = 1,
           type = "toggle",
           name = L["Ownership for decor items"],
+          -- WoW Forever has no housing.
+          hidden = addon.isForever,
           desc = L["Display ownership information for housing decor items when visiting vendors. Shows the count as [in storage]/[total owned] in the top-right corner of each item icon."],
           width = "full",
           get = function() return config.vendorItemOverlay_enabled end,
@@ -1346,7 +1370,7 @@ local optionsTable = {
             end,
         },
 
-        vendorItemOverlayGroupBlank15 = {order = 1.5, type = "description", name = " ",},
+        vendorItemOverlayGroupBlank15 = {order = 1.5, type = "description", name = " ", hidden = addon.isForever,},
 
         vendorItemOverlayToysEnabled = {
           order = 2,
@@ -1443,6 +1467,8 @@ local optionsTable = {
 
     spellIconOverlayGroup = {
       type = "group",
+      -- WoW Forever has no single-button combat rotation.
+      hidden = addon.isForever,
       name = function() return GetModuleGroupName(L["Spell Icon Overlay"], addon.IsSpellIconOverlayActive()) end,
       desc = spellIconOverlayDesc,
       order = spellIconOverlayOrder,
@@ -1766,6 +1792,8 @@ local optionsTable = {
 
     houseEditorEnhancerGroup = {
       type = "group",
+      -- WoW Forever has no housing.
+      hidden = addon.isForever,
       name = function() return GetModuleGroupName(L["Enhanced House Editor"], config.houseEditorEnhancer_iconResizerSlider or config.houseEditorEnhancer_iconResizerCtrlWheel or config.houseEditorEnhancer_preview or config.houseEditorEnhancer_chainPlacement or config.houseEditorEnhancer_recent or config.houseEditorEnhancer_blueprintMasking) end,
       desc = houseEditorEnhancerDesc,
       order = houseEditorEnhancerOrder,
@@ -1884,7 +1912,7 @@ local function AreAllModulesDisabled()
   return not (
     config.dialogSkipper_enabled or
     config.dismountToggle_enabled or
-    config.raceOnLastMount_enabled or
+    (config.raceOnLastMount_enabled and not addon.isForever) or
     config.persistentCompanion_enabled or
     config.persistentUnsheath_autoSheath or
     config.persistentUnsheath_autoUnsheath or
@@ -1894,13 +1922,15 @@ local function AreAllModulesDisabled()
     config.muteSounds_enabled or
     addon.IsVendorItemOverlayActive() or
     addon.IsSpellIconOverlayActive() or
-    config.flashlight_enabled or
-    config.houseEditorEnhancer_iconResizerSlider or
-    config.houseEditorEnhancer_iconResizerCtrlWheel or
-    config.houseEditorEnhancer_preview or
-    config.houseEditorEnhancer_chainPlacement or
-    config.houseEditorEnhancer_recent or
-    config.houseEditorEnhancer_blueprintMasking
+    addon.IsFlashlightActive() or
+    (not addon.isForever and (
+      config.houseEditorEnhancer_iconResizerSlider or
+      config.houseEditorEnhancer_iconResizerCtrlWheel or
+      config.houseEditorEnhancer_preview or
+      config.houseEditorEnhancer_chainPlacement or
+      config.houseEditorEnhancer_recent or
+      config.houseEditorEnhancer_blueprintMasking
+    ))
   )
 end
 

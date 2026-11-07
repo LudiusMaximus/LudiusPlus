@@ -128,7 +128,8 @@ end
 
 
 function addon.SetupOrTeardownRaceOnLastMount()
-  if LP_config and LP_config.raceOnLastMount_enabled then
+  -- WoW Forever has no Skyriding races.
+  if not addon.isForever and LP_config and LP_config.raceOnLastMount_enabled then
     SetupRaceOnLastMount()
   else
     TeardownRaceOnLastMount()

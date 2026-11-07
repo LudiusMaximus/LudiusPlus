@@ -508,8 +508,9 @@ end
 
 -- The module has no enable toggle of its own; it is active as soon as one of its locations is on.
 -- The setup here, the options group name and the welcome message all ask this function.
+-- WoW Forever has no single-button combat rotation (InterfaceOverrides.HasAssistedCombat() is false there).
 function addon.IsSpellIconOverlayActive()
-  return LP_config and (
+  return not addon.isForever and LP_config and (
     LP_config.spellIconOverlay_showInSpellbook or
     LP_config.spellIconOverlay_showOnActionBars or
     LP_config.spellIconOverlay_showInTalents

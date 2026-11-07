@@ -16,6 +16,12 @@ local string_format                              = _G.string.format
 local string_match                               = _G.string.match
 
 
+-- The "Ownership for decor items" toggle. WoW Forever has no housing.
+function addon.IsVendorDecorOverlayActive()
+  return not addon.isForever and LP_config and LP_config.vendorItemOverlay_enabled and true or false
+end
+
+
 -- vendorItemOverlay_enabled is only the "Ownership for decor items" toggle. It used to be the
 -- module's single flag, and the "Already known" toggles were added next to it later. So the module
 -- is active as soon as any one of them is on. Everything that needs to know whether the module is
@@ -23,7 +29,7 @@ local string_match                               = _G.string.match
 -- new toggle only has to be added in this one place.
 function addon.IsVendorItemOverlayActive()
   return LP_config and (
-    LP_config.vendorItemOverlay_enabled or
+    addon.IsVendorDecorOverlayActive() or
     LP_config.vendorItemOverlay_toys_enabled or
     LP_config.vendorItemOverlay_mounts_enabled or
     LP_config.vendorItemOverlay_transmog_enabled or
@@ -301,7 +307,7 @@ local function UpdateSingleOverlay(i, index)
 
   -- Check if this is a housing decor item. The module can now be active for the "Already known"
   -- toggles alone, so the decor counts need their own toggle check.
-  if LP_config.vendorItemOverlay_enabled and IsHousingDecorItem(itemLink) then
+  if addon.IsVendorDecorOverlayActive() and IsHousingDecorItem(itemLink) then
 
     local decorInfo = C_HousingCatalog_GetCatalogEntryInfoByItem(itemLink, true)
     -- print(itemLink, decorInfo.numPlaced, decorInfo.quantity, decorInfo.showQuantity, decorInfo.remainingRedeemable )
@@ -475,9 +481,15 @@ local function SetupVendorItemOverlay()
   InitializeKnownStrings()
 
   -- Register event handlers.
-  eventFrame:RegisterEvent("HOUSING_STORAGE_ENTRY_UPDATED")
+  -- The housing ones only for the decor counts, as WoW Forever has no housing.
+  if addon.IsVendorDecorOverlayActive() then
+    eventFrame:RegisterEvent("HOUSING_STORAGE_ENTRY_UPDATED")
+    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  else
+    eventFrame:UnregisterEvent("HOUSING_STORAGE_ENTRY_UPDATED")
+    eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+  end
   eventFrame:RegisterEvent("MERCHANT_CLOSED")
-  eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   eventFrame:SetScript("OnEvent", EventFrameScript)
 
   -- Create overlay frames if not already created

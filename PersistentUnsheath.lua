@@ -19,11 +19,12 @@ local UnitPosition = _G.UnitPosition
 local UnmuteSoundFile = _G.UnmuteSoundFile
 
 
-local realmName = GetRealmName()
-local playerName = UnitName("player")
+-- Only known from PLAYER_LOGIN on, see addon.GetCharacterKeys().
+local playerName = nil
 
 
 -- To be mapped to saved variable. Must be a table to work!!
+-- Also nil until PLAYER_LOGIN.
 local desiredUnsheath = nil
 
 
@@ -53,6 +54,7 @@ local currentPosition = UnitPosition("player")
 local function RestoreUnsheath()
   -- Return early if module is disabled
   if not LP_config or (not LP_config.persistentUnsheath_autoSheath and not LP_config.persistentUnsheath_autoUnsheath) then return end
+  if not desiredUnsheath then return end
 
   local currentTime = GetTime()
   local lastPosition = currentPosition
@@ -160,20 +162,19 @@ local function EventFrameScript(self, event, ...)
     -- print("PLAYER_ENTERING_WORLD")
     StartTicker()
 
-  elseif event == "ADDON_LOADED" then
-    -- print("ADDON_LOADED")
-    local addonName = ...
-    if addonName == "LudiusPlus" then
+  -- Not ADDON_LOADED, because the character is not reliably known before PLAYER_LOGIN.
+  elseif event == "PLAYER_LOGIN" then
 
-      -- Initialize variables if needed.
-      LP_desiredUnsheath = LP_desiredUnsheath or {}
-      LP_desiredUnsheath[realmName] = LP_desiredUnsheath[realmName] or {}
-      desiredUnsheath = desiredUnsheath or LP_desiredUnsheath[realmName]
+    -- Initialize variables if needed.
+    local realmKey
+    realmKey, playerName = addon.GetCharacterKeys()
+    LP_desiredUnsheath = LP_desiredUnsheath or {}
+    LP_desiredUnsheath[realmKey] = LP_desiredUnsheath[realmKey] or {}
+    desiredUnsheath = LP_desiredUnsheath[realmKey]
 
-      -- print("ADDON_LOADED LudiusPlus", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
-      self:UnregisterEvent("ADDON_LOADED")
-      addon.SetupOrTeardownPersistentUnsheath()
-    end
+    -- print("PLAYER_LOGIN", LP_config.persistentUnsheath_autoSheath, LP_config.persistentUnsheath_autoUnsheath)
+    self:UnregisterEvent("PLAYER_LOGIN")
+    addon.SetupOrTeardownPersistentUnsheath()
 
   end
 end
@@ -244,6 +245,6 @@ function addon.SetupOrTeardownPersistentUnsheath()
 end
 
 
--- Initialize when addon loads
-eventFrame:RegisterEvent("ADDON_LOADED")
+-- Initialize when the character is known
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", EventFrameScript)

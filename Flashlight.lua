@@ -131,6 +131,9 @@ end
 
 
 local function SetupDisabledNotification()
+  -- The module and its options do not exist on WoW Forever, so pointing there would only confuse.
+  if addon.isForever then return end
+
   local hotkey = GetBindingKey(flashlightBindingName)
   if hotkey then
     ClearOverrideBindings(torchToggleButton)
@@ -149,7 +152,7 @@ local function EventFrameScript(self, event, ...)
     local eventItemID = ...
     if eventItemID == itemID and addon.HasFlashlightToy() then
       -- Toy was just obtained! Transition to operational mode
-      if LP_config and LP_config.flashlight_enabled then
+      if addon.IsFlashlightActive() then
         -- Unregister toy tracking events first
         self:UnregisterEvent("NEW_TOY_ADDED")
         self:UnregisterEvent("TOYS_UPDATED")
@@ -171,13 +174,13 @@ local function EventFrameScript(self, event, ...)
   end
 
   if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_DISABLED" then
-    if LP_config and LP_config.flashlight_enabled then
+    if addon.IsFlashlightActive() then
       UpdateMacros()
     end
 
   elseif event == "UPDATE_BINDINGS" then
     ClearOverrideBindings(torchToggleButton)
-    if LP_config and LP_config.flashlight_enabled then
+    if addon.IsFlashlightActive() then
       UpdateMacros()
     else
       SetupDisabledNotification()
@@ -258,7 +261,7 @@ local function EventFrameScript(self, event, ...)
 
   elseif event == "PLAYER_LOGIN" then
     playerLoginFired = true
-    if LP_config and LP_config.flashlight_enabled then
+    if addon.IsFlashlightActive() then
       UpdateMacros()
     else
       SetupDisabledNotification()
@@ -329,8 +332,14 @@ local function TeardownFlashlight()
 end
 
 
+-- The Cave Spelunker's Torch does not exist on WoW Forever.
+function addon.IsFlashlightActive()
+  return not addon.isForever and LP_config and LP_config.flashlight_enabled and true or false
+end
+
+
 function addon.SetupOrTeardownFlashlight()
-  if LP_config and LP_config.flashlight_enabled then
+  if addon.IsFlashlightActive() then
     SetupFlashlight()
   else
     TeardownFlashlight()
